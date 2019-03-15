@@ -1,0 +1,1 @@
+select insert_range_into_calendar('9/01/18','05/03/19');

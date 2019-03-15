@@ -1,0 +1,140 @@
+Shift_Name, Start_Name, End_Time, DOW,cert_required,number_needed
+Park Open Lead,7:30 am,10:00 am,monday,Park Lead,1
+Park Open,7:30 am,10:00 am,monday,Park 1,3
+Park Open Lead,7:30 am,10:00 am,tuesday,Park Lead,1
+Park Open,7:30 am,10:00 am,tuesday,Park 1,3
+Park Open Lead,7:30 am,10:00 am,wednesday,Park Lead,1
+Park Open,7:30 am,10:00 am,wednesday,Park 1,3
+Park Open Lead,7:30 am,10:00 am,thursday,Park Lead,1
+Park Open,7:30 am,10:00 am,thursday,Park 1,3
+Park Open Lead,7:30 am,10:00 am,friday,Park Lead,1
+Park Open,7:30 am,10:00 am,friday,Park 1,3
+Park Open Lead,7:30 am,10:00 am,saturday,Park Lead,1
+Park Open,7:30 am,10:00 am,saturday,Park 1,3
+Park Open Lead,7:30 am,10:00 am,sunday,Park Lead,1
+Park Open,7:30 am,10:00 am,sunday,Park 1,3
+Park Night Lead,3:30 pm,8:30 pm,monday,Park Lead,1
+Park Night,3:30 pm,8:30 pm,monday,Park 1,1
+Park Night/lineup,3:30 pm,5:00 pm,monday,Park 1,1
+Park Night/lineup,7:00 pm,8:30 pm,monday,Park 1,1
+Park Night Lead,3:30 pm,8:30 pm,tuesday,Park Lead,1
+Park Night,3:30 pm,8:30 pm,tuesday,Park 1,1
+Park Night/lineup,3:30 pm,5:00 pm,tuesday,Park 1,1
+Park Night/lineup,7:00 pm,8:30 pm,tuesday,Park 1,1
+Park Night Lead,3:30 pm,8:30 pm,wednesday,Park Lead,1
+Park Night,3:30 pm,8:30 pm,wednesday,Park 1,1
+Park Night/lineup,3:30 pm,5:00 pm,wednesday,Park 1,1
+Park Night/lineup,7:00 pm,8:00 pm,wednesday,Park 1,1
+Park Night Lead,3:30 pm,8:30 pm,thursday,Park Lead,1
+Park Night 1,3:30 pm,8:30 pm,thursday,Park 1,1
+Park Night 2,3:30 pm,8:30 pm,thursday,Park 1,1
+Park Night 3,5:00 pm,8:00 pm,thursday,Park 1,1
+Park Night Lead,3:30 pm,8:30 pm,friday,Park Lead,1
+Park Night 1,3:30 pm,8:30 pm,friday,Park 1,1
+Park Night 2,3:30 pm,8:30 pm,friday,Park 1,1
+Park Night 3,5:00 pm,8:00 pm,friday,Park 1,1
+Park Night Lead,3:30 pm,8:30 pm,saturday,Park Lead,1
+Park Night,3:30 pm,8:30 pm,saturday,Park 1,1
+Park Night/Lineup,3:30 pm,5:00 pm,saturday,Park 1,1
+Park Night/Lineup,6:00 pm,8:00 pm,saturday,Park 1,1
+Park Night Lead,3:30 pm,8:30 pm,sunday,Park Lead,1
+Park Night,3:30 pm,8:30 pm,sunday,Park 1,1
+Park Night/Lineup,3:30 pm,5:00 pm,sunday,Park 1,1
+Park Night/Lineup,6:00 pm,8:00 pm,sunday,Park 1,1
+Brigade SB,9:30 am,2:30 pm,saturday,SB Instructor,2
+Brigade Ski,9:30 am,2:30 pm,saturday,Ski Instructor,10
+Ski Wee,9:30 am,2:30 pm,saturday,Ski Instructor,10
+Park Runners SB,9:30 am,2:30 pm,saturday,Level 1 Park SB,2
+Mountain Runners SB,9:30 am,2:30 pm,saturday,Ski Instructor,3
+SB Lineup Sup,10:00 am,11:30 pm,monday,SB Lineup Sup,1
+SB Lineup Sup,1:00 pm,2:30 pm,monday,SB Lineup Sup,1
+SB Lineup Sup,4:00 pm,7:00 pm,monday,SB Lineup Sup,1
+SB Lineup Sup,4:00 pm,7:00 pm,tuesday,SB Lineup Sup,1
+SB Lineup Sup,4:00 pm,7:00 pm,wednesday,SB Lineup Sup,1
+SB Lineup Sup,4:00 pm,7:00 pm,thursday,SB Lineup Sup,1
+SB Lineup Sup,4:00 pm,7:00 pm,friday,SB Lineup Sup,1
+SB Lineup Sup,4:00 pm,5:00 pm,saturday,SB Lineup Sup,1
+Lineup 10am Ski,10:00 am,11:30 am,monday,Ski Instructor,5
+Lineup 10am CLC Ski,10:00 am,11:30 am,monday,Ski Instructor,1
+Lineup 1pm Ski,1:00 pm,2:30 pm,monday,Ski Instructor,5
+Lineup 1pm CLC Ski,1:00 pm,2:30 pm,monday,Ski Instructor,5
+Lineup 4pm Ski,4:00 pm, 5:00 pm,monday,Ski Instructor,3
+Lineup 5pm Ski,5:00 pm,6:00 pm,monday,Ski Instructor,5
+Lineup 6pm Snowboard,6:00 pm,7:00 pm,monday,Ski Instructor,3
+Lineup 10am Snowboard,10:00 am,11:30 am,monday,SB Instructor,4
+Lineup 10am CLC SB,10:00 am,11:30 am,monday,SB Instructor,1
+Lineup 1pm Snowboard,1:00 pm,2:30 pm,monday,SB Instructor,3
+Lineup 4pm Snowboard,4:00 pm, 5:00 pm,monday,SB Instructor,3
+Lineup 5pm Snowboard,5:00 pm,6:00 pm,monday,SB Instructor,5
+Lineup 6pm Snowboard,6:00 pm,7:00 pm,monday,SB Instructor,3
+Lineup 10am Ski,10:00 am,11:30 am,tuesday,Ski Instructor,3
+Lineup 1pm Ski,1:00 pm,2:30 pm,tuesday,Ski Instructor,3
+Lineup 4pm Ski,4:00 pm, 5:00 pm,tuesday,Ski Instructor,3
+Lineup 5pm Ski,5:00 pm,6:00 pm,tuesday,Ski Instructor,5
+Lineup 6pm Ski,6:00 pm,7:00 pm,tuesday,Ski Instructor,5
+Lineup 10am Snowboard,10:00 am,11:30 am,tuesday,SB Instructor,3
+Lineup 1pm Snowboard,1:00 pm,2:30 pm,tuesday,SB Instructor,3
+Lineup 4pm Snowboard, 4:00 pm, 5:00 pm,tuesday,SB Instructor,3
+Lineup 5pm Snowboard,5:00 pm,6:00 pm,tuesday,SB Instructor,5
+Lineup 6pm Snowboard,6:00 pm,7:00 pm,tuesday,SB Instructor,3
+Lineup 10am Ski,10:00 am,11:30 am,wednesday,Ski Instructor,3
+Lineup 1pm Ski,1:00 pm,2:30 pm,wednesday,Ski Instructor,3
+Lineup 4pm Ski,4:00 pm, 5:00 pm,wednesday,Ski Instructor,3
+Lineup 5pm Ski,5:00 pm,6:00 pm,wednesday,Ski Instructor,5
+Lineup 6pm Ski,6:00 pm,7:00 pm,wednesday,Ski Instructor,3
+Lineup 10am Snowboard,10:00 am,11:30 am,wednesday,SB Instructor,3
+Lineup 1pm Snowboard,1:00 pm,2:30 pm,wednesday,SB Instructor,3
+Lineup 4pm Snowboard,4:00 pm, 5:00 pm,wednesday,SB Instructor,3
+Lineup 5pm Snowboard,5:00 pm,6:00 pm,wednesday,SB Instructor,5
+Lineup 6pm Snowboard,6:00 pm,7:00 pm,wednesday,SB Instructor,3
+Lineup 10am Ski,10:00 am,11:30 am,thursday,Ski Instructor,3
+Lineup 1pm Ski,1:00 pm,2:30 pm,thursday,Ski Instructor,3
+Lineup 4pm Ski,4:00 pm, 5:00 pm,thursday,Ski Instructor,3
+Lineup 5pm Ski,5:00 pm,6:00 pm,thursday,Ski Instructor,5
+Lineup 6pm Ski,6:00 pm,7:00 pm,thursday,Ski Instructor,3
+Lineup 10am Snowboard,10:00 am,11:30 am,thursday,SB Instructor,3
+Lineup 1pm Snowboard,1:00 pm,2:30 pm,thursday,SB Instructor,3
+Lineup 4pm Snowboard,4:00 pm, 5:00 pm,thursday,SB Instructor,3
+Lineup 5pm Snowboard,5:00 pm,6:00 pm,thursday,SB Instructor,5
+Lineup 6pm Snowboard,6:00 pm,7:00 pm,thursday,SB Instructor,3
+Lineup 10am Ski,10:00 am,11:30 am,friday,Ski Instructor,3
+Lineup 1pm Ski,1:00 pm,2:30 pm,friday,Ski Instructor,3
+Lineup 4pm Ski,4:30 pm, 5:30 pm,friday,Ski Instructor,3
+Lineup 5pm Ski,5:30 pm,6:30 pm,friday,Ski Instructor,5
+Lineup 6pm Ski,6:30 pm,7:30 pm,friday,Ski Instructor,3
+Lineup 10am Snowboard,10:00 am,11:30 am,friday,SB Instructor,3
+Lineup 1pm Snowboard,1:00 pm,2:30 pm,friday,SB Instructor,3
+Lineup 4pm Snowboard,4:30 pm, 5:30 pm,friday,SB Instructor,3
+Lineup 5pm Snowboard,5:30 pm,6:30 pm,friday,SB Instructor,3
+Lineup 6pm Snowboard,6:30 pm,7:30 pm,friday,SB Instructor,3
+Lineup 10am Ski,10:00 am,11:30 am,saturday,Ski Instructor,3
+Lineup 1pm Ski,1:00 pm,2:30 pm,saturday,Ski Instructor,3
+Lineup 10am Ski CLC,10:00 am,12:00 am,saturday,Ski Instructor,3
+Lineup 1pm Ski CLC,1:00 pm,3:00 pm,saturday,Ski Instructor,3
+Lineup 4pm Ski,4:00 pm, 5:00 pm,saturday,Ski Instructor,2
+Lineup 5pm Ski FF,5:00 pm,6:00 pm,saturday,Ski Instructor,7
+Lineup 5pm Ski FF CLC,5:00 pm,6:30 pm,saturday,Ski Instructor,7
+Lineup 10am Snowboard,10:00 am,11:30 am,saturday,SB Instructor,3
+Lineup 1pm Snowboard,1:00 pm,2:30 pm,saturday,SB Instructor,3
+Lineup 5pm Snowboard FF,5:00 pm,6:00 pm,saturday,SB Instructor,3
+Lineup 10am Snowboard CLC,10:00 am,12:00 am,saturday,SB Instructor,3
+Lineup 1pm Snowboard CLC,1:00 pm,3:00 pm,saturday,SB Instructor,3
+Lineup 5pm Snowboard CLC FF,5:00 pm,6:30 pm,saturday,SB Instructor,3
+Lineup 10am Ski,10:00 am,11:30 am,sunday,Ski Instructor,3
+Lineup 10am Ski CLC,10:00 am,12:00 am,sunday,Ski Instructor,3
+Lineup 1pm Ski,1:00 pm,2:30 pm,sunday,Ski Instructor,3
+Lineup 1pm Ski CLC,1:00 pm,3:00 pm,sunday,Ski Instructor,3
+Lineup 4pm Ski,4:00 pm, 5:00 pm,sunday,Ski Instructor,2
+Lineup 5pm Ski CLC,5:00 pm,6:00 pm,sunday,Ski Instructor,4
+Lineup 5pm Ski FF,5:00 pm,6:00 pm,sunday,Ski Instructor,7
+Lineup 10am Snowboard CLC,10:00 am,12:00 am,sunday,SB Instructor,3
+Lineup 1pm Snowboard CLC,1:00 pm,3:00 pm,sunday,SB Instructor,3
+Lineup 10am Snowboard,10:00 am,11:30 am,sunday,SB Instructor,3
+Lineup 1pm Snowboard,1:00 pm,2:30 pm,sunday,SB Instructor,3
+Lineup 5pm Snowboard FF,5:00 pm,6:00 pm,sunday,SB Instructor,3
+Ladies Brigade,10:00,12:00 pm,wednesday,Ski Instructor,5
+CLC Cashier,8:00 am,3:30 pm,saturday,Cashier,1
+CLC Cashier,9:00 am,6:30 pm,saturday,Cashier,1
+CLC Manager,8:00 am, 6:30 pm,saturday,CLC Manager,1
+CLC Sup,9:00 am,3:30 pm,saturday,CLC Sup,1
+CLC Rentals,8:00 am,5:30 pm,saturday,Ski Tech,1
