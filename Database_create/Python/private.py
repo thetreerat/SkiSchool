@@ -10,9 +10,25 @@ import os
 import psycopg2
                 
         
-class private(object):
-    def __init__(self):
+class private(shift):
+    def __init__(self,
+                 shift_name=None,
+                 start_time=None,
+                 end_time=None,
+                 html_class=None,
+                 date=None,
+                 sid=None,
+                 ct=None,
+                 ct_title=None):
         """Init a private lesson object"""
+        shift.__init__(self, shift_name=shift_name,
+                             start_time=start_time,
+                             end_time=end_time,
+                             html_class=html_class,
+                             date=date,
+                             sid=sid,
+                             ct=ct,
+                             ct_title=ct_title)
         self.student_firstname = ''
         self.student_lastname = ''
         self.contact_firstname = ''
@@ -21,9 +37,6 @@ class private(object):
         self.contact_relation = ''
         self.student_age = None
         self.student_skill_level = ''
-        self.date = None
-        self.start_time = None
-        self.end_time = None
         self.lesson_length = None
         self.lesson_type = None
         self.discipline = None
@@ -31,7 +44,7 @@ class private(object):
         self.instructor_firstname = None
         self.instructor_lastname = None
     
-    def check_add_shift():
+    def check_add_shift(self):
         if self.date==None:
             print('date not set!')
         elif self.start_time==None:
@@ -39,11 +52,14 @@ class private(object):
             return False
         elif self.end_time==None:
             print('end time not set!')
-        elif self.disipline==None:
+            return False
+        elif self.discipline==None:
             print('disipline not set!')
+            return False
         else:
-            
-
+            self.set_shift_title()
+            return True
+    
     def PrivateMenu(self):        
         print("""     Private screen
      --------------------------------
@@ -61,16 +77,17 @@ class private(object):
      Ski/SB/Tele:          %s
      
      --------------------------------
-     NAME    - Input Student Name
-     CONTACT - Input Contact Name
-     PHONE   - Input Phone
-     AGE     - Input Student Age
-     DATE    - Input Lesson Date
-     TIME    - Input lesson Time
-     TYPE    - Input lesson type A/D
-     LIST    - List instructors
-     LOAD - Load Entered Data into Table
-     EXIT - Quit or Exit program""" % (self.student_firstname,
+     NAME      - Input Student Name
+     CONTACT   - Input Contact Name
+     PHONE     - Input Phone
+     AGE       - Input Student Age
+     DATE      - Input Lesson Date
+     DISAPLINE - Input Ski/Tele/SB
+     TIME      - Input lesson Time
+     TYPE      - Input lesson type A/D
+     LIST      - List instructors
+     LOAD      - Load Entered Data into Table
+     EXIT      - Quit or Exit program""" % (self.student_firstname,
                                        self.student_lastname,
                                        self.student_age,
                                        self.contact_firstname,
@@ -98,14 +115,20 @@ class private(object):
             
         return phone
     
+    def set_shift_title(self):
+        """set shift title"""
+        self.shift_title = """Private - %s %s %s""" % (self.lesson_type, self.student_firstname, self.discipline )
+        
     def list_avalible(self):
         if self.check_add_shift():
+            self.add_shift_db()
+            print("""shift sid: %s""" % (self.sid))
             c = psycopg2.connect(user="postgres",
                                  port="5432",
                                  host="127.0.0.1",
                                  database="skischool")
             cur = c.cursor()
-            cur.callproc('list_availble', [142,])
+            cur.callproc('list_availble', [self.sid,])
             result = cur.fetchall()
             I = instructors()
             for r in result:
@@ -118,6 +141,9 @@ class private(object):
             cur.close()
             c.close()
             I.list_instructors()
+            return True
+        else:
+            return False
         
 if __name__ == '__main__':
     l = private()
@@ -145,8 +171,15 @@ if __name__ == '__main__':
                 l.contact_phone = raw_input('Contact Phone: ')
                 break
             elif answer in ['TYPE','TYP','TY']:
-                l.lesson_type = raw_input('A/D: ')
-                break
+                l.lesson_type = raw_input('A/D: ').upper()
+                if l.lesson_type not in ['A','D']:
+                    answer = raw_input("""%s is not valid A or D only: """ % (l.lesson_type))
+                else:
+                    if l.lesson_type=='A':
+                        l.html_class='Assigned'
+                    else:
+                        l.html_class='Demand'
+                    break
             elif answer in ['AGE', 'AG', 'A']:
                 l.student_age = raw_input('Student Age: ')
                 break
@@ -162,7 +195,11 @@ if __name__ == '__main__':
                 l.date = raw_input('Lesson Date: ')
                 break
             elif answer=='D':
-                answer = raw_input('DATE or DISCIPLINE? ')
+                answer = raw_input('DATE or DISCIPLINE? ').upper()
+            elif answer=='L':
+                answer = raw_input('LIST or LOAD? ').upper()
+            elif answer=='T':
+                answer = raw_input('TIME or TYPE? ').upper
             elif answer in ['HAL']:
                 os.system('cls')
                 print("He is a good guy")
@@ -170,8 +207,11 @@ if __name__ == '__main__':
                 os.system('cls')
                 break
             elif answer in ['LIST','LIS','LI']:
-                l.list_avalible()
-                l.eid = raw_input('employee id: ')
+                e = l.list_avalible()
+                if e:
+                    l.eid = raw_input('employee id: ')
+                else:
+                    dump = raw_input('ready? ')
                 break
             elif answer in ['LOAD','LOA','LO']:
                 break
