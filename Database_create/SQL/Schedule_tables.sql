@@ -49,8 +49,8 @@ Create table certs
 Create table Cert_Template
     (  CT serial primary key,
        Title character varying(50),
-       Org character varying(30),
-       html_class varchar(20) defalut 'standard'
+       Org character varying(30)
+       
     )
 ;
 
@@ -166,7 +166,8 @@ create table shifts
       ct integer default 1,
       cancelled boolean default False,
       publish integer default 0,
-      SaID integer default 1
+      SaID integer default 1,
+      html_class varchar(20) defalut 'standard'
     )
 ;
         

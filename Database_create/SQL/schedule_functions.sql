@@ -355,7 +355,47 @@ begin
 end; $$
 LANGUAGE plpgsql;
 
--- end of add_emp_cert_title(p_firstname,p_lastname,p_season_name, p_start_date)                                   
+-- end of add_emp_cert_title(p_firstname,p_lastname,p_season_name, p_start_date)
+
+create function add_shift(p_shift_name varchar(50),
+                          p_start_time time,
+                          p_end_time time,
+                          p_shift_date date,
+                          p_ct_title varchar(50),
+                          p_html_class varchar) returns varchar(150) as $$
+declare
+    p_ct integer;
+    p_sid integer;
+begin
+    select into p_ct ct
+    from cert_template
+    where title = p_ct_title;
+
+    insert into shifts (shift_name,
+                        start_time,
+                        end_time,
+                        shift_date,
+                        ct,
+                        html_class)
+    values (p_shift_name,
+            p_start_time,
+            p_end_time,
+            p_shift_date,
+            p_ct,
+            p_html_class);
+
+    select into p_sid max(sid)
+    from shifts
+    where shift_name=p_shift_name and
+          start_time=p_start_time and
+          end_time=p_end_time and
+          shift_date=p_shift_date;
+    return p_sid;
+    
+end; $$
+LANGUAGE plpgsql;
+
+-- end add_shift(p_shift_name, p_start_time, p_end_time, p_shift_date,p_ct_title, p_html_class)
 
 create function add_shift(p_shift_name varchar(50),
                           p_start_time time,
@@ -715,11 +755,10 @@ begin
                         s.shift_name,
                         s.start_time,
                         s.end_time,
-                        c.html_class
+                        s.html_class
                         
                  from shifts as s
                  inner join employee as e on s.eid=e.eid
-                 inner join cert_template as c on c.ct=s.ct
                  where s.shift_date=p_shift_date
                  order by e.lastname,e.firstname,s.start_time,s.end_time;
                 

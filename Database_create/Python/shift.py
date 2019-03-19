@@ -65,11 +65,11 @@ class shift(object):
                              host="127.0.0.1",
                              database="skischool")
         cur = c.cursor()
-        cur.callproc('add_shift', [self.shift_name,self.start_time,self.end_time,self.date, self.ct_title,])
+        cur.callproc('add_shift', [self.shift_name,self.start_time,self.end_time,self.date, self.ct_title, self.html_class, ])
         result = cur.fetchall()
 
         for r in result:
-            print(r[0])
+            print(r)
             self.sid = r[0]
             self.print_shift()
         c.commit()

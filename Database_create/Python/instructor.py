@@ -35,12 +35,29 @@ class instructors(object):
     
     def checkName(self, Name):
         for i in self.ilist:
-            if i.instructor_name(self)==Name:
+            if i.instructor_name()==Name:
                 return i
         return None
     
     def list_instructors(self):
         """Print list of instructors"""
+        if len(self.ilist)>0:
+            for i in self.ilist:
+                i.print_instructor()
+        else:
+            print("""No instructors in list!!""")
+    
+    def get_name(self, eid, return_type='INDEX'):
+        """return index or name from eid"""
+        index = 0
         for i in self.ilist:
-            i.print_instructor()
-
+            #print("""%s - %s""" % (index, i.eid))
+            if int(i.eid)==int(eid):
+                break
+            index+=1
+        rt=return_type.upper()
+        if rt=='INDEX':
+            return index
+        elif rt=='NAME':
+            return self.ilist[index].instructor_name()
+        

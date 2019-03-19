@@ -57,7 +57,10 @@ class private(shift):
             print('disipline not set!')
             return False
         else:
-            self.set_shift_title()
+            if self.shift_name==None:    
+                self.set_shift_name()
+            else:
+                print("""Bad shift name: %s""" % (self.shift_name))
             return True
     
     def PrivateMenu(self):        
@@ -115,14 +118,35 @@ class private(shift):
             
         return phone
     
-    def set_shift_title(self):
+    def set_discipline(self):
+        """collect discipline and set discpline and ct_title"""
+        self.discipline = raw_input('Ski/SB/Tele: ').capitalize()
+        if self.discipline=='Ski':
+            self.ct_title = 'Ski Instructor'
+            return True
+        elif self.discipline=='Sb':
+            self.ct_title = 'SB Instructor'
+            self.discipline = self.discipline.upper()
+            return True
+        elif self.discipline=='Tele':
+            self.ct_title = 'Tele Instructor'
+            return True
+        elif self.discipline in ['Exit', 'Exi', 'Ex', 'E']:
+            return False
+        else:
+            self.discipline = raw_input('please enter Ski, SB, or Tele: ')
+            self.set_discipline()
+            
+    def set_shift_name(self):
         """set shift title"""
-        self.shift_title = """Private - %s %s %s""" % (self.lesson_type, self.student_firstname, self.discipline )
+        self.shift_name = """Private - %s %s %s""" % (self.lesson_type, self.student_firstname, self.discipline )
+        print(self.shift_name)
         
-    def list_avalible(self):
+    def list_avalible(self, I):
         if self.check_add_shift():
-            self.add_shift_db()
-            print("""shift sid: %s""" % (self.sid))
+            if self.sid==None:
+                self.add_shift_db() 
+            print("""shift sid: %s""" % (self.sid))     
             c = psycopg2.connect(user="postgres",
                                  port="5432",
                                  host="127.0.0.1",
@@ -130,7 +154,6 @@ class private(shift):
             cur = c.cursor()
             cur.callproc('list_availble', [self.sid,])
             result = cur.fetchall()
-            I = instructors()
             for r in result:
                 i = instructor()
                 i.eid = r[0]
@@ -145,6 +168,61 @@ class private(shift):
         else:
             return False
         
+    def print_private_all(self):
+        print ("""shift_name = %s,
+start_time = %s,
+end_time = %s,
+html_class = %s,
+date = %s,
+sid = %s,
+ct = %s,
+ct_title = %s
+student_firstname = %s
+self.student_lastname = %s
+self.contact_firstname = %s
+self.contact_lastname = %s
+self.contact_phone = %s
+self.contact_relation = %s
+self.student_age = %s
+self.student_skill_level = %s
+self.lesson_length = %s
+self.lesson_type = %s
+self.discipline = %s
+self.eid = %s
+self.instructor_firstname = %s
+self.instructor_lastname = %s""" % (self.shift_name,
+                                    self.start_time,
+                                    self.end_time,
+                                    self.html_class,
+                                    self.date,
+                                    self.sid,
+                                    self.ct,
+                                    self.ct_title,
+                                    self.student_firstname,
+                                    self.student_lastname,
+                                    self.contact_firstname,
+                                    self.contact_lastname,
+                                    self.contact_phone,
+                                    self.contact_relation,
+                                    self.student_age,
+                                    self.student_skill_level,
+                                    self.lesson_length,
+                                    self.lesson_type,
+                                    self.discipline,
+                                    self.eid,
+                                    self.instructor_firstname,
+                                    self.instructor_lastname))
+
+    def list_employees(self):
+        I = instructors()
+        e = l.list_avalible(I)
+        if e:
+            l.eid = raw_input('employee id: ')
+            name = I.get_name(l.eid, 'Name')
+            self.instructor_firstname, self.instructor_lastname = name.split()
+        else:
+            dump = raw_input('ready? ')
+       
 if __name__ == '__main__':
     l = private()
     print("""New Private Lesson""")
@@ -189,7 +267,7 @@ if __name__ == '__main__':
                 l.lesson_length = datetime.strptime(l.end_time, '%H:%M') - datetime.strptime(l.start_time, '%H:%M')
                 break
             elif answer in ['DISCIPLINE','DISCIPLIN','DISCIPLI','DISCIPL','DISCIP','DISCI','DISC','DIS','DI']:
-                l.discipline = raw_input('Ski/SB/Tele: ')
+                l.set_discipline()
                 break
             elif answer in ['DATE','DAT','DA']:
                 l.date = raw_input('Lesson Date: ')
@@ -202,16 +280,12 @@ if __name__ == '__main__':
                 answer = raw_input('TIME or TYPE? ').upper
             elif answer in ['HAL']:
                 os.system('cls')
-                print("He is a good guy")
+                l.print_private_all()
                 raw_input('<enter>')
                 os.system('cls')
                 break
             elif answer in ['LIST','LIS','LI']:
-                e = l.list_avalible()
-                if e:
-                    l.eid = raw_input('employee id: ')
-                else:
-                    dump = raw_input('ready? ')
+                l.list_employees()
                 break
             elif answer in ['LOAD','LOA','LO']:
                 break
