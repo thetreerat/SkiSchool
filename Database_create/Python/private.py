@@ -43,7 +43,28 @@ class private(shift):
         self.eid = None
         self.instructor_firstname = None
         self.instructor_lastname = None
-    
+        
+    def add_private_db(self):
+        """write private info to database """
+        c = psycopg2.connect(user="postgres",
+                             port="5432",
+                             host="127.0.0.1",
+                             database="skischool")
+        cur = c.cursor()
+        cur.callproc('add_private', [self.sid, self.student_firstname, self.student_lastname,
+                                     self.student_skill_level,
+                                     (self.lesson_length.total_seconds()/3600), self.contact_firstname,
+                                     self.contact_lastname, self.contact_phone, self.lesson_type,
+                                     self.discipline, None, None, ])
+        result = cur.fetchall()
+
+        
+        #self.print_shift()
+        c.commit()
+        cur.close()
+        c.close()
+        return True
+        
     def check_add_shift(self):
         if self.date==None:
             print('date not set!')
@@ -68,6 +89,7 @@ class private(shift):
      --------------------------------
      Student Name:         %s %s
      Student Age:          %s
+     Student Skill Level:  %s
      Contact Name:         %s %s
      Contact Relationship: %s
      Contact Phone:        %s
@@ -93,6 +115,7 @@ class private(shift):
      EXIT      - Quit or Exit program""" % (self.student_firstname,
                                        self.student_lastname,
                                        self.student_age,
+                                       self.student_skill_level,
                                        self.contact_firstname,
                                        self.contact_lastname,
                                        self.contact_relation,
@@ -213,15 +236,24 @@ self.instructor_lastname = %s""" % (self.shift_name,
                                     self.instructor_firstname,
                                     self.instructor_lastname))
 
-    def list_employees(self):
+    def set_instructor(self):
         I = instructors()
         e = l.list_avalible(I)
         if e:
             l.eid = raw_input('employee id: ')
             name = I.get_name(l.eid, 'Name')
             self.instructor_firstname, self.instructor_lastname = name.split()
+            self.add_employee_shift()
         else:
             dump = raw_input('ready? ')
+    
+    def set_name(self):
+        I = raw_input('Student First Name: ')
+        if len(list(I.split()))>0:
+            l.student_firstname, l.student_last
+        l.student_firstname = raw_input
+        l.student_lastname = raw_input('Student Last Name: ')
+
        
 if __name__ == '__main__':
     l = private()
@@ -242,8 +274,7 @@ if __name__ == '__main__':
                 l.contact_relation = raw_input('Contact Relationship: ')
                 break
             elif answer in ['NAME','NAM','NA','N']:
-                l.student_firstname = raw_input('Student First Name: ')
-                l.student_lastname = raw_input('Student Last Name: ')
+                l.set_name()
                 break
             elif answer in ['PHONE','PHON','PHO','PH','P']:
                 l.contact_phone = raw_input('Contact Phone: ')
@@ -285,9 +316,10 @@ if __name__ == '__main__':
                 os.system('cls')
                 break
             elif answer in ['LIST','LIS','LI']:
-                l.list_employees()
+                l.set_instructor()
                 break
             elif answer in ['LOAD','LOA','LO']:
+                l.add_private_db()
                 break
             else:
                 print(answer)

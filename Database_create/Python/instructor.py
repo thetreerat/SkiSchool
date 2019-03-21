@@ -1,6 +1,13 @@
 # Author: Harold Clark
 # Copyright Harold Clark 2019
 #
+class person(object):
+    def __init__(self):
+        self.firstname = None
+        self.lastname = None
+        self.DOB = None
+        self._Age = None
+        
 class instructor(object):
     def __init__(self):
         """Init a instructor object"""
