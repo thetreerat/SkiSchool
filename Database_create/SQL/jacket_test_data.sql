@@ -1,10 +1,24 @@
 /* insert into employee (FirstName, LastName) values
   ('Damaged','Jacket'),
   ('New','Jacket'),
-  ('Assinged','Jacket'),
+  ('Unassinged','Jacket'),
   ('Missing', 'Jacket')
 ;
 */
+insert into location (location_name, location_size)
+values ('Admin Office','Office'),
+       ('41','Standard'),
+       ('42', 'Standard'),
+       ('B10', 'Big Blue');
+
+insert into jacket_condition_template (condition)
+values ('New'),
+       ('Like New'),
+       ('Good'),
+       ('Fair'),
+       ('Damaged - Repairable'),
+       ('Damaged - not Repairable');
+
 insert into jacket (jacket_type,jacket_number, modifiy_date, jacket_size, EID) values
   ('Park','1', now() , 'XS', (select EID from employee where FirstName like 'New' and LastName like 'Jacket')),
   ('Park','2',now(), 'XS', (select EID from employee where FirstName like 'New' and LastName like 'Jacket')),

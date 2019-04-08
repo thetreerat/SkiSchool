@@ -66,20 +66,20 @@ create table DayOff
 
 create table employee
      (  EID serial primary key,
-        LastName character varying(45),
-        FirstName character varying(45),
+        LastName character varying(30),
+        FirstName character varying(30),
         suffix varchar(5),
-        NickName character varying(45),
+        NickName character varying(30),
         DOB date,
         Phone_cell character varying(11),
         Phone_cell_publish Boolean,
-        Phone_2_test character varying(20),
+        Phone_2_text character varying(20),
         Phone_2 character varying(11),
         Phone_3_text character varying(20),
         Phone_3 character varying(11),
         Email character varying(50),
         Email_SMS character varying(50),
-        Emp_ID character varying(15),
+        payroll_id character varying(15) unique,
         PSIA_ID character varying(15),
         AASI_ID character varying(15)
     )
@@ -88,20 +88,18 @@ create table employee
 create table employee_availability 
     (   EAID serial primary key,
         EID integer,
-        DOW character varying(25),
+        DOW character varying(10),
         Start_Time time,
         End_Time time,
-        SaID integer default 1
+        SaID integer default 1,
+        foreign key (eid) references employee (EID) on delete restrict,
+        foreign key (said) references seasons (said) on delete restrict
     )
 ;
 
-create table employee_hired_season
-    (  EHID serial primary key,
-       SaID integer default 1,
-       EID integer,
-       ES_date date,
-       EE_date date
-       
+create table employee_returning_templates
+    (  rt serial primary key,
+       return_title varchar(20)
     );
     
 create table employee_seasons
@@ -110,8 +108,10 @@ create table employee_seasons
       eid integer,
       season_start_date date,
       season_end_date date,
+      employee_returning integer,
       foreign key (SaID) references seasons (SaID) on delete restrict,
-      foreign key (eid) references employee (EID) on delete restrict
+      foreign key (eid) references employee (EID) on delete restrict,
+      foreign key (returning) references employee_returning_templates (rt) on delete restrict
     );
     
 create table private_lesson
@@ -128,7 +128,6 @@ create table private_lesson
      lesson_disapline varchar(4),
      s2_firstname varchar(30),
      s2_lastname varchar(30),
-     assigned_eid integer,
      checked_in boolean,
      payed boolean,
      Notes varchar(250),

@@ -247,12 +247,7 @@ self.instructor_lastname = %s""" % (self.shift_name,
         else:
             dump = raw_input('ready? ')
     
-    def set_name(self):
-        I = raw_input('Student First Name: ')
-        if len(list(I.split()))>0:
-            l.student_firstname, l.student_last
-        l.student_firstname = raw_input
-        l.student_lastname = raw_input('Student Last Name: ')
+    
 
        
 if __name__ == '__main__':
