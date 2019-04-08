@@ -424,8 +424,8 @@ class instructors(object):
                 i.jlist = jackets()
                 i.jlist.get_employee_jackets_db(i.eid)
             if i.clist==None and i.eid!=None:
-                i.clist= certs()
-                i.clist.get_employee_certs_db(i.eid)
+                i.clist= certs(eid=i.eid, list_type='Employee')
+                i.clist.get_employee_certs_db()
             if i.llist==None and i.eid!=None:
                 i.llist = locations()
                 i.llist.get_locations_employee_db(i.eid)

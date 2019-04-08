@@ -148,11 +148,24 @@ class certs(object):
         self.eid = eid
         self.list_type = list_type
 
-    def add(self, item_index=None, options=None):
+    def add(self, item_index=False, options=None):
         """add new cert to list"""
-        if self.list_type=='Employee':
+        if self.list_type in ['Employee','EditEmp']:
+            if self.eid!=None:
+                if not item_index:
+                    item_index = self.get_item_index()
+                cdate = now.strftime('%d/%m%Y')
+                adate = raw_input('Enter Date of Certification (%s)' % (cdate))
+                if adate=='':
+                    adate = cdate
+                self.alist[item_index].cert_date = adate
+                acurrent = raw_input('Is Certification current (YES/NO)?').upper()
+                if acurrent[0]=='Y':
+                    self.alist[item_index].cert_current = True
+                else:
+                    self.alist[item_index].cert_current = False
             
-        pass
+                self.alist[item_index].assign_cert(self.eid)
                 
     def checkID(self, ID):
         """check to list for ID"""
@@ -163,38 +176,40 @@ class certs(object):
 
     def answer_split(self, answer):
         count = 0
-        Item_index=False
-        Main = False
-        Action = False
+        item_index=False
+        main = False
+        action = True
         options = []
         answer = list(answer.split())
-        while len(answer)==0:
+        while len(answer)!=0:
             a = answer.pop(0)
             test = a.upper()
             if test in ['ADD', 'AD', 'A']:
-                Action = 'ADD'
+                action = 'ADD'
             elif test in ['CERT', 'CER', 'CE', 'C']:
-                Main = 'CERT'
+                main = 'CERT'
             elif test in ['DELETE', 'DELET', 'DELE', 'DEL', 'DE','D']:
-                Action = 'DELETE'            
+                action = 'DELETE'            
             elif test in ['EDIT', 'EDI', 'ED']:
-                Action = 'EDIT'
+                action = 'EDIT'
             elif test in ['EXIT','EXI','EX']:
-                Action = 'EXIT'
+                action = 'EXIT'
             elif test=='E':
-                if Main=='CERT':
-                    Action='EDIT'
+                if main=='CERT':
+                    action='EDIT'
                 elif count<1:
-                    Action = 'E'
+                    action = 'E'
                 else:
                     options.append(a)
+            elif test in ['RETURN','RETUR','RETU','RET','RE','R']:
+                action = 'RETURN'
             else:
                 try:
-                    Item_index = int(a)
+                    item_index = int(a)
                 except:
                     options.append(a)
             count += 1
-        return (main,Action, item_index, options)
+        return (main, action, item_index, options)
     
     def get_item_index(self):
         run = True
@@ -214,38 +229,46 @@ class certs(object):
             os.system('clear')
             self.print_certs()
             self.print_menu()
-            (main,Action, item_index, options) = self.answer_split(raw_input('Enter selection: '))            
-            while Action:
-                if Action=='EXIT':
+            (main,action, item_index, options) = self.answer_split(raw_input('Enter selection: '))
+            while action:
+                raw_input('ready?')
+                if action=='EXIT':
                     sys.exit(1)
-                elif Action=='EDIT':
+                elif action=='EDIT':
                     if self.list_type=='CERT':
+                        if not item_index:
+                            item_index = self.get_item_index()
                         self.clist[Item_index].edit()
                     break
                 
-                elif Action=='E':
-                    (main,Action, item_index, options) = self.answer_split(raw_input('EXIT or EDIT #'))
+                elif action=='E':
+                    (main,action, item_index, options) = self.answer_split(raw_input('EXIT or EDIT #'))
 
-                elif Action=='ADD':
-                    a = cert()
-                    self.add(answer)
+                elif action=='ADD':
+                    self.add(item_index=item_index)
                     break
                                 
-                elif answer[0] in ['RETURN','RETUR','RETU','RET','RE','R']:
+                elif action=='RETURN':
                     run=False
                     break
                 else:
                     print("""Lost in space!!!""")
-                    print(answer)
+                    print("""    Main: %s, Action: %s, item_index: %s, options: %s""" % (main, action, item_index, options))
                     dump = raw_input('ready?')
                     break
 
 
     
     def print_menu(self):
-        print("""    add, edit, return, exit, help
-    --------------------------------------------------------
-              """)
+        if self.list_type=='Cert':
+            print("""    ADD, EDIT, RETURN, EXIT, HELP""")
+    
+        elif self.list_type in ['Employee', 'EditEmp']:
+            print("""    ADD #, RETURN, EXIT, HELP""")
+        else:
+            print('    RETURN, EXIT')
+        print("""    --------------------------------------------------------
+              """)        
     
     def print_title(self):
         if self.list_type=='Employee':
@@ -255,6 +278,8 @@ class certs(object):
         elif self.list_type=='cert':
             title = """    Certs matching search ...%s
 """
+        else:
+            title = ''
         return title
 
     def print_certs(self):
@@ -267,6 +292,7 @@ class certs(object):
             for c in self.clist:
                 c.print_cert()
             print("""    ------------------------------------------------------""")
+        
         elif self.list_type in ['cert', 'EditEmp']:
             print("""%s    line Cert Title               Organization
     ---- ------------------------ -------------------""" % (title))
@@ -278,7 +304,7 @@ class certs(object):
         if self.eid!=None:
             ski_db = database()
             ski_db.connect()
-            ski_db.cur.callproc('get_employee_certs', [eid,])
+            ski_db.cur.callproc('get_employee_certs', [self.eid,])
             result = ski_db.cur.fetchall()
             for r in result:
                 c = cert()
