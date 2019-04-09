@@ -6,9 +6,9 @@ import sys
 
 class  Menu(object):
     """New Class"""
-    def __init__(self):
+    def __init__(self, menu_title='New Menu'):
         """Create New Instanace of New Class"""
-        
+        self.menu_title = menu_title
         self.menu_items = []
         self.next_ID = 0
         self.command_display = 1
@@ -65,6 +65,7 @@ class  Menu(object):
         return Item_index
     
     def help(self):
+        os.system('clear')
         self.print_help()
         raw_input('Ready? ')
 
@@ -74,7 +75,12 @@ class  Menu(object):
     def Menu(self):
         while self.menu_run:
             os.system('clear')
-            self.menu_display()
+            print("""                                 %s""" % (self.menu_title))
+            try:
+                self.menu_display()
+            except:
+                self.print_help()
+                #print("invalid display menu used for %s" % (self.menu_title))
             self.print_command_list()
             action, item_index, options  = self.split_command(raw_input('Enter Command: '))
             while action:
@@ -110,7 +116,6 @@ class  Menu(object):
             print("""%s""" % (commands))
 
     def print_help(self):
-        os.system('clear')
         print('      Menu help ...')
         print('    --------------------------------------------------------------------------------------')
         for i in self.menu_items:

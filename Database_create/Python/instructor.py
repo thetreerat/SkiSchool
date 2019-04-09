@@ -9,8 +9,6 @@ from cert import cert
 from cert import certs
 from jacket import jacket
 from jacket import jackets
-from location import location
-from location import locations
 from datetime import datetime
 from availability import availability
 from availability import availablities
@@ -18,10 +16,10 @@ from availability import availablities
 
 class person(object):
     """Class for Person Objects"""
-    def __init__(self, firstname=None, lastname=None):
+    def __init__(self, firstname=None, lastname=None, suffix=None):
         self.firstname = firstname
         self.lastname = lastname
-        self.suffix = ''
+        self.suffix = suffix
         self.nickname = None
         self.DOB = None
         self.sex = None
@@ -449,9 +447,11 @@ class instructors(object):
                 return i
         return None
     
-    def find_name(self, answer):
+    def find_name(self, options=None):
         os.system('clear')
-        print("""
+        p = person()
+        if options==None:
+            print("""
     Find employees ....
     
         wildcards
@@ -461,15 +461,21 @@ class instructors(object):
             _lark - find any name that has one letter that end in lark
             __ar% - find any name that ingoring frist to letter that has ar and any ending.
             """)
-        p = person()
-        p.set_name()
+        
+            p.set_name()
+        else:
+            try:
+                p.firstname = options[0]
+                p.lastname = options[1]
+                p.suffix = options[2]
+            except:
+                pass
         clearlist = raw_input('Clear list first Y/N (N)?').upper()
-        if clearlist!='':
+        try:
             if clearlist[0]=='Y':
                 self.clear()
-        #print (p.firstname)
-        #print (p.lastname)
-        #dump = raw_input('ready?')
+        except:
+            pass
         self.find_name_db(p.firstname, p.lastname)
         
         
@@ -534,6 +540,8 @@ class instructors(object):
      EXIT      - Quit or Exit program """)
  
         
+from location import location
+from location import locations
 
     
 if __name__ == '__main__':

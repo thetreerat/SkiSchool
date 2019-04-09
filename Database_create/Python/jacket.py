@@ -371,7 +371,8 @@ class jackets(object):
         M.add_item('Edit', '', self.edit_jacket_group)
     def new_jackets_menu(self):
         """Run menu to add New jackets"""
-        while True:
+        run = True
+        while run:
             self.print_menu()
             answer = raw_input('Please enter a selection: ').upper()
             answer = list(answer.split())
@@ -381,6 +382,9 @@ class jackets(object):
                 elif answer[0] in ['ADD', 'AD', 'A']:
                     self.add_jacket_group()
                     break
+                elif answer[0] in ['RETURN','RETUR','RETU','RET','RE','R']:
+                    run = False
+                    break
                 elif answer[0] in ['EDIT', 'EDI','ED','E']:
                     if len(answer)==1:
                         answer.append(raw_input("""Enter item number: """))
@@ -388,7 +392,7 @@ class jackets(object):
                     dump = raw_input('ready?')
                     break
                 elif answer[0] in ['LOAD', 'LOA', 'LO', 'L']:
-                    J.add_jackets_db()
+                    self.add_jackets_db()
                     break
                 else:
                     print("""Lost in space!!!""")
