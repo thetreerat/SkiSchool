@@ -5,6 +5,7 @@ import psycopg2
 import sys
 import os
 from database import database
+from menu import Menu
 
 class jacket_history(object):
     def __init__(self, history=None, in_out=None, name=None, update_user=None, eid=None):
@@ -364,7 +365,10 @@ class jackets(object):
             self.jlist.append(j)
             
         ski_db.close()
-        
+    def new_jackets_menu2(self):
+        M = Menu()
+        M.add_item('Add', 'Add New Group', self.add_jacket_group)
+        M.add_item('Edit', '', self.edit_jacket_group)
     def new_jackets_menu(self):
         """Run menu to add New jackets"""
         while True:
@@ -375,7 +379,7 @@ class jackets(object):
                 if answer[0] in ['EXIT', 'EXI', 'EX', 'E', 'QUIT', 'QUI', 'QU', 'Q']:
                     sys.exit(1)
                 elif answer[0] in ['ADD', 'AD', 'A']:
-                    J.add_jacket_group()
+                    self.add_jacket_group()
                     break
                 elif answer[0] in ['EDIT', 'EDI','ED','E']:
                     if len(answer)==1:

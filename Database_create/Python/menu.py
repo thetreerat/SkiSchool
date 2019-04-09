@@ -53,6 +53,17 @@ class  Menu(object):
     def exit_now(self):
         sys.exit(1)
 
+    def get_item_index(self):
+        run = True
+        while run: 
+            try:
+                run = False
+                Item_index = int(raw_input('Enter line number: '))
+            except:
+                print('Invalid line number')
+                run = True
+        return Item_index
+    
     def help(self):
         self.print_help()
         raw_input('Ready? ')
@@ -151,6 +162,8 @@ class menu_item(object):
         self.help_text = help_text
         self.menu_command = menu_command
         self.item_match = []
+        self.Item_index = False
+        self.options = []
     
     def make_item_match_list(self):
         new_i = self.display_text.upper()
