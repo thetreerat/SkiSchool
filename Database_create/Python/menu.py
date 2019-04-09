@@ -8,45 +8,59 @@ class  Menu(object):
     """New Class"""
     def __init__(self):
         """Create New Instanace of New Class"""
+        
         self.menu_items = []
         self.next_ID = 0
         self.command_display = 1
         self.menu_display = None
         self.menu_run = True
         self.used_items = []
-        self.add_item('Exit', 'Exit to system prompt.', self.exit_now())
-        self.add_item('Return', 'Return to previous menu.', self.return_now())
-        self.add_item('Help', 'Help Menu', self.help())
+        self.add_item('Exit', 'Exit to system prompt.', self.exit_now)
+        self.add_item('Return', 'Return to previous menu.', self.return_now)
+        self.add_item('Help', 'Help Menu', self.help)
 
     def add_item(self, display_text, help_text=None, menu_command=None):
         i = menu_item(iID=self.NewID(),
                       display_text=display_text,
                       help_text=help_text,
                       menu_command=menu_command)
-        i.make_item_match()
-        
+        i.make_item_match_list()
+        self.clean_matchs(i)
         self.menu_items.append(i)
-        
+
+    def clean_matchs(self, new_item):
+        cut_list = []
+        if len(self.used_items)>0:    
+            for i in self.used_items:
+                try:
+                    cut = new_item.item_match.index(i)
+                    cut_list.append(new_item.item_match[cut])
+                    new_item.item_match.pop(cut)
+                except:
+                    pass
+            self.used_items.extend(new_item.item_match)
+            for cut in cut_list:
+                i = self.used_items.index(cut)
+                self.used_items.pop(i)
+                for menu_item in self.menu_items:
+                    try:
+                        ii = menu_item.item_match.index(cut)
+                        menu_item.item_match.pop(ii)
+                    except:
+                        pass
+                
+            
     def exit_now(self):
         sys.exit(1)
-        
-    def return_now(self):
-        self.menu_run = False
-    
 
-            
-    
-
-    def item_count(self):
-        return len(self.menu_items)
- 
     def help(self):
         self.print_help()
         raw_input('Ready? ')
-        
-        
+
+    def item_count(self):
+        return len(self.menu_items)
+    
     def Menu(self):
-        run = True
         while self.menu_run:
             os.system('clear')
             self.menu_display()
@@ -59,7 +73,7 @@ class  Menu(object):
                 else:
                     not_hit = True
                     for i in self.menu_items:
-                        if action==i.display_text.upper():
+                        if action in i.item_match:
                             i.menu_command()
                             not_hit = False
                             break
@@ -67,20 +81,13 @@ class  Menu(object):
                         raw_input('%s is invalid. ready?' % (action))
                         break
                     break
-                    
+
     def NewID(self):
         """Get ID and increase count"""
         ID = self.next_ID
         self.next_ID += 1
         return ID
-    
-    def print_items(self):
-        """ """
-        print("    Menu Items list ....")
-        for i in self.menu_items:
-            i.print_self()
-        print('    Totol Count: %s' % (self.item_count()))
-    
+
     def print_command_list(self):
         """print list of commands"""
         if self.command_display==1:
@@ -90,7 +97,7 @@ class  Menu(object):
                 commands = """%s%s%s""" % (commands, comma, c.display_text)
                 comma = ', '
             print("""%s""" % (commands))
-            
+
     def print_help(self):
         os.system('clear')
         print('      Menu help ...')
@@ -98,7 +105,17 @@ class  Menu(object):
         for i in self.menu_items:
             i.print_help()
         print('    --------------------------------------------------------------------------------------')
+
+    def print_items(self):
+        """ """
+        print("    Menu Items list ....")
+        for i in self.menu_items:
+            i.print_self()
+        print('    Totol Count: %s' % (self.item_count()))
         
+    def return_now(self):
+        self.menu_run = False
+            
     def split_command(self, command):
         item_index = False
         options = []

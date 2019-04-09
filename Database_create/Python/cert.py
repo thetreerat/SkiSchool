@@ -256,9 +256,7 @@ class certs(object):
                     print("""    Main: %s, Action: %s, item_index: %s, options: %s""" % (main, action, item_index, options))
                     dump = raw_input('ready?')
                     break
-
-
-    
+ 
     def print_menu(self):
         if self.list_type=='Cert':
             print("""    ADD, EDIT, RETURN, EXIT, HELP""")
