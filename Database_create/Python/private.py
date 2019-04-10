@@ -4,11 +4,13 @@
 from datetime import datetime
 from instructor import instructor
 from instructor import instructors
+#from instructor import person
 from shift import shift
 import sys
 import os
 import psycopg2
                 
+
         
 class private(shift):
     def __init__(self,
@@ -44,7 +46,7 @@ class private(shift):
         self.instructor_firstname = None
         self.instructor_lastname = None
         
-    def add_private_db(self):
+    def add_private_db(self, options=None):
         """write private info to database """
         c = psycopg2.connect(user="postgres",
                              port="5432",
@@ -141,9 +143,14 @@ class private(shift):
             
         return phone
     
-    def set_discipline(self):
+    def set_discipline(self, options):
         """collect discipline and set discpline and ct_title"""
-        self.discipline = raw_input('Ski/SB/Tele: ').capitalize()
+        
+        try:
+            if options[2]:
+                self.discipline = options[2][0].capitalize()
+        except:
+            self.discipline = raw_input('Ski/SB/Tele: ').capitalize()
         if self.discipline=='Ski':
             self.ct_title = 'Ski Instructor'
             return True
@@ -157,8 +164,7 @@ class private(shift):
         elif self.discipline in ['Exit', 'Exi', 'Ex', 'E']:
             return False
         else:
-            self.discipline = raw_input('please enter Ski, SB, or Tele: ')
-            self.set_discipline()
+            self.set_discipline([])
             
     def set_shift_name(self):
         """set shift title"""
@@ -236,6 +242,32 @@ self.instructor_lastname = %s""" % (self.shift_name,
                                     self.instructor_firstname,
                                     self.instructor_lastname))
 
+    def set_age(self,options):
+        try:
+            self.student_age = options[2][0]
+        except:
+            self.student_age = raw_input('Student Age: ')
+        
+    def set_contact(self, options):        
+            try:
+                self.contact_firstname = options[2][0].capitalize()
+            except:
+                self.contact_firstname = raw_input('Contact First Name: ').capitalize
+            try:
+                self.contact_lastname = options[2][1].capitalize()
+            except:
+                self.contact_lastname = raw_input('Contact Last Name: ').capitalize
+            try:
+                self.contact_relation = options[2][2].capitalize()
+            except:
+                self.contact_relation = raw_input('Contact Relationship: ').capitalize()
+            
+    def set_date(self, options):
+        try:
+            self.date = options[2][0]
+        except:
+            self.date = raw_input('Lesson Date: ')            
+        
     def set_instructor(self):
         I = instructors()
         e = l.list_avalible(I)
@@ -246,8 +278,48 @@ self.instructor_lastname = %s""" % (self.shift_name,
             self.add_employee_shift()
         else:
             dump = raw_input('ready? ')
+
+    def set_student(self, options):
+        
+        if options[2]:
+            self.student_firstname = options[2][0].capitalize()
+            self.student_lastname = options[2][1].capitalize()
+        else:
+            self.student_firstname = raw_input('Student First Name: ').capitalize()
+            self.student_lastname = raw_input('Student Last Name: ').capitalize()
     
-    
+    def set_time(self, options):
+        try:
+            self.start_time = options[2][0]
+        except:
+            self.start_time = raw_input('Lesson Start (HH:MM): ')
+        try:
+            self.end_time = options[2][1]
+        except:
+            self.end_time = raw_input('Lesson End (HH:MM): ')
+        try:
+            self.lesson_length = datetime.strptime(self.end_time, '%H:%M') - datetime.strptime(self.start_time, '%H:%M')
+        except:
+            self.set_time([])
+        
+    def set_type(self, options):
+        self.lesson_type = ''
+        while self.lesson_type not in ['A', 'D']:
+            try:
+                self.lesson_type = options[2][0].upper()
+            except:    
+                self.lesson_type = raw_input('A/D: ').upper()
+            options = []
+        if self.lesson_type=='A':
+            self.html_class='Assigned'
+        else:
+            self.html_class='Demand'
+            
+    def set_phone(self, options):
+        try:
+            self.contact_phone = options[2][0]
+        except:
+            self.contact_phone = raw_input('Contact Phone: ')
 
        
 if __name__ == '__main__':

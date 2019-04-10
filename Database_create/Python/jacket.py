@@ -365,10 +365,7 @@ class jackets(object):
             self.jlist.append(j)
             
         ski_db.close()
-    def new_jackets_menu2(self):
-        M = Menu()
-        M.add_item('Add', 'Add New Group', self.add_jacket_group)
-        M.add_item('Edit', '', self.edit_jacket_group)
+
     def new_jackets_menu(self):
         """Run menu to add New jackets"""
         run = True
@@ -402,20 +399,16 @@ class jackets(object):
         
     def print_list(self, list_for='New'):
         if list_for=='New':
-            print("""Line ID Jacket Type                    Jacket Size Jacket Start Number Jacket End Number """)
-            print("""------- ------------------------------ ----------- ------------------- ----------------- """)
+            print("""    Line ID Jacket Type                    Jacket Size Jacket Start Number Jacket End Number """)
+            print("""    ------- ------------------------------ ----------- ------------------- ----------------------- """)
         else:
             print("""
     Jacket ID Jacket Type                       Jacket Size Jacket Number Location     Condition
     --------- --------------------------------- ----------- ------------- ------------ -----------""")
-
+    
         if len(self.jlist)>0: 
             for j in self.jlist:
                 j.print_jacket(list_for)
-        
-        else:
-            print(len(self.jlist))
-
         
         print("""    ----------------------------------------------------------------------------------------------
               """)

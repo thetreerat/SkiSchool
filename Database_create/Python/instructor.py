@@ -35,21 +35,32 @@ class person(object):
             return """%s %s""" % (self.firstname, self.lastname)
 
     def print_person(self):
-        print("""%s %s """ % ()) 
+        if self.suffix:
+            print("""%s %s %s""" % (self.firstname, self.lastname, self.suffix))
+        else:
+            print("""%s %s""" % (self.firstname, self.lastname)) 
     
 
     def set_name(self, I=None):
         """Collect name and set"""
-        if I==None:
-            I = raw_input('Name: ')
-        icount = len(list(I.split()))
+        if not I:
+            #try:
+                I = list(raw_input('Name: ').split())
+                
+            #except:
+            #    return 
+        icount = len(I)
         if icount==2:
-            self.firstname, self.lastname = I.split()
+            self.firstname = I[0]
+            self.lastname = I[1]
         elif icount==3:
-            self.firstname, self.lastname, self.suffix = I.split()
+            self.firstname = I[0]
+            self.lastname = I[1]
+            self.suffix = I[2]
         else:
-            self.firstname = I
+            self.firstname = I[0]
             self.lastname = raw_input('Last Name: ')
+            self.suffix = raw_input('Suffix (Jr,Sr,III,..):')
         
 class instructor(person):
     """Class for instructor object based on person class object"""
@@ -377,19 +388,24 @@ class instructors(object):
         self.ilist = []
         self.db = None
     
+    def add(self, options):
+        i = instructor()
+        i.set_name(options[2])
+        self.add_instructor(i)
+        
     def add_instructor(self, i):
         """Add instructor to instructors list """
         if self.checkName(i.instructor_name)==None:
             self.ilist.append(i)
             
-    def add_instructor_db(self):
+    def add_instructor_db(self, dump=None):
         """write list of new instructors to db"""
         c = psycopg2.connect(user="postgres",
                              port="5432",
                              host="127.0.0.1",
                              database="skischool")
         cur = c.cursor()
-        for i in I.ilist:
+        for i in self.ilist:
             cur.callproc('add_employee', [i.firstname, i.lastname, ])
             result = cur.fetchall()
             #print(result)
@@ -403,8 +419,8 @@ class instructors(object):
         c.close()
         return True
 
-    def clear(self):
-        self.ilstt = []
+    def clear(self, dump=None):        
+        self.ilist = []
         
     def edit(self, answer):
         if len(answer)>1:
@@ -412,7 +428,8 @@ class instructors(object):
             eid = answer[1]
         else:
             eid(raw_input('enter ID: '))
-        i = I.checkID(int(eid))
+        i = self.checkID(int(eid))
+        print('here')
         if i!=None:
             if i.cell_phone==None:
                 i.get_cell_db()
@@ -450,7 +467,7 @@ class instructors(object):
     def find_name(self, options=None):
         os.system('clear')
         p = person()
-        if options==None:
+        if not options[2]:
             print("""
     Find employees ....
     
@@ -463,11 +480,12 @@ class instructors(object):
             """)
         
             p.set_name()
+            p.print_person()
         else:
             try:
-                p.firstname = options[0]
-                p.lastname = options[1]
-                p.suffix = options[2]
+                p.firstname = options[2][0]
+                p.lastname = options[2][1]
+                p.suffix = options[2][2]
             except:
                 pass
         clearlist = raw_input('Clear list first Y/N (N)?').upper()
@@ -517,6 +535,8 @@ class instructors(object):
             return index
         elif rt=='NAME':
             return self.ilist[index].instructor_name()
+        elif rt=='OBJECT':
+            return self.ilist[index]
 
 
     def list_instructors(self):

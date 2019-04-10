@@ -6,57 +6,73 @@ from menu import Menu
 from instructor import instructors
 from jacket import jacket
 from jacket import jackets
+from private import private
 #from jacket import jacket_histories
 #from jacket import jacket_history
-
-
-def load_menus(Main):
-    Main.add_item('Instructors', 'Manage instructors', instructor_menu)
-    Main.add_item('Jackets', 'Manage jackets', jackets_menu)
-    Main.add_item('Lockers', 'Manage lockers and offices', print_this)
-    Main.add_item('Certs', 'Manage Certifications', print_this)
-    Main.add_item('Schedule', 'Manage Schedules', schedule_menu)
-    Main.add_item('Private', 'Manage Private Schedule', private_menu)
-
-
+        
     
-    
-    
-def print_this():
+def print_this(dump=None):
     raw_input('This is a test! ')
     
-def jackets_menu():    
+def jackets_menu(dump=None):    
     
     Jackets = Menu('Jacket Main Menu')
     Jackets.menu_display = Jackets.print_help
-    Jackets.add_item('New', 'Add new jacket series', new_jackets)
-    Jackets.add_item('List', 'List available jackets', print_this)
+    Jackets.add_item('New', 'Add new jacket series', jackets_new_menu)
+    Jackets.add_item('Find', 'FIND - advance find menu', print_this)
     Jackets.add_item('CheckIn', 'Check In a jacket', print_this)
-
     Jackets.Menu()
+    
+def jackets_new_menu(dump=None):
+    new_jackets = jackets()
+    new_jackets.new_jackets_menu()    
 
-def instructor_menu():
+def instructor_menu(answer=None):
     I = instructors()
     instructor = Menu('Instructor Menu')
     instructor.menu_display = I.print_menu
-    instructor.add_item('Add', 'ADD <Firstname> <Lastname> <Suffix> - add a new instructor', I.add_instructor)
-    instructor.add_item('Find', 'FIND <Fisrtname> <Lastname> - find matching instructor(s) and display list of them', I.find_name)
+    instructor.add_item('Add', 'ADD <Firstname> <Lastname> <Suffix> - add a new instructor', I.add)
+    instructor.add_item('Clear', 'Clear - clears the list of found instructors', I.clear)
     instructor.add_item('Edit', 'Edit # - Open instructor # for editing or veiwing. must be selected from a found list of instructors', I.edit)
-    instructor.add_item('Clear', 'Clear - clears the list of found instructors')
+    instructor.add_item('Find', 'FIND <Fisrtname> <Lastname> - find matching instructor(s) and display list of them', I.find_name)
+    instructor.add_item('Load', 'LOAD - Save New Names to database', I.add_instructor_db)
+
+
     instructor.Menu()
     
-def main_menu():
-    Main.Menu()
 
-def new_jackets():
+def private_menu(dump=None):
+    find_help = """FIND DATE <DATE> - Find private lessons on date.
+                    - FIND CUSTOMER <Firstname> <LastName> - Find private lessons for customer Name
+                    - FIND INSTRUCTOR <Firstname> <Lastname> - find private lessons assigned to instructor
+                    - FIND - advanced find options menu"""
+    private = Menu('Private Lesson Main Menu')
+    private.menu_display = private.print_help
+    private.add_item('New', 'NEW - Create a new private lesson', private_new_menu)
+    private.add_item('Cancel', 'CANCEL # - Cancel private lesson at line #', print_this)
+    private.add_item('Find', find_help, print_this)
+    private.add_item('Publish', 'PUBLISH <DATE> - Create HTML Page for Date, and post on website', print_this)
+    private.add_item('Edit', 'EDIT # - Edit a private lesson', print_this)
+    private.Menu()
+
+def private_new_menu(dump=None):
+    P = private()
+    private_new = Menu('Add New Private Menu')
+    private_new.menu_display = P.PrivateMenu
+    private_new.add_item('Contact', 'CONTACT <firstname> <lastname> <relationship> - Enter contact person information for private lesson', P.set_contact)
+    private_new.add_item('Student', 'STUDENT <Firstname> <Lastname> - Name of person taking the lesson', P.set_student)
+    private_new.add_item('Phone', 'PHONE <#> - Set contact phone number', P.set_phone)
+    private_new.add_item('Type', 'TYPE <A/D> - set lesson type as assigned or Demand', P.set_type)
+    private_new.add_item('Age', 'AGE <#> - Enter the students age', P.set_age)
+    private_new.add_item('Time', 'TIME <starttime> <endtime> - Enter start and stop times', P.set_time)
+    private_new.add_item('Discipline', 'DISCIPLINE <SKI/SB/TELE>- Set the disapline', P.set_discipline)
+    private_new.add_item('Date', 'DATE <MM/DD/YYYY> - set date of the lesson', P.set_date)
+    private_new.add_item('Load', 'LOAD - Save private to database', P.add_private_db)
+    private_new.add_item('List', 'LIST - List instructors', P.set_instructor)
+    private_new.add_item('Find', 'FIND <firstname> <lastname> - find instrutors by name', print_this)
+    private_new.Menu()
     
-    new_jackets = jackets()
-    new_jackets.new_jackets_menu()
-    
-def private_menu():
-    raw_input('private menu under construction')
-   
-def schedule_menu():
+def schedule_menu(dump=None):
     schedule = Menu('Schedule Menu')
     schedule.menu_display = schedule.print_help
     schedule.add_item('View', 'Veiw templates for a day', print_this)
@@ -70,6 +86,10 @@ if __name__ == "__main__":
     
     Main = Menu('Main Menu')
     Main.menu_display = Main.print_help    
-    load_menus(Main)
-    
+    Main.add_item('Instructors', 'Manage instructors', instructor_menu)
+    Main.add_item('Jackets', 'Manage jackets', jackets_menu)
+    Main.add_item('Lockers', 'Manage lockers and offices', print_this)
+    Main.add_item('Certs', 'Manage Certifications', print_this)
+    Main.add_item('Schedule', 'Manage Schedules', schedule_menu)
+    Main.add_item('Private', 'Manage Private Schedule', private_menu)    
     Main.Menu()

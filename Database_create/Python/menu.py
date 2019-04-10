@@ -19,6 +19,9 @@ class  Menu(object):
         self.add_item('Return', 'Return to previous menu.', self.return_now)
         self.add_item('Help', 'Help Menu', self.help)
 
+    def sort_item_key(self, i):
+        return i.display_text
+        
     def add_item(self, display_text, help_text=None, menu_command=None):
         i = menu_item(iID=self.NewID(),
                       display_text=display_text,
@@ -27,6 +30,7 @@ class  Menu(object):
         i.make_item_match_list()
         self.clean_matchs(i)
         self.menu_items.append(i)
+        self.menu_items.sort(key=self.sort_item_key)
 
     def clean_matchs(self, new_item):
         cut_list = []
@@ -50,7 +54,7 @@ class  Menu(object):
                         pass
                 
             
-    def exit_now(self):
+    def exit_now(self, dump=None):
         sys.exit(1)
 
     def get_item_index(self):
@@ -91,7 +95,7 @@ class  Menu(object):
                     not_hit = True
                     for i in self.menu_items:
                         if action in i.item_match:
-                            i.menu_command()
+                            i.menu_command( [action, item_index, options])
                             not_hit = False
                             break
                     if not_hit:
@@ -129,7 +133,7 @@ class  Menu(object):
             i.print_self()
         print('    Totol Count: %s' % (self.item_count()))
         
-    def return_now(self):
+    def return_now(self, dump=None):
         self.menu_run = False
             
     def split_command(self, command):
@@ -140,20 +144,21 @@ class  Menu(object):
         if len(command)>0:
             action = command.pop(0).upper()
             while len(command)>0:
-                c = commnad.pop(0)
+                c = command.pop(0)
                 try:
-                    item_index = self.int(c)
+                    item_index = int(c)
                 except:
+                    #print('c values is:%s, and type is: %s' % (c, type(c)))
                     options.append(c)
         return (action, item_index, options)
         
     def About(self):
-        print("""Author         : Harold Clark  email address harold.clark@openscg.com
-Class          : New Class
-Inputs         : None
+        print("""Author         : Harold Clark  email address thetreerat@gmail.com
+Class          : Menu
+Inputs         : Menu items
 Returns        : None
-Output         : None
-Purpose        : This Class is a temlplete file
+Output         : Menu
+Purpose        : This Class creates a menu, display info and, runs functions assigned to menu items 
 
 """)
 
