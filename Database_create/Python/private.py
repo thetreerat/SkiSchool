@@ -42,9 +42,9 @@ class private(shift):
         self.lesson_length = None
         self.lesson_type = None
         self.discipline = None
-        self.eid = None
         self.instructor_firstname = None
         self.instructor_lastname = None
+        self.available_instructors = None
         
     def add_private_db(self, options=None):
         """write private info to database """
@@ -68,23 +68,24 @@ class private(shift):
         return True
         
     def check_add_shift(self):
+        message = 'Values not set:'
         if self.date==None:
-            print('date not set!')
-        elif self.start_time==None:
-            print('start time not set!')
-            return False
-        elif self.end_time==None:
-            print('end time not set!')
-            return False
-        elif self.discipline==None:
-            print('disipline not set!')
-            return False
+            message = message + ' Date,'
+        if self.start_time==None:
+            message = message + ' Start Time,'
+        if self.end_time==None:
+            message = message + ' End Time,'
+        if self.lesson_type==None:
+            message = message + ' Lesson Type,'
+        if self.discipline==None:
+            message = message + ' Discipline,'
+        if len(message)>17:
+            message = message[:-1]
         else:
-            if self.shift_name==None:    
+            message = None
+        if self.shift_name==None and message==None:    
                 self.set_shift_name()
-            else:
-                print("""Bad shift name: %s""" % (self.shift_name))
-            return True
+        return message
     
     def PrivateMenu(self):        
         print("""     Private screen
@@ -171,31 +172,24 @@ class private(shift):
         self.shift_name = """Private - %s %s %s""" % (self.lesson_type, self.student_firstname, self.discipline )
         print(self.shift_name)
         
-    def list_avalible(self, I):
-        if self.check_add_shift():
+    def list_avalible(self):
+        #print('List_avalible')
+        not_set = self.check_add_shift()
+        if not_set==None:
             if self.sid==None:
                 self.add_shift_db() 
-            print("""shift sid: %s""" % (self.sid))     
-            c = psycopg2.connect(user="postgres",
-                                 port="5432",
-                                 host="127.0.0.1",
-                                 database="skischool")
-            cur = c.cursor()
-            cur.callproc('list_availble', [self.sid,])
-            result = cur.fetchall()
-            for r in result:
-                i = instructor()
-                i.eid = r[0]
-                i.firstname = r[1]
-                i.lastname = r[2]
-                I.add_instructor(i)
-            c.commit()
-            cur.close()
-            c.close()
-            I.list_instructors()
-            return True
+            print("""shift sid: %s""" % (self.sid))
+            
+            if not self.available_instructors:
+                self.available_instructors = instructors()
+            self.available_instructors.get_available_instructors(sid=self.sid)
+            os.system('clear')
+            print("    Available Instructor List ")
+            print("    -----------------------------------------------------------------")
+            self.available_instructors.list_instructors()
+            return None
         else:
-            return False
+            return not_set
         
     def print_private_all(self):
         print ("""shift_name = %s,
@@ -244,7 +238,7 @@ self.instructor_lastname = %s""" % (self.shift_name,
 
     def set_age(self,options):
         try:
-            self.student_age = options[2][0]
+            self.student_age = options[1]
         except:
             self.student_age = raw_input('Student Age: ')
         
@@ -268,24 +262,25 @@ self.instructor_lastname = %s""" % (self.shift_name,
         except:
             self.date = raw_input('Lesson Date: ')            
         
-    def set_instructor(self):
-        I = instructors()
-        e = l.list_avalible(I)
-        if e:
-            l.eid = raw_input('employee id: ')
-            name = I.get_name(l.eid, 'Name')
-            self.instructor_firstname, self.instructor_lastname = name.split()
+    def set_instructor(self, options):
+        e = self.list_avalible()
+        if not e:
+            self.eid = raw_input('employee id: ')
+            instructor = self.available_instructors.get_name(eid=self.eid, return_type='Object')
+            self.instructor_firstname = instructor.firstname
+            self.instructor_lastname = instructor.lastname
             self.add_employee_shift()
         else:
-            dump = raw_input('ready? ')
+            dump = raw_input(e)
 
     def set_student(self, options):
-        
-        if options[2]:
+        try:
             self.student_firstname = options[2][0].capitalize()
-            self.student_lastname = options[2][1].capitalize()
-        else:
+        except:  
             self.student_firstname = raw_input('Student First Name: ').capitalize()
+        try:
+            self.student_lastname = options[2][1].capitalize()
+        except:    
             self.student_lastname = raw_input('Student Last Name: ').capitalize()
     
     def set_time(self, options):
@@ -316,11 +311,21 @@ self.instructor_lastname = %s""" % (self.shift_name,
             self.html_class='Demand'
             
     def set_phone(self, options):
+        print('set_phone: %s' % (options))
         try:
-            self.contact_phone = options[2][0]
+            if options[1]:
+                self.contact_phone = str(options[1])
+            else:
+                self.contact_phone = options[2][0]
         except:
             self.contact_phone = raw_input('Contact Phone: ')
-
+        #pass
+        #try:
+        #    if self.contact_phone==None:
+        #        
+        #except:
+            
+        
        
 if __name__ == '__main__':
     l = private()

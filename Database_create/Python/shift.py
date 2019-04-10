@@ -40,7 +40,16 @@ class persons(object):
         return None
     
 class shift(object):
-    def __init__(self, shift_name=None, start_time=None, end_time=None, html_class=None, date=None, sid=None, ct=None, ct_title=None):
+    def __init__(self,
+                 shift_name=None,
+                 start_time=None,
+                 end_time=None,
+                 html_class=None,
+                 date=None,
+                 sid=None,
+                 ct=None,
+                 ct_title=None,
+                 eid=None):
         """init a shift"""
         self.shift_name = shift_name
         self.start_time = start_time
@@ -50,6 +59,7 @@ class shift(object):
         self.ct = ct
         self.ct_title = ct_title
         self.date = date
+        self.eid = eid
 
     def print_shift(self):
         print """sid: %s %s: %s-%s""" % (self.sid, self.shift_name, self.start_time, self.end_time)
@@ -69,9 +79,9 @@ class shift(object):
         result = cur.fetchall()
 
         for r in result:
-            print(r)
+            #print('add_shift result for sid: %s' % (r[0]))
             self.sid = r[0]
-            self.print_shift()
+            #self.print_shift()
         c.commit()
         cur.close()
         c.close()

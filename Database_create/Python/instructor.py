@@ -27,13 +27,18 @@ class person(object):
 
     def name(self):      
         """return instructor name first name<sp> last name as string"""
-        if self.suffix==None:
-            self.suffix=''
-        if len(self.suffix) > 0 :
-                return """%s %s %s""" % (self.firstname, self.lastname, self.suffix)
-        else:
-            return """%s %s""" % (self.firstname, self.lastname)
-
+        name = ''
+        if self.firstname:
+            name = self.firstname
+        if self.lastname:
+            if len(name)>0:
+                name = '%s %s' % (name, self.lastname)
+            else:
+                name = self.lastname
+        if self.suffix:
+                name = '%s %s' % (name,self.suffix)
+        return name
+    
     def print_person(self):
         if self.suffix:
             print("""%s %s %s""" % (self.firstname, self.lastname, self.suffix))
@@ -123,7 +128,6 @@ class instructor(person):
         ski_db.connect()
         ski_db.cur.callproc('add_employee_end', [self.eid, self.end_date,])
         ski_db.close()        
-
     
     def add_employee_start_db(self):
         ski_db = database()
@@ -181,7 +185,6 @@ class instructor(person):
             return phone
         else:
             return ''
-
 
     def edit_instructor(self):
         run = True
@@ -267,7 +270,6 @@ class instructor(person):
                     dump = raw_input('ready?')
                     break        
 
-
     def get_cell_db(self):
         """get employee cell from database"""
         ski_db = database()
@@ -278,12 +280,10 @@ class instructor(person):
         #dump = raw_input('ready? ')
         ski_db.close()
         return True
-
         
     def get_cert_db(self):
         pass
- 
-   
+    
     def get_season_dates_db(self):
         """get current season dates and return status from database"""
         ski_db = database()
@@ -295,8 +295,7 @@ class instructor(person):
                 d,self.start_date,self.end_date,self.employee_returning, self.return_title = result[0]
                 self.start_date_New = False
         ski_db.close()
-    
-    
+        
     def print_instructor(self, form='short'):
         """Print instructor object"""
         if form=='short':
@@ -344,8 +343,7 @@ class instructor(person):
     def set_cell(self):
         """collect and set cell in instructor object """
         self.cell_phone = raw_input("""Cell Phone (%s): """ % (self.cell_phone))
-        
-    
+            
     def instructor_name(self):
         """return instructor name first name<sp> last name as string"""
         return """%s %s""" % (self.firstname, self.lastname)
@@ -367,8 +365,7 @@ class instructor(person):
         if self.start_date == '':
             self.start_date = sd
         self.add_employee_start_db()
-            
-      
+                  
     def update_instructor_db(self):
         """update instructor in database """
         ski_db = database()
@@ -383,20 +380,25 @@ class instructor(person):
     
     
 class instructors(object):
-    def __init__(self):
+    def __init__(self, db_handle=None):
         """init a set of instructors"""
         self.ilist = []
-        self.db = None
+        self.db = db_handle
+    
+    def sort_person_key(self, person):
+        return person.name
     
     def add(self, options):
         i = instructor()
         i.set_name(options[2])
         self.add_instructor(i)
+        self.ilist.sort(key=self.sort_person_key)
         
-    def add_instructor(self, i):
+    def add_instructor(self, i, sort=True):
         """Add instructor to instructors list """
         if self.checkName(i.instructor_name)==None:
             self.ilist.append(i)
+            self.ilist.sort(key=self.sort_person_key)
             
     def add_instructor_db(self, dump=None):
         """write list of new instructors to db"""
@@ -538,7 +540,25 @@ class instructors(object):
         elif rt=='OBJECT':
             return self.ilist[index]
 
+    def get_available_instructors(self, sid, Clear=True):
+        print('get_available_instructors sid:%s' % (sid))
+        if Clear:
+            self.clear()
+        ski_db = database()
+        ski_db.connect()
+        ski_db.cur.callproc('list_availble', [sid,])
+        #results = ski_db.call_ski_proc('list_availble', [int(sid)])
+        result = ski_db.cur.fetchall()
+        for r in result:
+            i = instructor()
+            i.eid = r[0]
+            i.firstname = r[1]
+            i.lastname = r[2]
+            self.add_instructor(i)
+        ski_db.close()                
 
+
+        
     def list_instructors(self):
         """Print list of instructors"""
         if len(self.ilist)>0:
@@ -565,43 +585,48 @@ from location import locations
 
     
 if __name__ == '__main__':
-    I = instructors()
-    ski_db = database()
-    ski_db.connect()
-    I.db = ski_db
-    while True:
-        I.print_menu()
-        answer = raw_input('Please enter a selection: ').upper()
-        answer = list(answer.split())
-        while answer:
-            if answer[0] in ['EXIT', 'EXI', 'EX', 'QUIT', 'QUI', 'QU', 'Q']:
-                sys.exit(1)
-            elif answer[0] in ['ADD', 'AD', 'A']:
-                #dump = raw_input('ready?')
-                i = instructor()
-                i.set_name()
-                I.add_instructor(i)
-                break
-            elif answer[0] in ['CLEAR','CLEA','CLE','CL', 'C']:
-                print("""Clearing emloyee!""")
-                dump = raw_input('ready?')
-                I.ilist = []
-                break
-            elif answer[0]=='E':
-                answer = raw_input('EXIT or EDIT #: ').upper()
-                answer = list(answer.split())
-            elif answer[0] in ['EDIT','EDI','ED']:
-                I.edit(answer)
-                break
-            elif answer[0] in ['FIND','FIN','FI','F']:
-                I.find_name(answer)
-                break
+    sid = 233
 
-            elif answer[0] in ['LOAD']:
-                print("""Load Instructors to DB""" % ())
-                I.add_instructor_db()
-                break
-            else:
-                print("""Lost in space!!!""")
-                dump = raw_input('ready?')
-                break
+    I = instructors()
+    I.get_available_instructors(sid=sid)
+    I.list_instructors()
+    #ski_db = database()
+    #ski_db.connect()
+   # I.db = ski_db
+   # while True:
+   #     I.print_menu()
+   #     answer = raw_input('Please enter a selection: ').upper()
+    #    answer = list(answer.split())
+     #   while answer:
+      #      if answer[0] in ['EXIT', 'EXI', 'EX', 'QUIT', 'QUI', 'QU', 'Q']:
+       #         sys.exit(1)
+        #    elif answer[0] in ['ADD', 'AD', 'A']:
+         #       #dump = raw_input('ready?')
+          #      i = instructor()
+           #     i.set_name()
+            #    I.add_instructor(i)
+             
+             #   break
+            #elif answer[0] in ['CLEAR','CLEA','CLE','CL', 'C']:
+             #   print("""Clearing emloyee!""")
+              #  dump = raw_input('ready?')
+               # I.ilist = []
+                #break
+#            elif answer[0]=='E':
+ #               answer = raw_input('EXIT or EDIT #: ').upper()
+  #              answer = list(answer.split())
+   #         elif answer[0] in ['EDIT','EDI','ED']:
+    #            I.edit(answer)
+     #           break
+      #      elif answer[0] in ['FIND','FIN','FI','F']:
+       #         I.find_name(answer)
+        #        break
+#
+#            elif answer[0] in ['LOAD']:
+#                print("""Load Instructors to DB""" % ())
+#                I.add_instructor_db()
+#                break
+#            else:
+#                print("""Lost in space!!!""")
+#                dump = raw_input('ready?')
+ #               break
