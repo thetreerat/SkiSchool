@@ -15,6 +15,10 @@ class database(object):
         self.host = host
         self.port = port
         self.database = database
+    def __del__(self):
+        self.commit()
+        self.cur.close()
+        self.db.close()
         
     def connect(self):
         """ """
@@ -31,9 +35,18 @@ class database(object):
                                        password=self.password)
         self.cur = self.db.cursor()
     
+    def fetchdata(self, proc, params):
+        if self.cur==None:
+            self.connect()
+        self.cur.callproc(proc, params)
+        results = self.cur.fetchall()
+        self.db.commit()
+        return results
+    
     def call_ski_proc(self, proc, params):
         self.connect()
-        self.cur.callproc(proc, [params, ])
+        
+        self.cur.callproc(proc, params)
         results = self.cur.fetchall()
         self.close()
         

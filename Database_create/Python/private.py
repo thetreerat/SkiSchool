@@ -4,6 +4,7 @@
 from datetime import datetime
 from instructor import instructor
 from instructor import instructors
+from database import database
 #from instructor import person
 from shift import shift
 import sys
@@ -21,7 +22,9 @@ class private(shift):
                  date=None,
                  sid=None,
                  ct=None,
-                 ct_title=None):
+                 ct_title=None,
+                 pid=None,
+                 db_handle=None):
         """Init a private lesson object"""
         shift.__init__(self, shift_name=shift_name,
                              start_time=start_time,
@@ -31,6 +34,7 @@ class private(shift):
                              sid=sid,
                              ct=ct,
                              ct_title=ct_title)
+        self.pid = pid
         self.student_firstname = ''
         self.student_lastname = ''
         self.contact_firstname = ''
@@ -45,6 +49,7 @@ class private(shift):
         self.instructor_firstname = None
         self.instructor_lastname = None
         self.available_instructors = None
+        self.ski_database = db_handle
         
     def add_private_db(self, options=None):
         """write private info to database """
@@ -55,18 +60,18 @@ class private(shift):
         cur = c.cursor()
         cur.callproc('add_private', [self.sid, self.student_firstname, self.student_lastname,
                                      self.student_skill_level,
-                                     (self.lesson_length.total_seconds()/3600), self.contact_firstname,
+                                     self.contact_firstname,
                                      self.contact_lastname, self.contact_phone, self.lesson_type,
                                      self.discipline, None, None, ])
         result = cur.fetchall()
-
+        
         
         #self.print_shift()
         c.commit()
         cur.close()
         c.close()
         return True
-        
+
     def check_add_shift(self):
         message = 'Values not set:'
         if self.date==None:
@@ -86,7 +91,64 @@ class private(shift):
         if self.shift_name==None and message==None:    
                 self.set_shift_name()
         return message
+
+    def find_instructor(self, options=None):
+        #not_set = self.check_add_shift()
+        #if not_set==None:
+        #    if self.sid==None:
+        #        self.add_shift_db() 
+        #    print("""shift sid: %s""" % (self.sid))
+        if not self.available_instructors:
+            self.available_instructors = instructors()
+            self.available_instructors.find_name()
+        os.system('clear')
+        self.available_instructors.list_instructors()
+        self.eid = raw_input('employee id: ')
+        if self.lesson_type in [None, 'A']:
+            demand = raw_input('Is this a demand lesson?(YES)')
+            if demand in ['', 'YES', 'YE', 'Y']:
+                self.lesson_type = 'D'
+                if self.shift_name:
+                    self.set_shift_name()
+                    if self.sid:
+                        print('Need to update database with new shift name, code not built.')
+        else:
+            print(self.lesson_type)
+        instructor = self.available_instructors.get_name(eid=self.eid, return_type='Object')
+        self.instructor_firstname = instructor.firstname
+        self.instructor_lastname = instructor.lastname       
+        
+    def list_avalible(self):
+        #print('List_avalible')
+        not_set = self.check_add_shift()
+        if not_set==None:
+            if self.sid==None:
+                self.add_shift_db() 
+            print("""shift sid: %s""" % (self.sid))
+            
+            if not self.available_instructors:
+                self.available_instructors = instructors()
+            self.available_instructors.get_available_instructors(sid=self.sid)
+            os.system('clear')
+            print("    Available Instructor List ")
+            print("    -----------------------------------------------------------------")
+            self.available_instructors.list_instructors()
+            return None
+        else:
+            return not_set
     
+    def load_private(self):
+        if self.sid==None:
+            m = self.check_add_shift()
+            if m==None:
+                self.add_shift_db()
+            else:
+                raw_input(m)
+                return
+        if self.sid==None:
+            pass
+            
+        
     def PrivateMenu(self):        
         print("""     Private screen
      --------------------------------
@@ -104,18 +166,7 @@ class private(shift):
      A/D:                  %s
      Ski/SB/Tele:          %s
      
-     --------------------------------
-     NAME      - Input Student Name
-     CONTACT   - Input Contact Name
-     PHONE     - Input Phone
-     AGE       - Input Student Age
-     DATE      - Input Lesson Date
-     DISAPLINE - Input Ski/Tele/SB
-     TIME      - Input lesson Time
-     TYPE      - Input lesson type A/D
-     LIST      - List instructors
-     LOAD      - Load Entered Data into Table
-     EXIT      - Quit or Exit program""" % (self.student_firstname,
+     --------------------------------""" % (self.student_firstname,
                                        self.student_lastname,
                                        self.student_age,
                                        self.student_skill_level,
@@ -143,54 +194,7 @@ class private(shift):
             phone = self.contact_phone
             
         return phone
-    
-    def set_discipline(self, options):
-        """collect discipline and set discpline and ct_title"""
-        
-        try:
-            if options[2]:
-                self.discipline = options[2][0].capitalize()
-        except:
-            self.discipline = raw_input('Ski/SB/Tele: ').capitalize()
-        if self.discipline=='Ski':
-            self.ct_title = 'Ski Instructor'
-            return True
-        elif self.discipline=='Sb':
-            self.ct_title = 'SB Instructor'
-            self.discipline = self.discipline.upper()
-            return True
-        elif self.discipline=='Tele':
-            self.ct_title = 'Tele Instructor'
-            return True
-        elif self.discipline in ['Exit', 'Exi', 'Ex', 'E']:
-            return False
-        else:
-            self.set_discipline([])
-            
-    def set_shift_name(self):
-        """set shift title"""
-        self.shift_name = """Private - %s %s %s""" % (self.lesson_type, self.student_firstname, self.discipline )
-        print(self.shift_name)
-        
-    def list_avalible(self):
-        #print('List_avalible')
-        not_set = self.check_add_shift()
-        if not_set==None:
-            if self.sid==None:
-                self.add_shift_db() 
-            print("""shift sid: %s""" % (self.sid))
-            
-            if not self.available_instructors:
-                self.available_instructors = instructors()
-            self.available_instructors.get_available_instructors(sid=self.sid)
-            os.system('clear')
-            print("    Available Instructor List ")
-            print("    -----------------------------------------------------------------")
-            self.available_instructors.list_instructors()
-            return None
-        else:
-            return not_set
-        
+                                
     def print_private_all(self):
         print ("""shift_name = %s,
 start_time = %s,
@@ -235,10 +239,13 @@ self.instructor_lastname = %s""" % (self.shift_name,
                                     self.eid,
                                     self.instructor_firstname,
                                     self.instructor_lastname))
-
+        
     def set_age(self,options):
         try:
-            self.student_age = options[1]
+            if options[1]:
+                self.student_age = options[1]
+            else:
+                self.student_age = options[2][0]
         except:
             self.student_age = raw_input('Student Age: ')
         
@@ -261,6 +268,32 @@ self.instructor_lastname = %s""" % (self.shift_name,
             self.date = options[2][0]
         except:
             self.date = raw_input('Lesson Date: ')            
+
+    def set_discipline(self, options):
+        """collect discipline and set discpline and ct_title"""
+        
+        try:
+            if options[2]:
+                self.discipline = options[2][0].capitalize()
+        except:
+            self.discipline = raw_input('Ski/SB/Tele: ').capitalize()
+        if self.discipline=='Ski':
+            self.ct_title = 'Ski Instructor'
+            return True
+        elif self.discipline=='Sb':
+            self.ct_title = 'SB Instructor'
+            self.discipline = self.discipline.upper()
+            return True
+        elif self.discipline=='Tele':
+            self.ct_title = 'Tele Instructor'
+            return True
+        elif self.discipline in ['Exit', 'Exi', 'Ex', 'E']:
+            return False
+        else:
+            self.set_discipline([])
+        if self.sid:
+            self.set_shift_name()
+            print('local shift name out of sync with database!')
         
     def set_instructor(self, options):
         e = self.list_avalible()
@@ -273,6 +306,19 @@ self.instructor_lastname = %s""" % (self.shift_name,
         else:
             dump = raw_input(e)
 
+    def set_shift_name(self):
+        """set shift title"""
+        self.shift_name = """Private - %s %s %s""" % (self.lesson_type, self.student_firstname, self.discipline )
+        
+    def set_skill(self, options):
+        try:
+            if options[1]:
+                self.student_skill_level = options[1]
+            else:
+                self.student_skill_level = option[2][0]
+        except:
+            self.student_skill_level = raw_input('Student Skill Level(1-9): ')
+    
     def set_student(self, options):
         try:
             self.student_firstname = options[2][0].capitalize()
@@ -282,6 +328,9 @@ self.instructor_lastname = %s""" % (self.shift_name,
             self.student_lastname = options[2][1].capitalize()
         except:    
             self.student_lastname = raw_input('Student Last Name: ').capitalize()
+        if self.sid:
+            self.set_shift_name()
+            print('local shift name out of sync with database!')
     
     def set_time(self, options):
         try:
@@ -311,7 +360,7 @@ self.instructor_lastname = %s""" % (self.shift_name,
             self.html_class='Demand'
             
     def set_phone(self, options):
-        print('set_phone: %s' % (options))
+        #print('set_phone: %s' % (options))
         try:
             if options[1]:
                 self.contact_phone = str(options[1])
@@ -319,86 +368,13 @@ self.instructor_lastname = %s""" % (self.shift_name,
                 self.contact_phone = options[2][0]
         except:
             self.contact_phone = raw_input('Contact Phone: ')
-        #pass
-        #try:
-        #    if self.contact_phone==None:
-        #        
-        #except:
-            
         
        
 if __name__ == '__main__':
     l = private()
-    print("""New Private Lesson""")
-
-    while True:
-        l.PrivateMenu()
-        answer = raw_input('Please enter a selection: ').upper()
-        #answer = list(answer.split())
-        #answer[0] = answer[0].upper()
-        while answer:
-            if answer in ['EXIT', 'EXI', 'EX', 'E', 'QUIT', 'QUI', 'QU', 'Q']:
-                sys.exit(1)
-            elif answer in ['CONTACT','CONTAC','CONTA','CONT','CON','CO','C']:
-                print(answer)
-                l.contact_firstname = raw_input('Contact First Name: ')
-                l.contact_lastname = raw_input('Contact Last Name: ')
-                l.contact_relation = raw_input('Contact Relationship: ')
-                break
-            elif answer in ['NAME','NAM','NA','N']:
-                l.set_name()
-                break
-            elif answer in ['PHONE','PHON','PHO','PH','P']:
-                l.contact_phone = raw_input('Contact Phone: ')
-                break
-            elif answer in ['TYPE','TYP','TY']:
-                l.lesson_type = raw_input('A/D: ').upper()
-                if l.lesson_type not in ['A','D']:
-                    answer = raw_input("""%s is not valid A or D only: """ % (l.lesson_type))
-                else:
-                    if l.lesson_type=='A':
-                        l.html_class='Assigned'
-                    else:
-                        l.html_class='Demand'
-                    break
-            elif answer in ['AGE', 'AG', 'A']:
-                l.student_age = raw_input('Student Age: ')
-                break
-            elif answer in ['TIME','TIM','TI']:
-                l.start_time = raw_input('Lesson Start: ')
-                l.end_time = raw_input('Lesson End: ')
-                l.lesson_length = datetime.strptime(l.end_time, '%H:%M') - datetime.strptime(l.start_time, '%H:%M')
-                break
-            elif answer in ['DISCIPLINE','DISCIPLIN','DISCIPLI','DISCIPL','DISCIP','DISCI','DISC','DIS','DI']:
-                l.set_discipline()
-                break
-            elif answer in ['DATE','DAT','DA']:
-                l.date = raw_input('Lesson Date: ')
-                break
-            elif answer=='D':
-                answer = raw_input('DATE or DISCIPLINE? ').upper()
-            elif answer=='L':
-                answer = raw_input('LIST or LOAD? ').upper()
-            elif answer=='T':
-                answer = raw_input('TIME or TYPE? ').upper
-            elif answer in ['HAL']:
-                os.system('cls')
-                l.print_private_all()
-                raw_input('<enter>')
-                os.system('cls')
-                break
-            elif answer in ['LIST','LIS','LI']:
-                l.set_instructor()
-                break
-            elif answer in ['LOAD','LOA','LO']:
-                l.add_private_db()
-                break
-            else:
-                print(answer)
-                raw_input("ready?")
-                break
-
-
+    l.ski_database = database()
+    results = l.ski_database.fetchdata('get_eid', ['Harold', 'Clark',])
+    print(results[0][0])
     print("bye, bye")
 
 #    l.student_firstname = input('Enter student First Name: ')

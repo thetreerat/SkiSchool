@@ -67,9 +67,10 @@ def private_new_menu(dump=None):
     private_new.add_item('Time', 'TIME <starttime> <endtime> - Enter start and stop times', P.set_time)
     private_new.add_item('Discipline', 'DISCIPLINE <SKI/SB/TELE>- Set the disapline', P.set_discipline)
     private_new.add_item('Date', 'DATE <MM/DD/YYYY> - set date of the lesson', P.set_date)
-    private_new.add_item('Load', 'LOAD - Save private to database', P.add_private_db)
+    private_new.add_item('Load', 'LOAD - Save private to database', P.load_private)
     private_new.add_item('List', 'LIST - List instructors', P.set_instructor)
-    private_new.add_item('Find', 'FIND <firstname> <lastname> - find instrutors by name', print_this)
+    private_new.add_item('Find', 'FIND <firstname> <lastname> - find instrutors by name', P.find_instructor)
+    private_new.add_item('Skill', 'SKILL <1-9> or SKILL <Yellow,Yellow+,green,blue> - Skill level of the student', P.set_skill)
     private_new.Menu()
     
 def schedule_menu(dump=None):

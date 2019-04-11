@@ -469,6 +469,7 @@ class instructors(object):
     def find_name(self, options=None):
         os.system('clear')
         p = person()
+        if options==None : options = [None, None, []]
         if not options[2]:
             print("""
     Find employees ....
@@ -490,14 +491,7 @@ class instructors(object):
                 p.suffix = options[2][2]
             except:
                 pass
-        clearlist = raw_input('Clear list first Y/N (N)?').upper()
-        try:
-            if clearlist[0]=='Y':
-                self.clear()
-        except:
-            pass
         self.find_name_db(p.firstname, p.lastname)
-        
         
     def find_name_db(self, firstname, lastname):
         ski_db = database()

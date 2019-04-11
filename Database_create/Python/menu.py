@@ -6,7 +6,7 @@ import sys
 
 class  Menu(object):
     """New Class"""
-    def __init__(self, menu_title='New Menu'):
+    def __init__(self, menu_title='New Menu', db_handle=None):
         """Create New Instanace of New Class"""
         self.menu_title = menu_title
         self.menu_items = []
@@ -18,6 +18,7 @@ class  Menu(object):
         self.add_item('Exit', 'Exit to system prompt.', self.exit_now)
         self.add_item('Return', 'Return to previous menu.', self.return_now)
         self.add_item('Help', 'Help Menu', self.help)
+        self.ski_database = db_handle
 
     def sort_item_key(self, i):
         return i.display_text

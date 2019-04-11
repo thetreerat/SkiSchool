@@ -238,7 +238,7 @@ create view employee_avail as
            ea.End_Time
    from employee as e
    inner join employee_availability as ea on e.eid=ea.eid
-   order by e.lastname, e.firstname, ea.dow, ea.Start_time, ea.end_time;
+   order by e.lastname, e.firstname, ea.dow, ea.start_time, ea.end_time;
 
 create view open_shfits as
      select s.sid,

@@ -574,7 +574,48 @@ LANGUAGE plpgsql;
 -- end add_private(p_pid,p_sid,p_s_firstname,p_s_lastname,p_s_skill_level,
 --                 p_lesson_length, p_c_firstname,p_c_lastname,p_c_phone,
 --                   p_lesson_type,p_lesson_disapline,p_s2_firstname, p_s2_lastname)
+create function add_private(p_s_firstname varchar(25),
+                            p_s_lastname varchar(25),
+                            p_c_firstname varchar(25),
+                            p_c_lastname varchar(25),
+                            p_c_phone varchar(10),
+                            p_lesson_type varchar(1),
+                            p_s_skill_level varchar(6),
+                            p_discipline varchar(4),
+                            p_eid integer,
+                            p_sid integer) returns integer as $$
+declare
+    p_pid integer;
+begin
+    insert into private_lesson (sid,
+                                s_firstname,
+                                s_lastname,
+                                s_skill_level,
+                                c_firstname,
+                                c_lastname,
+                                c_phone,
+                                lesson_type,
+                                lesson_disapline,
+                                assigned_eid
+                                )
+                        values (p_sid,
+                                p_s_firstname,
+                                p_s_lastname,
+                                p_s_skill_level,
+                                p_c_firstname,
+                                p_c_lastname,
+                                p_c_phone,
+                                p_lesson_type,
+                                p_discipline,
+                                p_eid
+                                );
+    select into p_pid pid from private_lesson where sid=p_sid;                            
+    return p_pid;
+end; $$
+LANGUAGE plpgsql;
 
+-- end of add_private()    
+                        
 create function add_private(p_s_firstname varchar(25),
                             p_s_lastname varchar(25),
                             p_c_firstname varchar(25),
