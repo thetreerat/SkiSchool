@@ -1,6 +1,7 @@
 # Author: Harold Clark
 # Copyright Harold Clark 2019
 #
+from operator import attrgetter
 from datetime import datetime
 from instructor import instructor
 from instructor import instructors
@@ -319,14 +320,38 @@ self.instructor_lastname = %s""" % (self.shift_name,
                 self.contact_phone = options[2][0]
         except:
             self.contact_phone = raw_input('Contact Phone: ')
-        #pass
-        #try:
-        #    if self.contact_phone==None:
-        #        
-        #except:
+    
+class privates(object):
+    """Container for private objects"""
+    def __init__(self, db_handle=None):
+        self.plist = []
+        self.db_handle = db_handle
+    
+    def add(private):
+        self.plist.append(private)
+        self.sort_list()
+
+    def checkID(self, pid):
+        for i in self.plist:
+            if i.pid==pid:
+                return i
+        return None
             
-        
-       
+    def sort_list(self):
+        end_time = sorted(self.plist, key=attrgetter(end_time))
+        start_time = sorted(end_time, key=attrgetter(start_time))
+        self.plist = sorted(start_time, key=attrgetter(shift_date))
+
+    def print_list(self):
+        count = 0
+        print("    Privates List")
+        print("    --------------------------------------------------------")
+        for p in self.plist:
+            p.print_self(count)
+            count += 1
+            
+    
+    
 if __name__ == '__main__':
     l = private()
     print("""New Private Lesson""")

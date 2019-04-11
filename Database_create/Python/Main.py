@@ -82,12 +82,14 @@ def schedule_menu(dump=None):
     schedule = Menu('Schedule Menu')
     schedule.menu_display = schedule.print_help
     schedule.add_item('View', 'Veiw templates for a day', print_this)
-    schedule.add_item('Day', 'View shfit for a date', print_this)
+    schedule.add_item('Day', 'View all shfits for a date', print_this)
     schedule.add_item('Off', 'View Doys off requests', print_this)
-    schedule.add_item('Private', 'view privates for the Week', print_this)
-    schedule.add_item('availability', 'total availability for a day of the week', print_this)
+    schedule.add_item('Privates', 'view privates for the Week', print_this)
+    schedule.add_item('availability', 'list availability for a day of the week', print_this)
     schedule.Menu()
-   
+
+def schedule_private_menu(options):
+
 if __name__ == "__main__":
     ski_db = database()
     Main = Menu('Main Menu', db_handle=ski_db)
