@@ -7,6 +7,7 @@ from instructor import instructors
 from jacket import jacket
 from jacket import jackets
 from private import private
+from database import database
 #from jacket import jacket_histories
 #from jacket import jacket_history
         
@@ -41,12 +42,16 @@ def instructor_menu(answer=None):
     instructor.Menu()
     
 
-def private_menu(dump=None):
+def private_menu(options=None):
+    try:
+        db_handle = options[3]
+    except:
+        db_handle = database()        
     find_help = """FIND DATE <DATE> - Find private lessons on date.
                     - FIND CUSTOMER <Firstname> <LastName> - Find private lessons for customer Name
                     - FIND INSTRUCTOR <Firstname> <Lastname> - find private lessons assigned to instructor
                     - FIND - advanced find options menu"""
-    private = Menu('Private Lesson Main Menu')
+    private = Menu('Private Lesson Main Menu', db_handle=db_handle)
     private.menu_display = private.print_help
     private.add_item('New', 'NEW - Create a new private lesson', private_new_menu)
     private.add_item('Cancel', 'CANCEL # - Cancel private lesson at line #', print_this)
@@ -67,9 +72,10 @@ def private_new_menu(dump=None):
     private_new.add_item('Time', 'TIME <starttime> <endtime> - Enter start and stop times', P.set_time)
     private_new.add_item('Discipline', 'DISCIPLINE <SKI/SB/TELE>- Set the disapline', P.set_discipline)
     private_new.add_item('Date', 'DATE <MM/DD/YYYY> - set date of the lesson', P.set_date)
-    private_new.add_item('Load', 'LOAD - Save private to database', P.add_private_db)
+    private_new.add_item('Load', 'LOAD - Save private to database', P.load_private)
     private_new.add_item('List', 'LIST - List instructors', P.set_instructor)
-    private_new.add_item('Find', 'FIND <firstname> <lastname> - find instrutors by name', print_this)
+    private_new.add_item('Find', 'FIND <firstname> <lastname> - find instrutors by name', P.find_instructor)
+    private_new.add_item('Skill', 'SKILL <1-9> or SKILL <Yellow,Yellow+,green,blue> - Skill level of the student', P.set_skill)
     private_new.Menu()
     
 def schedule_menu(dump=None):
@@ -83,8 +89,8 @@ def schedule_menu(dump=None):
     schedule.Menu()
    
 if __name__ == "__main__":
-    
-    Main = Menu('Main Menu')
+    ski_db = database()
+    Main = Menu('Main Menu', db_handle=ski_db)
     Main.menu_display = Main.print_help    
     Main.add_item('Instructors', 'Manage instructors', instructor_menu)
     Main.add_item('Jackets', 'Manage jackets', jackets_menu)

@@ -3,10 +3,11 @@
 #
 import os
 import sys
+from database import database
 
 class  Menu(object):
     """New Class"""
-    def __init__(self, menu_title='New Menu'):
+    def __init__(self, menu_title='New Menu', db_handle=None):
         """Create New Instanace of New Class"""
         self.menu_title = menu_title
         self.menu_items = []
@@ -18,7 +19,11 @@ class  Menu(object):
         self.add_item('Exit', 'Exit to system prompt.', self.exit_now)
         self.add_item('Return', 'Return to previous menu.', self.return_now)
         self.add_item('Help', 'Help Menu', self.help)
-
+        if db_handle==None:    
+            self.db_handle = database()
+        else:
+            self.db_handle = db_handle
+            
     def sort_item_key(self, i):
         return i.display_text
         
@@ -95,7 +100,7 @@ class  Menu(object):
                     not_hit = True
                     for i in self.menu_items:
                         if action in i.item_match:
-                            i.menu_command( [action, item_index, options])
+                            i.menu_command( [action, item_index, options, self.db_handle])
                             not_hit = False
                             break
                     if not_hit:
