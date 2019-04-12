@@ -192,6 +192,16 @@ class private(shift):
             return None
         else:
             return not_set
+
+    def load_private(self):
+        if self.sid==None:
+            m = self.check_add_shift()
+            if m==None:
+                self.add_shift_db()
+            else:
+                raw_input(m)
+                return
+        
     
     def print_self(self, count):
         print("""    %s %s %s %s %s""" % (str(count).ljust(4), self.date.ljust(10), self.start_time.ljust(8), self.end_time.ljust(8), self.shift_name))
