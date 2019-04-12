@@ -53,23 +53,19 @@ class private(shift):
         
     def add_private_db(self, options=None):
         """write private info to database """
-        c = psycopg2.connect(user="postgres",
-                             port="5432",
-                             host="127.0.0.1",
-                             database="skischool")
-        cur = c.cursor()
-        cur.callproc('add_private', [self.sid, self.student_firstname, self.student_lastname,
-                                     self.student_skill_level,
-                                     self.contact_firstname,
-                                     self.contact_lastname, self.contact_phone, self.lesson_type,
-                                     self.discipline, None, None, ])
-        result = cur.fetchall()
         
-        
-        #self.print_shift()
-        c.commit()
-        cur.close()
-        c.close()
+        result = self.db_handle.fetchdata('add_private', [self.student_firstname,
+                                                          self.student_lastname,
+                                                          self.contact_firstname,
+                                                          self.contact_lastname,
+                                                          self.contact_phone,
+                                                          self.lesson_type,
+                                                          self.student_skill_level,
+                                                          self.discipline,
+                                                          self.eid,
+                                                          self.sid, ])
+        print(result)
+        self.pid = result[0][0]
         return True
 
     def check_add_shift(self):
@@ -145,8 +141,8 @@ class private(shift):
             else:
                 raw_input(m)
                 return
-        if self.sid==None:
-            pass
+        if self.pid==None:
+            
             
         
     def PrivateMenu(self):        
