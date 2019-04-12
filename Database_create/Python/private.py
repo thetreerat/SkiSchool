@@ -10,7 +10,8 @@ from shift import shift
 import sys
 import os
 import psycopg2
-                
+from menu import Menu
+from database import database               
 
         
 class private(shift):
@@ -191,6 +192,9 @@ class private(shift):
             return None
         else:
             return not_set
+    
+    def print_self(self, count):
+        print("""    %s %s %s %s %s""" % (str(count).ljust(4), self.date.ljust(10), self.start_time.ljust(8), self.end_time.ljust(8), self.shift_name))
         
     def print_private_all(self):
         print ("""shift_name = %s,
@@ -353,84 +357,22 @@ class privates(object):
     
     
 if __name__ == '__main__':
-    l = private()
-    print("""New Private Lesson""")
-
-    while True:
-        l.PrivateMenu()
-        answer = raw_input('Please enter a selection: ').upper()
-        #answer = list(answer.split())
-        #answer[0] = answer[0].upper()
-        while answer:
-            if answer in ['EXIT', 'EXI', 'EX', 'E', 'QUIT', 'QUI', 'QU', 'Q']:
-                sys.exit(1)
-            elif answer in ['CONTACT','CONTAC','CONTA','CONT','CON','CO','C']:
-                print(answer)
-                l.contact_firstname = raw_input('Contact First Name: ')
-                l.contact_lastname = raw_input('Contact Last Name: ')
-                l.contact_relation = raw_input('Contact Relationship: ')
-                break
-            elif answer in ['NAME','NAM','NA','N']:
-                l.set_name()
-                break
-            elif answer in ['PHONE','PHON','PHO','PH','P']:
-                l.contact_phone = raw_input('Contact Phone: ')
-                break
-            elif answer in ['TYPE','TYP','TY']:
-                l.lesson_type = raw_input('A/D: ').upper()
-                if l.lesson_type not in ['A','D']:
-                    answer = raw_input("""%s is not valid A or D only: """ % (l.lesson_type))
-                else:
-                    if l.lesson_type=='A':
-                        l.html_class='Assigned'
-                    else:
-                        l.html_class='Demand'
-                    break
-            elif answer in ['AGE', 'AG', 'A']:
-                l.student_age = raw_input('Student Age: ')
-                break
-            elif answer in ['TIME','TIM','TI']:
-                l.start_time = raw_input('Lesson Start: ')
-                l.end_time = raw_input('Lesson End: ')
-                l.lesson_length = datetime.strptime(l.end_time, '%H:%M') - datetime.strptime(l.start_time, '%H:%M')
-                break
-            elif answer in ['DISCIPLINE','DISCIPLIN','DISCIPLI','DISCIPL','DISCIP','DISCI','DISC','DIS','DI']:
-                l.set_discipline()
-                break
-            elif answer in ['DATE','DAT','DA']:
-                l.date = raw_input('Lesson Date: ')
-                break
-            elif answer=='D':
-                answer = raw_input('DATE or DISCIPLINE? ').upper()
-            elif answer=='L':
-                answer = raw_input('LIST or LOAD? ').upper()
-            elif answer=='T':
-                answer = raw_input('TIME or TYPE? ').upper
-            elif answer in ['HAL']:
-                os.system('cls')
-                l.print_private_all()
-                raw_input('<enter>')
-                os.system('cls')
-                break
-            elif answer in ['LIST','LIS','LI']:
-                l.set_instructor()
-                break
-            elif answer in ['LOAD','LOA','LO']:
-                l.add_private_db()
-                break
-            else:
-                print(answer)
-                raw_input("ready?")
-                break
-
-
-    print("bye, bye")
-
-#    l.student_firstname = input('Enter student First Name: ')
-#    l.student_lastname = input('Enter student Last Name: ')
-#    l.contact_firstname = input('Enter Contact First Name: ')
-#    l.contact_lastname = input('Enter Contact Last Name: ')
-#    l.contact_phone = input('Enter Contact Phone Number: ')
-    
+    P = private()
+    db_handle = database()
+    private_new = Menu('Add New Private Menu', db_handle=db_handle)
+    private_new.menu_display = P.PrivateMenu
+    private_new.add_item('Contact', 'CONTACT <firstname> <lastname> <relationship> - Enter contact person information for private lesson', P.set_contact)
+    private_new.add_item('Student', 'STUDENT <Firstname> <Lastname> - Name of person taking the lesson', P.set_student)
+    private_new.add_item('Phone', 'PHONE <#> - Set contact phone number', P.set_phone)
+    private_new.add_item('Type', 'TYPE <A/D> - set lesson type as assigned or Demand', P.set_type)
+    private_new.add_item('Age', 'AGE <#> - Enter the students age', P.set_age)
+    private_new.add_item('Time', 'TIME <starttime> <endtime> - Enter start and stop times', P.set_time)
+    private_new.add_item('Discipline', 'DISCIPLINE <SKI/SB/TELE>- Set the disapline', P.set_discipline)
+    private_new.add_item('Date', 'DATE <MM/DD/YYYY> - set date of the lesson', P.set_date)
+    private_new.add_item('Load', 'LOAD - Save private to database', P.load_private)
+    private_new.add_item('List', 'LIST - List instructors', P.set_instructor)
+    private_new.add_item('Find', 'FIND <firstname> <lastname> - find instrutors by name', P.find_instructor)
+    private_new.add_item('Skill', 'SKILL <1-9> or SKILL <Yellow,Yellow+,green,blue> - Skill level of the student', P.set_skill)
+    private_new.Menu()
     
         
