@@ -276,10 +276,6 @@ self.instructor_lastname = %s""" % (self.shift_name,
                 self.student_age = options[2][0]
         except:
             self.student_age = raw_input('Student Age: ')
-        #try:
-        #    self.student_age = options[1]
-        #except:
-        #    self.student_age = raw_input('Student Age: ')
         
     def set_contact(self, options):        
             try:
@@ -304,11 +300,16 @@ self.instructor_lastname = %s""" % (self.shift_name,
     def set_instructor(self, options):
         e = self.list_avalible()
         if not e:
-            self.eid = raw_input('employee id: ')
-            instructor = self.available_instructors.get_name(eid=self.eid, return_type='Object')
-            self.instructor_firstname = instructor.firstname
-            self.instructor_lastname = instructor.lastname
-            self.add_employee_shift()
+            try:
+                self.eid = int(raw_input('employee id: '))
+                bad = False
+            except:
+                bad = True
+            if not bad:
+                instructor = self.available_instructors.get_name(eid=self.eid, return_type='Object')
+                self.instructor_firstname = instructor.firstname
+                self.instructor_lastname = instructor.lastname
+                self.add_employee_shift()
         else:
             dump = raw_input(e)
 

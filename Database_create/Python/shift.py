@@ -72,21 +72,13 @@ class shift(object):
 
     def add_shift_db(self):
         """Add shift object to the shift table in database"""
-        c = psycopg2.connect(user="postgres",
-                             port="5432",
-                             host="127.0.0.1",
-                             database="skischool")
-        cur = c.cursor()
-        cur.callproc('add_shift', [self.shift_name,self.start_time,self.end_time,self.date, self.ct_title, self.html_class, ])
-        result = cur.fetchall()
-
-        for r in result:
-            #print('add_shift result for sid: %s' % (r[0]))
-            self.sid = r[0]
-            #self.print_shift()
-        c.commit()
-        cur.close()
-        c.close()
+        result = self.db_handle.fetchdata('add_shift', [self.shift_name,
+                                                        self.start_time,
+                                                        self.end_time,
+                                                        self.date,
+                                                        self.ct_title,
+                                                        self.html_class, ])
+        self.sid = result[0][0]
     
     def add_employee_shift(self):
         """add eid to shift"""
