@@ -49,7 +49,8 @@ class shift(object):
                  sid=None,
                  ct=None,
                  ct_title=None,
-                 eid=None):
+                 eid=None,
+                 db_handle=None):
         """init a shift"""
         self.shift_name = shift_name
         self.start_time = start_time
@@ -60,6 +61,7 @@ class shift(object):
         self.ct_title = ct_title
         self.date = date
         self.eid = eid
+        self.db_handle = db_handle
 
     def print_shift(self):
         print """sid: %s %s: %s-%s""" % (self.sid, self.shift_name, self.start_time, self.end_time)

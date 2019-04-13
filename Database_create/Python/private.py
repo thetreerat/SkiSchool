@@ -23,7 +23,8 @@ class private(shift):
                  date=None,
                  sid=None,
                  ct=None,
-                 ct_title=None):
+                 ct_title=None,
+                 db_handle=None):
         """Init a private lesson object"""
         shift.__init__(self, shift_name=shift_name,
                              start_time=start_time,
@@ -32,7 +33,8 @@ class private(shift):
                              date=date,
                              sid=sid,
                              ct=ct,
-                             ct_title=ct_title)
+                             ct_title=ct_title,
+                             db_handle=db_handle)
         self.student_firstname = ''
         self.student_lastname = ''
         self.contact_firstname = ''
@@ -84,6 +86,27 @@ class private(shift):
                 self.set_shift_name()
         return message
     
+    def find_instructor(self, options=None):
+        if not self.available_instructors:
+            self.available_instructors = instructors()
+            self.available_instructors.find_name()
+        os.system('clear')
+        self.available_instructors.list_instructors()
+        self.eid = raw_input('employee id: ')
+        if self.lesson_type in [None, 'A']:
+            demand = raw_input('Is this a demand lesson?(YES)')
+            if demand in ['', 'YES', 'YE', 'Y']:
+                self.lesson_type = 'D'
+                if self.shift_name:
+                    self.set_shift_name()
+                    if self.sid:
+                        print('Need to update database with new shift name, code not built.')
+        else:
+            print(self.lesson_type)
+        instructor = self.available_instructors.get_name(eid=self.eid, return_type='Object')
+        self.instructor_firstname = instructor.firstname
+        self.instructor_lastname = instructor.lastname
+        
     def PrivateMenu(self):        
         print("""     Private screen
      --------------------------------
@@ -196,8 +219,7 @@ class private(shift):
             else:
                 raw_input(m)
                 return
-        
-    
+          
     def print_self(self, count):
         print("""    %s %s %s %s %s""" % (str(count).ljust(4), self.date.ljust(10), self.start_time.ljust(8), self.end_time.ljust(8), self.shift_name))
         
@@ -248,9 +270,16 @@ self.instructor_lastname = %s""" % (self.shift_name,
 
     def set_age(self,options):
         try:
-            self.student_age = options[1]
+            if options[1]:
+                self.student_age = options[1]
+            else:
+                self.student_age = options[2][0]
         except:
             self.student_age = raw_input('Student Age: ')
+        #try:
+        #    self.student_age = options[1]
+        #except:
+        #    self.student_age = raw_input('Student Age: ')
         
     def set_contact(self, options):        
             try:
@@ -283,6 +312,18 @@ self.instructor_lastname = %s""" % (self.shift_name,
         else:
             dump = raw_input(e)
 
+    def set_skill(self, options):
+        try:
+            if options[1]:
+                print(options[1])
+                self.student_skill_level = options[1]
+            else:
+                print(options[2][0])
+                self.student_skill_level = options[2][0]
+            
+        except:
+            self.student_skill_level = raw_input('Student Skill Level(1-9): ')
+            
     def set_student(self, options):
         try:
             self.student_firstname = options[2][0].capitalize()
