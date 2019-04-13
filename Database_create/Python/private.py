@@ -49,6 +49,7 @@ class private(shift):
         self.instructor_firstname = None
         self.instructor_lastname = None
         self.available_instructors = None
+        self.update = False
         
     def add_private_db(self, options=None):
         """write private info to database """
@@ -164,34 +165,6 @@ class private(shift):
             
         return phone
     
-    def set_discipline(self, options):
-        """collect discipline and set discpline and ct_title"""
-        
-        try:
-            if options[2]:
-                self.discipline = options[2][0].capitalize()
-        except:
-            self.discipline = raw_input('Ski/SB/Tele: ').capitalize()
-        if self.discipline=='Ski':
-            self.ct_title = 'Ski Instructor'
-            return True
-        elif self.discipline=='Sb':
-            self.ct_title = 'SB Instructor'
-            self.discipline = self.discipline.upper()
-            return True
-        elif self.discipline=='Tele':
-            self.ct_title = 'Tele Instructor'
-            return True
-        elif self.discipline in ['Exit', 'Exi', 'Ex', 'E']:
-            return False
-        else:
-            self.set_discipline([])
-            
-    def set_shift_name(self):
-        """set shift title"""
-        self.shift_name = """Private - %s %s %s""" % (self.lesson_type, self.student_firstname, self.discipline )
-        print(self.shift_name)
-        
     def list_avalible(self):
         #print('List_avalible')
         not_set = self.check_add_shift()
@@ -219,7 +192,12 @@ class private(shift):
             else:
                 raw_input(m)
                 return
-          
+        if self.pid==None:
+            self.add_private_db()
+        else:
+            if self.update:
+                self.update_private_db()
+                
     def print_self(self, count):
         print("""    %s %s %s %s %s""" % (str(count).ljust(4), self.date.ljust(10), self.start_time.ljust(8), self.end_time.ljust(8), self.shift_name))
         
@@ -276,26 +254,53 @@ self.instructor_lastname = %s""" % (self.shift_name,
                 self.student_age = options[2][0]
         except:
             self.student_age = raw_input('Student Age: ')
+        self.update = True
         
     def set_contact(self, options):        
-            try:
-                self.contact_firstname = options[2][0].capitalize()
-            except:
-                self.contact_firstname = raw_input('Contact First Name: ').capitalize
-            try:
-                self.contact_lastname = options[2][1].capitalize()
-            except:
-                self.contact_lastname = raw_input('Contact Last Name: ').capitalize
-            try:
-                self.contact_relation = options[2][2].capitalize()
-            except:
-                self.contact_relation = raw_input('Contact Relationship: ').capitalize()
+        try:
+            self.contact_firstname = options[2][0].capitalize()
+        except:
+            self.contact_firstname = raw_input('Contact First Name: ').capitalize
+        try:
+            self.contact_lastname = options[2][1].capitalize()
+        except:
+            self.contact_lastname = raw_input('Contact Last Name: ').capitalize
+        try:
+            self.contact_relation = options[2][2].capitalize()
+        except:
+            self.contact_relation = raw_input('Contact Relationship: ').capitalize()
+        self.update = True
             
+    def set_discipline(self, options):
+        """collect discipline and set discpline and ct_title"""
+        
+        try:
+            if options[2]:
+                self.discipline = options[2][0].capitalize()
+        except:
+            self.discipline = raw_input('Ski/SB/Tele: ').capitalize()
+        if self.discipline=='Ski':
+            self.ct_title = 'Ski Instructor'
+            return True
+        elif self.discipline=='Sb':
+            self.ct_title = 'SB Instructor'
+            self.discipline = self.discipline.upper()
+            return True
+        elif self.discipline=='Tele':
+            self.ct_title = 'Tele Instructor'
+            return True
+        elif self.discipline in ['Exit', 'Exi', 'Ex', 'E']:
+            return False
+        else:
+            self.set_discipline([])
+        self.update = True
+        
     def set_date(self, options):
         try:
             self.date = options[2][0]
         except:
             self.date = raw_input('Lesson Date: ')            
+        self.update = True
         
     def set_instructor(self, options):
         e = self.list_avalible()
@@ -310,9 +315,16 @@ self.instructor_lastname = %s""" % (self.shift_name,
                 self.instructor_firstname = instructor.firstname
                 self.instructor_lastname = instructor.lastname
                 self.add_employee_shift()
+                self.update = True
         else:
             dump = raw_input(e)
 
+    def set_shift_name(self):
+        """set shift title"""
+        self.shift_name = """Private - %s %s %s""" % (self.lesson_type, self.student_firstname, self.discipline )
+        self.update = True
+        #print(self.shift_name)
+                    
     def set_skill(self, options):
         try:
             if options[1]:
@@ -324,7 +336,8 @@ self.instructor_lastname = %s""" % (self.shift_name,
             
         except:
             self.student_skill_level = raw_input('Student Skill Level(1-9): ')
-            
+        self.update = True
+        
     def set_student(self, options):
         try:
             self.student_firstname = options[2][0].capitalize()
@@ -334,7 +347,8 @@ self.instructor_lastname = %s""" % (self.shift_name,
             self.student_lastname = options[2][1].capitalize()
         except:    
             self.student_lastname = raw_input('Student Last Name: ').capitalize()
-    
+        self.update = True
+        
     def set_time(self, options):
         try:
             self.start_time = options[2][0]
@@ -348,6 +362,7 @@ self.instructor_lastname = %s""" % (self.shift_name,
             self.lesson_length = datetime.strptime(self.end_time, '%H:%M') - datetime.strptime(self.start_time, '%H:%M')
         except:
             self.set_time([])
+        self.update = True
         
     def set_type(self, options):
         self.lesson_type = ''
@@ -361,7 +376,8 @@ self.instructor_lastname = %s""" % (self.shift_name,
             self.html_class='Assigned'
         else:
             self.html_class='Demand'
-            
+        self.update = True
+           
     def set_phone(self, options):
         print('set_phone: %s' % (options))
         try:
@@ -371,6 +387,12 @@ self.instructor_lastname = %s""" % (self.shift_name,
                 self.contact_phone = options[2][0]
         except:
             self.contact_phone = raw_input('Contact Phone: ')
+        self.update = True
+    
+    def update_private_db(self):
+        #need to make
+        
+        self.update = False
     
 class privates(object):
     """Container for private objects"""
@@ -387,7 +409,9 @@ class privates(object):
             if i.pid==pid:
                 return i
         return None
-            
+    def find_privates(self, options):
+        raw_input(options)
+        
     def sort_list(self):
         end_time = sorted(self.plist, key=attrgetter(end_time))
         start_time = sorted(end_time, key=attrgetter(start_time))
