@@ -45,28 +45,19 @@ class phone(object):
                 p=start
                 while True:
                     current = phone.find(i, start)
-                      
-                    print('%s - %s' % (i, current))
                     if current == -1:
                         number = number + phone[start:]
-                        print(number)
-                        print(phone)
-                        print('----- end ------')
                         break
                     else:
-                        print ('number before: %s' % (number))
-                        print('Start: %s, current: %s' % (start, (current)))
                         number = number + phone[start:current]
-                        print(phone[start:current - 1])
-                        print ('number after: %s' % (number))
                         start= current +1
                         
-                        print(phone)
                     start = current +1    
             self.number = number
 if __name__ == '__main__':
     P = phone()
     P.set_phone()
     print(P.number)
+    print(P.phone())
 
     

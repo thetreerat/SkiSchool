@@ -20,7 +20,8 @@ class database(object):
         
     def __del__(self):
         if self.db!=None:
-            self.close()
+            if self.db.closed==0:
+                self.close()
         
     def connect(self):
         """ """
@@ -36,6 +37,7 @@ class database(object):
                                        database=self.database,
                                        password=self.password)
         self.cur = self.db.cursor()
+        
     
     def fetchdata(self, proc, params):
         if self.cur==None:

@@ -83,7 +83,7 @@ class person(object):
         
 class instructor(person):
     """Class for instructor object based on person class object"""
-    def __init__(self, eid=None, firstname=None, lastname=None):
+    def __init__(self, eid=None, firstname=None, lastname=None, db_handle=None):
         """Init a instructor object"""
         person.__init__(self, firstname=firstname, lastname=lastname)
         self.eid = eid
@@ -108,7 +108,10 @@ class instructor(person):
         self.clist = None
         self.llist = None
         self.alist = None
-
+        if db_handle==None:
+            db_handle = database()    
+        self.db_handle = db_handle
+        
     def add_cert(self, answer):
         os.system('clear')
         if len(answer)==1:
@@ -136,19 +139,7 @@ class instructor(person):
                     self.clist = certs()
                 cert_to_add.assign_cert(self.eid)
                 self.clist.clist.append(cert_to_add)
-            
-    def add_employee_end_date_db(self):
-        ski_db = database()
-        ski_db.connect()
-        ski_db.cur.callproc('add_employee_end', [self.eid, self.end_date,])
-        ski_db.close()        
-    
-    def add_employee_start_db(self):
-        ski_db = database()
-        ski_db.connect()
-        ski_db.cur.callproc('add_employee_start', [self.eid, self.start_date,])
-        ski_db.close()
-    
+                              
     def assign_jacket(self, answer):
         """assign jacket to instructor"""
         J = jackets()
@@ -286,29 +277,17 @@ class instructor(person):
 
     def get_cell_db(self):
         """get employee cell from database"""
-        ski_db = database()
-        ski_db.connect()
-        ski_db.cur.callproc('get_employee_cell', [self.eid, ])
-        result = ski_db.cur.fetchall()
+        result = self.db_handle.fetchdata('get_employee_cell', [self.eid, ])
         self.cell_phone = result[0][0]
-        #dump = raw_input('ready? ')
-        ski_db.close()
         return True
-        
-    def get_cert_db(self):
-        pass
-    
+            
     def get_season_dates_db(self):
         """get current season dates and return status from database"""
-        ski_db = database()
-        ski_db.connect()
-        ski_db.cur.callproc('get_employee_season_dates', [self.eid,])
-        result = ski_db.cur.fetchall()
+        result = self.db_handle.fetchdata('get_employee_season_dates', [self.eid,])
         if len(result)>0:
             if result[0][0]==self.eid:
                 d,self.start_date,self.end_date,self.employee_returning, self.return_title = result[0]
                 self.start_date_New = False
-        ski_db.close()
         
     def print_instructor(self, form='short'):
         """Print instructor object"""
@@ -371,33 +350,23 @@ class instructor(person):
         self.end_date = raw_input("""Enter End Date (%s): """ % (ed))
         if self.end_date=='':
             self.end_date= ed
-        self.add_employee_end_date_db()
+        self.db_handle.fetchdata('add_employee_end', [self.eid, self.end_date,])
     
     def set_start_date(self, sd='11/01/19'):
-        """ """
+        """Set start date and update database"""
         self.start_date = raw_input("""Enter Start date (%s): """% (sd))
         if self.start_date == '':
             self.start_date = sd
-        self.add_employee_start_db()
-                  
-    def update_instructor_db(self):
-        """update instructor in database """
-        ski_db = database()
-        ski_db.connect()
-        ski_db.cur.callproc('update_employee', [self.eid,])
-        result = ski_db.cur.fetchall()
-        if len(result)>0:
-            if result[0][0]==self.eid:
-                d,self.start_date,self.end_date,self.employee_returning, self.return_title = result[0]
-        ski_db.close()    
-    
+        self.db_handle.fetchdata('add_employee_start', [self.eid, self.start_date,])    
     
     
 class instructors(object):
     def __init__(self, db_handle=None):
         """init a set of instructors"""
         self.ilist = []
-        self.db = db_handle
+        if db_handle==None:
+            db_handle = database()
+        self.db_handle = db_handle
     
     def sort_person_key(self, person):
         return person.name
@@ -416,23 +385,10 @@ class instructors(object):
             
     def add_instructor_db(self, dump=None):
         """write list of new instructors to db"""
-        c = psycopg2.connect(user="postgres",
-                             port="5432",
-                             host="127.0.0.1",
-                             database="skischool")
-        cur = c.cursor()
         for i in self.ilist:
-            cur.callproc('add_employee', [i.firstname, i.lastname, ])
-            result = cur.fetchall()
-            #print(result)
-            cur.callproc('get_eid', [i.firstname, i.lastname, ])
-            result = cur.fetchall()
+            result = self.db_handle.fetchdata('add_employee', [i.firstname, i.lastname, ])
+            result = self.db_handle.fetchdata('get_eid', [i.firstname, i.lastname, ])
             i.eid = result[0][0]
-            #print(i.eid)
-        #self.print_shift()
-        c.commit()
-        cur.close()
-        c.close()
         return True
 
     def clear(self, dump=None):        
@@ -466,8 +422,7 @@ class instructors(object):
                 
                 
             i.edit_instructor()
-        
-              
+                      
     def checkID(self, eid):
         for i in self.ilist:
             if i.eid==eid:
@@ -511,13 +466,9 @@ class instructors(object):
         except:
             pass
         self.find_name_db(p.firstname, p.lastname)
-        
-        
+                
     def find_name_db(self, firstname, lastname):
-        ski_db = database()
-        ski_db.connect()
-        ski_db.cur.callproc('get_employee', [firstname, lastname])
-        result = ski_db.cur.fetchall()
+        result = self.db_handle.fetchdata('get_employee', [firstname, lastname])
         for r in result:
             if self.checkID(r[0])==None:
                 i = instructor(eid=r[0], firstname=r[1], lastname=r[2])
@@ -536,7 +487,6 @@ class instructors(object):
                 i.psia_id = r[15]
                 i.aasi_id = r[16]
                 self.ilist.append(i)
-        ski_db.close()
         
     def get_name(self, eid, return_type='INDEX'):
         """return index or name from eid"""
@@ -558,20 +508,13 @@ class instructors(object):
         print('get_available_instructors sid:%s' % (sid))
         if Clear:
             self.clear()
-        ski_db = database()
-        ski_db.connect()
-        ski_db.cur.callproc('list_availble', [sid,])
-        #results = ski_db.call_ski_proc('list_availble', [int(sid)])
-        result = ski_db.cur.fetchall()
+        result = self.db_handle.fetchdata('list_availble', [sid,])
         for r in result:
             i = instructor()
             i.eid = r[0]
             i.firstname = r[1]
             i.lastname = r[2]
             self.add_instructor(i)
-        ski_db.close()                
-
-
         
     def list_instructors(self):
         """Print list of instructors"""
