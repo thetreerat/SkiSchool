@@ -392,9 +392,21 @@ self.instructor_lastname = %s""" % (self.shift_name,
         self.update = True
     
     def update_private_db(self):
-        #need to make
-        
-        self.update = False
+        #need to make work, only resets check
+        if self.update:
+            if self.sid!=None:
+                #update_shift not implemented yet!
+                #self.db_handle.fetchdata('update_shift', [self.sid,])
+                pass
+            else:
+                self.add_shift_db()
+            if self.pid!=None:
+                    #Update_private not implemented yet!
+                    #self.db_handle.fetchdata('update_private', [self.pid])
+                    pass
+            else:
+                self.add_private_db()
+            self.update = False
     
 class privates(object):
     """Container for private objects"""
@@ -469,7 +481,7 @@ class find_private(object):
         self.db_handle = db_handle
         self.contact = person()
         self.student = person()
-        self.instructor = instructor()
+        self.instructor = person()
         self.date = None
         self.disapline = None
         self.type = None

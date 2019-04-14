@@ -48,24 +48,38 @@ class person(object):
 
     def set_name(self, I=None):
         """Collect name and set"""
+        try:
+            db_handle = I[3]
+            I = I[2]
+        except:
+            pass
         if not I:
-            #try:
+            try:
                 I = list(raw_input('Name: ').split())
-                
-            #except:
-            #    return 
-        icount = len(I)
+            except:
+                return
+        try:
+            icount = len(I)
+        except:
+            icount = 0
         if icount==2:
             self.firstname = I[0]
             self.lastname = I[1]
+            #print('Count 2: %s' % (I))
         elif icount==3:
             self.firstname = I[0]
             self.lastname = I[1]
             self.suffix = I[2]
-        else:
+            #print('Count 3: %s' % (I))
+        elif icount==1:
             self.firstname = I[0]
             self.lastname = raw_input('Last Name: ')
-            self.suffix = raw_input('Suffix (Jr,Sr,III,..):')
+            self.suffix = raw_input('Suffix (Jr,Sr,III,..): ')
+            #print('Count 1: %s' % (I))
+        else:
+            self.firstname = raw_input('First Name: ')
+            self.lastname = raw_input('Last Name: ')
+            self.suffix = raw_input('Suffix (Jr,Sr,III,..): ')
         
 class instructor(person):
     """Class for instructor object based on person class object"""
