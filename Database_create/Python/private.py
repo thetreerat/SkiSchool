@@ -5,13 +5,15 @@ from operator import attrgetter
 from datetime import datetime
 from instructor import instructor
 from instructor import instructors
+from instructor import person
 #from instructor import person
 from shift import shift
 import sys
 import os
 import psycopg2
 from menu import Menu
-from database import database               
+from database import database
+
 
         
 class private(shift):
@@ -409,8 +411,40 @@ class privates(object):
             if i.pid==pid:
                 return i
         return None
+    
     def find_privates(self, options):
-        raw_input(options)
+        try:
+            m = Menu(db_handle=options[4], menu_title='Find Private Menu')
+        except:
+            m = Menu(menu_title='Find Private Menu')
+        try:
+            action, index, option = m.split_command(option[2])
+            if action in ['DATE', 'DAT', 'DA', 'D']:
+                print(option)
+            elif action in ['STUDENT']:
+                pass
+            else:
+                find = find_private()
+                print('find_private if action else section')
+        except:
+            find = find_private(db_handle=self.db_handle)
+            m.menu_display = find.print_self
+            m.add_item('Student', 'Enter Student Name', find.student.set_name)
+            m.add_item('Contact', 'Enter Student Name', find.contact.set_name)
+            m.add_item('Instructor', 'Enter Instuctor Name', find.instructor.set_name)
+            m.add_item('Date', 'Enter Date', self.set_date)
+            m.add_item('Discipline', 'Enter Discipline (Ski/SB/Tele)', self.set_discipline)
+            m.add_item('Type', 'Enter type (assigned/demand)', self.set_type)
+            m.Menu()
+    
+    def set_date(self):
+        raw_input('set date function, noting happening.')
+
+    def set_discipline(self):
+        raw_input('set discipline function, noting happening.')
+    
+    def set_type(self):
+        raw_input('set type function, nothing happening yet!')
         
     def sort_list(self):
         end_time = sorted(self.plist, key=attrgetter(end_time))
@@ -424,8 +458,33 @@ class privates(object):
         for p in self.plist:
             p.print_self(count)
             count += 1
-            
     
+    def print_this(self,dump):
+        print('menu display text')
+        
+class find_private(object):
+    def __init__(self, db_handle=None):
+        if db_handle==None:
+            db_handle = database()
+        self.db_handle = db_handle
+        self.contact = person()
+        self.student = person()
+        self.instructor = instructor()
+        self.date = None
+        self.disapline = None
+        self.type = None
+        self.age = None
+        
+    def print_self(self, dump=None):
+        print("""
+    Contact Name:     %s
+    Student Name:     %s
+    Instructor Name:  %s
+    Lesson Date:      %s
+    Lesson Disapline: %s
+    Lesson Type:      %s
+    Age:              %s""" % (self.contact.name(), self.student.name(), self.instructor.name(), self.date, self.disapline, self.type, self.age))
+        
     
 if __name__ == '__main__':    
     db_handle = database()

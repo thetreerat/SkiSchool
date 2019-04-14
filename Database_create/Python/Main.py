@@ -7,6 +7,7 @@ from instructor import instructors
 from jacket import jacket
 from jacket import jackets
 from private import private
+from private import privates
 from database import database
 #from jacket import jacket_histories
 #from jacket import jacket_history
@@ -43,10 +44,12 @@ def instructor_menu(answer=None):
     
 
 def private_menu(options=None):
+    print(options[3])
     try:
         db_handle = options[3]
     except:
-        db_handle = database()        
+        db_handle = database()
+    P = privates(db_handle=db_handle)
     find_help = """FIND DATE <DATE> - Find private lessons on date.
                     - FIND CUSTOMER <Firstname> <LastName> - Find private lessons for customer Name
                     - FIND INSTRUCTOR <Firstname> <Lastname> - find private lessons assigned to instructor
@@ -55,7 +58,7 @@ def private_menu(options=None):
     private.menu_display = private.print_help
     private.add_item('New', 'NEW - Create a new private lesson', private_new_menu)
     private.add_item('Cancel', 'CANCEL # - Cancel private lesson at line #', print_this)
-    private.add_item('Find', find_help, print_this)
+    private.add_item('Find', find_help, P.find_privates)
     private.add_item('Publish', 'PUBLISH <DATE> - Create HTML Page for Date, and post on website', print_this)
     private.add_item('Edit', 'EDIT # - Edit a private lesson', print_this)
     private.Menu()
@@ -88,7 +91,7 @@ def schedule_menu(dump=None):
     schedule.add_item('availability', 'list availability for a day of the week', print_this)
     schedule.Menu()
 
-def schedule_private_menu(options):
+#def schedule_private_menu(options):
 
 if __name__ == "__main__":
     ski_db = database()

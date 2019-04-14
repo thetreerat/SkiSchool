@@ -15,11 +15,12 @@ class database(object):
         self.host = host
         self.port = port
         self.database = database
+        self.db = None
+        print('Database object created!')
         
     def __del__(self):
-        self.commit()
-        self.cur.close()
-        self.db.close()
+        if self.db!=None:
+            self.close()
         
     def connect(self):
         """ """
@@ -58,4 +59,5 @@ class database(object):
         self.db.commit()
         self.cur.close()
         self.db.close()
-        
+
+ 

@@ -89,7 +89,7 @@ class  Menu(object):
                 self.menu_display()
             except:
                 self.print_help()
-                #print("invalid display menu used for %s" % (self.menu_title))
+                print("%s is invalid display menu function for %s" % (self.menu_display, self.menu_title))
             self.print_command_list()
             action, item_index, options  = self.split_command(raw_input('Enter Command: '))
             while action:
