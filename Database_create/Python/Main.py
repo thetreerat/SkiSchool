@@ -42,7 +42,6 @@ def instructor_menu(answer=None):
 
     instructor.Menu()
     
-
 def private_menu(options=None):
     print(options[3])
     try:

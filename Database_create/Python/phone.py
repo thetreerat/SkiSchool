@@ -3,20 +3,21 @@
 #
 class phone(object):
     def __init__(self, number=None, display='Cell', publish=True):
-        self.number = number
+        self._number = number
         self.display = display
         self.publish = publish
+        print(self._number)
     
-    def phone(self, number_only=True):
+    def number(self, number_only=True):
         """convert phone number to display value and return"""
         
-        l = len(self.number)
+        l = len(self._number)
         if l==7:
-            phone = """%s-%s""" % (self.number[0:3], self.number[3:7])
+            phone = """%s-%s""" % (self._number[0:3], self._number[3:7])
         elif l==10:
-            phone = """%s-%s-%s""" % (self.number[0:3], self.number[3:6], self.number[-4:])
+            phone = """%s-%s-%s""" % (self._number[0:3], self._number[3:6], self._number[-4:])
         else:
-            phone = self.number
+            phone = self._number
             
         return phone
     
@@ -53,11 +54,13 @@ class phone(object):
                         start= current +1
                         
                     start = current +1    
-            self.number = number
+        self._number = number
+            
 if __name__ == '__main__':
     P = phone()
     P.set_phone()
-    print(P.number)
-    print(P.phone())
+    print(P)
+    print(P._number)
+    print(P.number())
 
     

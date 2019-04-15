@@ -12,6 +12,7 @@ from jacket import jackets
 from datetime import datetime
 from availability import availability
 from availability import availablities
+from phone import phone
 
 
 class person(object):
@@ -45,7 +46,6 @@ class person(object):
         else:
             print("""%s %s""" % (self.firstname, self.lastname)) 
     
-
     def set_name(self, I=None):
         """Collect name and set"""
         try:
@@ -87,7 +87,8 @@ class instructor(person):
         """Init a instructor object"""
         person.__init__(self, firstname=firstname, lastname=lastname)
         self.eid = eid
-        self.cell_phone = None
+        self.cell_phone = phone()
+        print(self.cell_phone)
         self.cell_publish = None
         self.phone_2_text = 'Home'
         self.phone_2 = None
@@ -175,21 +176,6 @@ class instructor(person):
         #print("""line value: |%s|""" % line)
         if line not in ['']:
             L.llist[line].assign_location_db(self.eid)
-        
-    def cell_display(self):
-        """convert phone number to display value and return"""
-        if self.cell_phone!=None:
-            l = len(self.cell_phone)
-            if l==7:
-                phone = """%s-%s""" % (self.cell_phone[0:3], self.cell_phone[3:7])
-            elif l==10:
-                phone = """%s-%s-%s""" % (self.cell_phone[0:3], self.cell_phone[3:6], self.cell_phone[-4:])
-            else:
-                phone = self.cell_phone
-                
-            return phone
-        else:
-            return ''
 
     def edit_instructor(self):
         run = True
@@ -222,7 +208,7 @@ class instructor(person):
                     break
 
                 elif answer[0] in ['CELL','CEL','CE']:
-                    self.set_cell()
+                    self.cell_phone.set_phone()
                     break
 
                 elif answer[0] == 'C':
@@ -278,7 +264,7 @@ class instructor(person):
     def get_cell_db(self):
         """get employee cell from database"""
         result = self.db_handle.fetchdata('get_employee_cell', [self.eid, ])
-        self.cell_phone = result[0][0]
+        self.cell_phone.set_phone(result[0][0])
         return True
             
     def get_season_dates_db(self):
@@ -301,7 +287,7 @@ class instructor(person):
     Current Start Date: %s
     Current End Date:   %s""" % (self.eid,
                                  self.name(),
-                                 self.cell_display(),
+                                 self.cell_phone.number(),
                                  self.start_date,
                                  self.end_date
                                 ))
@@ -332,11 +318,7 @@ class instructor(person):
     MAIN     - return to Main menu
     EXIT     - exit to system prompt
     ------------------------------------------------""")
-        
-    def set_cell(self):
-        """collect and set cell in instructor object """
-        self.cell_phone = raw_input("""Cell Phone (%s): """ % (self.cell_phone))
-            
+                    
     def instructor_name(self):
         """return instructor name first name<sp> last name as string"""
         return """%s %s""" % (self.firstname, self.lastname)
@@ -401,7 +383,7 @@ class instructors(object):
         else:
             eid(raw_input('enter ID: '))
         i = self.checkID(int(eid))
-        print('here')
+        #print('here')
         if i!=None:
             if i.cell_phone==None:
                 i.get_cell_db()
@@ -471,7 +453,7 @@ class instructors(object):
         result = self.db_handle.fetchdata('get_employee', [firstname, lastname])
         for r in result:
             if self.checkID(r[0])==None:
-                i = instructor(eid=r[0], firstname=r[1], lastname=r[2])
+                i = instructor(eid=r[0], firstname=r[1], lastname=r[2], db_handle=self.db_handle)
                 i.suffix = r[3]
                 i.nickname = r[4]
                 i.DOB = r[5]
