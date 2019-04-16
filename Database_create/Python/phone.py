@@ -1,18 +1,17 @@
 # Author: Harold Clark
 # Copyright Harold Clark 2019
 #
-class phone(object):
-    def __init__(self, number=None, display='Cell', publish=True):
+from database import database
 
-        if number==None:
-            self._number = number
-        else:
-            self.set_phone(number)
+class phone(object):
+    def __init__(self, number=None, display='Cell', publish=True, db_handle=None):
+        self._number = None
+        self.db_handle = None
+        self._publish = None
         self.display = display
-        if publish==None:
-            self._publish = False
-        else:
-            self.set_publish(publish)
+        self.set_phone(number)
+        self.set_publish(publish)
+        self.set_db_handle(db_handle)
             
     def number(self, number_only=True):
         """convert phone number to display value and return"""
@@ -26,7 +25,13 @@ class phone(object):
             phone = self._number
             
         return phone
-    
+
+    def publish(self):
+        if self._publish==1:
+            return 'True'
+        else:
+            return 'False'
+              
     def set_phone(self, options=None):
         if type(options) is list:
             try:
@@ -70,18 +75,25 @@ class phone(object):
         except:
             pass
         
-        if data in [0, 'FALSE', False]:
+        if data in [0, 'FALSE', False, None]:
             self._publish = 0
         elif data in [1,'TRUE',True]:
             self._publish = 1
     
-    def publish(self):
-        if self._publish==1:
-            return 'True'
-        else:
-            return 'False'
+    def set_db_handle(self, db_handle):
+        if db_handle==None:
+            db_handle = database(owner='phone.py - phone')
             
-        
+      
+class phones(object):
+    def __int__(self, db_handle=None):
+        self.plist = []
+        self.set_db_handle(db_handle)
+        self.db_handle = None
+    
+    def set_db_handle(self, db_handle):
+        if db_handle==None:
+            s
 if __name__ == '__main__':
     P = phone(number='(585) 512-4786', publish=True)
     print('raw number: %s' % (P._number))
