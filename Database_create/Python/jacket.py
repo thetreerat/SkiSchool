@@ -15,7 +15,6 @@ class jacket_history(object):
         self.update_user = update_user
         self.eid = eid
 
-
     def print_history(self):
         """Print history object"""
         print("""    %s  %s %s %s""" % (self.history_date,
@@ -27,25 +26,23 @@ class jacket_history(object):
     
 class jacket_histories(object):
     """Class for list of Jacket History"""
-    def __init__(self, jid=None):
+    def __init__(self, jid=None, db_handle=None):
         self.jid = jid
         self.hlist = []
+        if db_handle==None:
+            db_handle = database(owner=jacket_history)
+        self.db_handle = db_handle
         self.get_history()
             
     def get_history(self):
         """Load hitrory for jacket from db"""
         self.clear()
         if self.jid!=None:
-            ski_db = database()
-            ski_db.connect()
-            ski_db.cur.callproc('get_jacket_history',[self.jid,])
-            result = ski_db.cur.fetchall()
+            result = self.db_handle.fetchdata('get_jacket_history',[self.jid,])            
             for r in result:
                 h = jacket_history(r[0], r[1], r[2] + ' ' + r[3], r[4], r[5])
                 self.hlist.append(h)
-            ski_db.close()
-                
-            
+                        
     def print_history(self):
         """Print the jacket history"""
         print("""    Date        Event  Employee Name                                                  Clerk
@@ -53,15 +50,27 @@ class jacket_histories(object):
         for h in self.hlist:
             h.print_history()
         print("""    ------------------------------------------------------------------------------------------------""")
+    
     def clear(self):
         """Clear history list"""
         self.hlist = []
             
 class jacket(object):
     """Jacket class"""
-    def __init__(self, jid=None, jacket_type=None, jacket_size=None, jacket_number=None, eid=None, lid=None, jacket_condition=None):
+    def __init__(self,
+                 jid=None,
+                 jacket_type=None,
+                 jacket_size=None,
+                 jacket_number=None,
+                 eid=None,
+                 lid=None,
+                 jacket_condition=None,
+                 db_handle=None):
         """init of a jacket"""
         self.jid = jid
+        if db_handle==None:
+            db_handle = database(owner=jacket)
+        self.db_handle = db_handle
         self.jacket_type = jacket_type
         self.jacket_size = jacket_size
         self.jacket_number = jacket_number
@@ -82,11 +91,8 @@ class jacket(object):
         self.eid_returning = raw_input("""Is %s returning (1 - Yes, 2 - Maybe, 3 - No): """ % (self.assigned_name))
         if self.eid_returning==1:
             self.lid = 5
-        ski_db = database()
-        ski_db.connect()
-        ski_db.cur.callproc('check_in_jacket', [self.jid, self.eid_returning, self.lid,])
-        result = ski_db.cur.fetchall()
-        ski_db.close()
+        result = self.db_handle.fetchdata('check_in_jacket', [self.jid, self.eid_returning, self.lid,])
+        #need code to get current database unassigned jacket eid
         self.assigned_eid=42
         self.assigned_name = 'Unassigned Jacket'
         
@@ -98,21 +104,14 @@ class jacket(object):
         if eid==None:
             eid = raw_input('Employee id: ')
         location_name = 'Locker'
-        ski_db = database()
-        ski_db.connect()
-        ski_db.cur.callproc('check_out_jacket', [eid, self.jid, location_name,])
-        result = ski_db.cur.fetchall()
-        ski_db.close()
+        result = self.db_handle.fetchdata('check_out_jacket', [eid, self.jid, location_name,])
         self.assigned_eid = eid
         self.assigned_name = ''
         
     def get_jackat_db(self):
         """Get jacket data from database"""
-        ski_db = database()
-        ski_db.connect()
-        ski_db.cur.callproc('get_jacket', [self.jid,])
-        result = ski_db.cur.fetchall()
-        result = result[0]
+        result = self.db_handle.fetchdata('get_jacket', [self.jid,])
+        result = result[0] #return one and only one jacket, dumpping list object
         self.jacket_type = result[1]
         self.jacket_size = result[3]
         self.jacket_number = result[2]
@@ -132,10 +131,9 @@ class jacket(object):
             self.history.clear()
             self.history.jid = self.jid
             self.history.get_histroy()
-        
-        
-        
+               
     def pad(self,item, length):
+        """ depricated use ljust insted"""
         if item==None:
             item = ''
             for l in range(length):
@@ -145,8 +143,7 @@ class jacket(object):
             for l in range(length):
                 item = item + chr(32)
         return item
-        
-        
+                
     def print_jacket(self, return_type='Long'):
         if return_type=='Long':
             print("""Jacket ID:     %s
@@ -173,8 +170,7 @@ Condition:     %s""" % (self.jid,
                                           self.pad(self.jacket_number,13),
                                           self.pad(self.location,13),
                                           self.pad(self.jacket_condition, 15)))
-                                          
-        
+                                                 
     def print_menu(self):
         os.system('clear')
         self.print_jacket()
@@ -256,13 +252,13 @@ class NewJacket(object):
         self.jacket_end_number = None
     
     def print_pad(self, item, length):
+        """Depricated functoin use ljust() """
         length = length - len(item)
         pad = ''
         for l in range(length):
             pad = pad + chr(32)
         return pad
-    
-    
+        
     def print_jacket(self, list_for='New'):
     
         print("""%s%s %s%s  %s%s %s%s %s """ % (self.jid, self.print_pad(str(self.jid), 7),
@@ -273,19 +269,18 @@ class NewJacket(object):
 
 class jackets(object):
     """Class for a list of jackets"""
-    def __init__(self):
+    def __init__(self, db_handle=None):
         """init of list of jackets"""
         self.jlist = []
         self.count = 0
+        if db_handle==None:
+            db_handle = database(owner='jackets.py - jackets')
+        self.db_handle = db_handle
 
     def add_jackets_db(self):
-        ski_db = database()
-        ski_db.connect()
         for line in self.jlist:
             for jacket_number in range(int(line.jacket_start_number), int(line.jacket_end_number) + 1):
-                ski_db.cur.callproc('add_jacket', [line.jacket_type, str(jacket_number), line.jacket_size, ])
-                result = ski_db.cur.fetchall()
-        ski_db.close()
+                result = self.db_handle.fetchdata('add_jacket', [line.jacket_type, str(jacket_number), line.jacket_size, ])
         return True
         
     def add_jacket_group(self):
@@ -309,19 +304,15 @@ class jackets(object):
             return None
         except:
             return None
-        
-     
+             
     def clear(self):
         self.jlist = []
     
     def get_employee_jackets_db(self, eid):
         """ """
-        ski_db = database()
-        ski_db.connect()
-        ski_db.cur.callproc('get_employee_jackets', [eid,])
-        result = ski_db.cur.fetchall()
+        result = self.db_handle.fetchdata('get_employee_jackets', [eid,])
         for r in result:
-            j = jacket()
+            j = jacket(db_handle=self.db_handle)
             j.jid = r[0]
             j.jacket_type = r[1]
             j.jacket_number = r[2]
@@ -332,13 +323,10 @@ class jackets(object):
             j.cot = r[7]
             j.jacket_condition = r[8]
             self.jlist.append(j)
-        ski_db.close()
 
     def get_jacket(self, jacket_size, jacket_type, jacket_number):
-        ski_db = database()
-        ski_db.connect()
-        ski_db.cur.callproc('', [])
-        result = ski_db.cur.fetchall()
+        # this need a matching stored procedure built and link in the below line
+        result = self.db_handle.fetchdata('', [])
         for r in result:
             j = jacket(jid=r[0],
                        jacket_type=r[1],
@@ -350,10 +338,7 @@ class jackets(object):
     
     def get_jackets_for_size(self, size):
         """get jackets for a size"""
-        ski_db = database()
-        ski_db.connect()
-        ski_db.cur.callproc('list_available_jacket', [size,])
-        result = ski_db.cur.fetchall()
+        result = self.db_handle.fetchdata('list_available_jacket', [size,])
         for r in result:
             j = jacket(jid=r[0])
             j.jacket_type = r[1]
@@ -363,8 +348,6 @@ class jackets(object):
             j.lid = r[5]
             j.location = r[6]
             self.jlist.append(j)
-            
-        ski_db.close()
 
     def new_jackets_menu(self):
         """Run menu to add New jackets"""
@@ -395,8 +378,7 @@ class jackets(object):
                     print("""Lost in space!!!""")
                     dump = raw_input('ready?')
                     break
-            
-        
+                    
     def print_list(self, list_for='New'):
         if list_for=='New':
             print("""    Line ID Jacket Type                    Jacket Size Jacket Start Number Jacket End Number """)
@@ -412,8 +394,7 @@ class jackets(object):
         
         print("""    ----------------------------------------------------------------------------------------------
               """)
-
-                
+               
     def print_menu(self, call_from='New'):
         os.system('clear')
         self.print_list(call_from)

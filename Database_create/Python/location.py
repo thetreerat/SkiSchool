@@ -13,31 +13,26 @@ class location(object):
                  location_name=None,
                  location_size=None,
                  elist=None,
-                 notes=None):
+                 notes=None,
+                 db_handle=None):
         self.lid = lid
         self.location_name = location_name
         self.location_size = location_size
         self.elist = elist
         self.notes = notes
-    
+        if db_handle==None:
+            db_handle = database(owner='location.py - location')
+        self.db_handle = db_handle
+        
     def add_location_db(self):
         """Add a location to the database"""
-        ski_db = database()
-        ski_db.connect()
-        ski_db.cur.callproc('add_location', [self.location_name,self.location_size,self.notes,])
-        result = ski_db.cur.fetchall()
+        result = self.db_handle.fetchdata('add_location', [self.location_name,self.location_size,self.notes,])
         self.lid = result[0][0]
-        ski_db.close()
     
     def assign_location_db(self, eid):
         """Assign location to instructor in database"""
-        ski_db = database()
-        ski_db.connect()
-        ski_db.cur.callproc('assign_location', [eid, self.lid])
-        result = ski_db.cur.fetchall()
-        ski_db.close()
-    
-    
+        result = self.db_handle.fetchdata('assign_location', [eid, self.lid])
+            
     def edit_location(self):        
         Edit=True
         while Edit:
@@ -99,10 +94,9 @@ class location(object):
                     print(answer)
                     dump = raw_input('ready?')
                     break
-                
-                
+                                
     def pad(self, item, length):
-        """ """
+        """depricated fundton use ljust """
         if item==None:
             item=''
         length = length - len(item)
@@ -150,8 +144,11 @@ class NewLocation(location):
                  location_size=None,
                  start_range=1,
                  end_range=10,
-                 prefix=None):
-        location.__init__(self, location_name=location_name, location_size=location_size)
+                 prefix=None,
+                 db_handle = None):
+        if db_handle==None:
+            db_handle=database(owner='location.py - NewLocation')
+        location.__init__(self, location_name=location_name, location_size=location_size, db_handle=db_handle)
         self.startrange = start_range
         self.endrange =end_range
         self.prefix = prefix
@@ -177,9 +174,6 @@ class NewLocation(location):
         if endrange!='':
             self.endrange = endrange
     
-    
-            
-        
     def print_location(self, list_type,count=None):
         if list_type=='New':
             print("""    %s %s %s %s %s %s""" % (self.pad(str(count), 6),
@@ -216,25 +210,25 @@ class NewLocation(location):
     
 class locations(object):
     """class object for holding location objects"""
-    def __init__(self):
+    def __init__(self, db_handle=None):
         """init object """
         self.llist = []
-    
+        if db_handle==None:
+            db_handle = database('location.py - locations')
+        self.db_handle = db_handle
+        
     def clear(self):
         self.llist = []
     
     def get_locations_employee_db(self, eid):
         """get loactions assigned to an employee"""
-        ski_db = database()
-        ski_db.connect()
-        ski_db.cur.callproc('get_locations_for_eid', [eid])
-        results = ski_db.cur.fetchall()
-        for r in results:
-            l = location(lid=r[2], location_name=r[0], location_size=r[1])
-            self.llist.append(l)
-            #l.print_location('Short')
-        ski_db.close()
-        
+        result = self.db_handle.fetchdata('get_locations_for_eid', [eid])
+        for r in result:
+            l = location(lid=r[2],
+                         location_name=r[0],
+                         location_size=r[1],
+                         db_handle=self.db_handle)
+            self.llist.append(l)        
     
     def print_list(self, call_from='New'):
         """print list of locations """
@@ -250,23 +244,21 @@ class locations(object):
             print("""    ----------------------------------------------------------""")
             
     def get_locations_free(self, size=None):
-        ski_db = database()
-        ski_db.connect()
         if size==None or size=='ALL':
-            ski_db.cur.callproc('list_available_location', [])
+            result = self.db_handle.fetchdata('list_available_location', [])
         else:
-            ski_db.cur.callproc('list_available_location', [size,])
-        results = ski_db.cur.fetchall()
+            result = self.db_handle.fetchdata('list_available_location', [size,])
         for r in results:
-            e = instructor(eid=r[2])
+            e = instructor(eid=r[2], db_handle=self.db_handle)
             e.firstname = r[5]
             e.lastname=r[6]
-            E = instructors()
+            E = instructors(db_handle=self.db_handle)
             E.ilist.append(e)
             l = location(lid=r[1],
                          location_name=r[3],
                          location_size=r[4],
-                         elist=E)
+                         elist=E,
+                         db_handle=self.db_handle)
             self.llist.append(l)
         #print(len(self.llist))
         

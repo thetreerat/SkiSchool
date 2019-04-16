@@ -3,6 +3,7 @@
 #
 import os
 import sys
+from database import database
 
 class  Menu(object):
     """New Class"""
@@ -18,7 +19,11 @@ class  Menu(object):
         self.add_item('Exit', 'Exit to system prompt.', self.exit_now)
         self.add_item('Return', 'Return to previous menu.', self.return_now)
         self.add_item('Help', 'Help Menu', self.help)
-        self.ski_database = db_handle
+        if db_handle==None:    
+            self.db_handle = database(owner='Menu.py - menu')
+        else:
+            self.db_handle = db_handle
+            
 
     def sort_item_key(self, i):
         return i.display_text
@@ -85,7 +90,7 @@ class  Menu(object):
                 self.menu_display()
             except:
                 self.print_help()
-                #print("invalid display menu used for %s" % (self.menu_title))
+                print("%s is invalid display menu function for %s" % (self.menu_display, self.menu_title))
             self.print_command_list()
             action, item_index, options  = self.split_command(raw_input('Enter Command: '))
             while action:
@@ -93,13 +98,13 @@ class  Menu(object):
                     self.help()
                     break
                 else:
-                    not_hit = True
+                    hit = False
                     for i in self.menu_items:
                         if action in i.item_match:
-                            i.menu_command( [action, item_index, options])
-                            not_hit = False
+                            i.menu_command( [action, item_index, options, self.db_handle])
+                            hit = True
                             break
-                    if not_hit:
+                    if not hit:
                         raw_input('%s is invalid. ready?' % (action))
                         break
                     break

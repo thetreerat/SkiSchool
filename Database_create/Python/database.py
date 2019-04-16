@@ -7,7 +7,7 @@ import psycopg2
 
 class database(object):
     """ """
-    def __init__(self, user='postgres', host='127.0.0.1', port='5432', database='skischool', password=None):
+    def __init__(self, user='postgres', host='127.0.0.1', port='5432', database='skischool', password=None, owner='Unknown'):
         """ """
         self.cur = None
         self.password = password
@@ -15,10 +15,15 @@ class database(object):
         self.host = host
         self.port = port
         self.database = database
+        self.db = None
+        self.owner = owner
+        print('Database object created for %s' % (self.owner))
+        
     def __del__(self):
-        self.commit()
-        self.cur.close()
-        self.db.close()
+        if self.db!=None:
+            if self.db.closed==0:
+                self.close()
+        print('Database close for owner: %s' % (self.owner))
         
     def connect(self):
         """ """
@@ -34,6 +39,15 @@ class database(object):
                                        database=self.database,
                                        password=self.password)
         self.cur = self.db.cursor()
+        
+    
+    def fetchdata(self, proc, params):
+        if self.cur==None:
+            self.connect()
+        self.cur.callproc(proc, params)
+        results = self.cur.fetchall()
+        self.db.commit()
+        return results
     
     def fetchdata(self, proc, params):
         if self.cur==None:
@@ -57,4 +71,6 @@ class database(object):
         self.db.commit()
         self.cur.close()
         self.db.close()
-        
+        print('Close database connnect for owner %s' % (self.owner))
+
+ 

@@ -12,6 +12,7 @@ from jacket import jackets
 from datetime import datetime
 from availability import availability
 from availability import availablities
+from phone import phone
 
 
 class person(object):
@@ -45,35 +46,49 @@ class person(object):
         else:
             print("""%s %s""" % (self.firstname, self.lastname)) 
     
-
     def set_name(self, I=None):
         """Collect name and set"""
+        try:
+            db_handle = I[3]
+            I = I[2]
+        except:
+            pass
         if not I:
-            #try:
+            try:
                 I = list(raw_input('Name: ').split())
-                
-            #except:
-            #    return 
-        icount = len(I)
+            except:
+                return
+        try:
+            icount = len(I)
+        except:
+            icount = 0
         if icount==2:
             self.firstname = I[0]
             self.lastname = I[1]
+            #print('Count 2: %s' % (I))
         elif icount==3:
             self.firstname = I[0]
             self.lastname = I[1]
             self.suffix = I[2]
-        else:
+            #print('Count 3: %s' % (I))
+        elif icount==1:
             self.firstname = I[0]
             self.lastname = raw_input('Last Name: ')
-            self.suffix = raw_input('Suffix (Jr,Sr,III,..):')
+            self.suffix = raw_input('Suffix (Jr,Sr,III,..): ')
+            #print('Count 1: %s' % (I))
+        else:
+            self.firstname = raw_input('First Name: ')
+            self.lastname = raw_input('Last Name: ')
+            self.suffix = raw_input('Suffix (Jr,Sr,III,..): ')
         
 class instructor(person):
     """Class for instructor object based on person class object"""
-    def __init__(self, eid=None, firstname=None, lastname=None):
+    def __init__(self, eid=None, firstname=None, lastname=None, db_handle=None):
         """Init a instructor object"""
         person.__init__(self, firstname=firstname, lastname=lastname)
         self.eid = eid
-        self.cell_phone = None
+        self.cell_phone = phone()
+        print(self.cell_phone)
         self.cell_publish = None
         self.phone_2_text = 'Home'
         self.phone_2 = None
@@ -94,7 +109,10 @@ class instructor(person):
         self.clist = None
         self.llist = None
         self.alist = None
-
+        if db_handle==None:
+            db_handle = database(owner='instructor.py instructor')    
+        self.db_handle = db_handle
+        
     def add_cert(self, answer):
         os.system('clear')
         if len(answer)==1:
@@ -122,19 +140,7 @@ class instructor(person):
                     self.clist = certs()
                 cert_to_add.assign_cert(self.eid)
                 self.clist.clist.append(cert_to_add)
-            
-    def add_employee_end_date_db(self):
-        ski_db = database()
-        ski_db.connect()
-        ski_db.cur.callproc('add_employee_end', [self.eid, self.end_date,])
-        ski_db.close()        
-    
-    def add_employee_start_db(self):
-        ski_db = database()
-        ski_db.connect()
-        ski_db.cur.callproc('add_employee_start', [self.eid, self.start_date,])
-        ski_db.close()
-    
+                              
     def assign_jacket(self, answer):
         """assign jacket to instructor"""
         J = jackets()
@@ -170,21 +176,6 @@ class instructor(person):
         #print("""line value: |%s|""" % line)
         if line not in ['']:
             L.llist[line].assign_location_db(self.eid)
-        
-    def cell_display(self):
-        """convert phone number to display value and return"""
-        if self.cell_phone!=None:
-            l = len(self.cell_phone)
-            if l==7:
-                phone = """%s-%s""" % (self.cell_phone[0:3], self.cell_phone[3:7])
-            elif l==10:
-                phone = """%s-%s-%s""" % (self.cell_phone[0:3], self.cell_phone[3:6], self.cell_phone[-4:])
-            else:
-                phone = self.cell_phone
-                
-            return phone
-        else:
-            return ''
 
     def edit_instructor(self):
         run = True
@@ -217,7 +208,7 @@ class instructor(person):
                     break
 
                 elif answer[0] in ['CELL','CEL','CE']:
-                    self.set_cell()
+                    self.cell_phone.set_phone()
                     break
 
                 elif answer[0] == 'C':
@@ -272,29 +263,17 @@ class instructor(person):
 
     def get_cell_db(self):
         """get employee cell from database"""
-        ski_db = database()
-        ski_db.connect()
-        ski_db.cur.callproc('get_employee_cell', [self.eid, ])
-        result = ski_db.cur.fetchall()
-        self.cell_phone = result[0][0]
-        #dump = raw_input('ready? ')
-        ski_db.close()
+        result = self.db_handle.fetchdata('get_employee_cell', [self.eid, ])
+        self.cell_phone.set_phone(result[0][0])
         return True
-        
-    def get_cert_db(self):
-        pass
-    
+            
     def get_season_dates_db(self):
         """get current season dates and return status from database"""
-        ski_db = database()
-        ski_db.connect()
-        ski_db.cur.callproc('get_employee_season_dates', [self.eid,])
-        result = ski_db.cur.fetchall()
+        result = self.db_handle.fetchdata('get_employee_season_dates', [self.eid,])
         if len(result)>0:
             if result[0][0]==self.eid:
                 d,self.start_date,self.end_date,self.employee_returning, self.return_title = result[0]
                 self.start_date_New = False
-        ski_db.close()
         
     def print_instructor(self, form='short'):
         """Print instructor object"""
@@ -308,7 +287,7 @@ class instructor(person):
     Current Start Date: %s
     Current End Date:   %s""" % (self.eid,
                                  self.name(),
-                                 self.cell_display(),
+                                 self.cell_phone.number(),
                                  self.start_date,
                                  self.end_date
                                 ))
@@ -339,11 +318,7 @@ class instructor(person):
     MAIN     - return to Main menu
     EXIT     - exit to system prompt
     ------------------------------------------------""")
-        
-    def set_cell(self):
-        """collect and set cell in instructor object """
-        self.cell_phone = raw_input("""Cell Phone (%s): """ % (self.cell_phone))
-            
+                    
     def instructor_name(self):
         """return instructor name first name<sp> last name as string"""
         return """%s %s""" % (self.firstname, self.lastname)
@@ -357,33 +332,23 @@ class instructor(person):
         self.end_date = raw_input("""Enter End Date (%s): """ % (ed))
         if self.end_date=='':
             self.end_date= ed
-        self.add_employee_end_date_db()
+        self.db_handle.fetchdata('add_employee_end', [self.eid, self.end_date,])
     
     def set_start_date(self, sd='11/01/19'):
-        """ """
+        """Set start date and update database"""
         self.start_date = raw_input("""Enter Start date (%s): """% (sd))
         if self.start_date == '':
             self.start_date = sd
-        self.add_employee_start_db()
-                  
-    def update_instructor_db(self):
-        """update instructor in database """
-        ski_db = database()
-        ski_db.connect()
-        ski_db.cur.callproc('update_employee', [self.eid,])
-        result = ski_db.cur.fetchall()
-        if len(result)>0:
-            if result[0][0]==self.eid:
-                d,self.start_date,self.end_date,self.employee_returning, self.return_title = result[0]
-        ski_db.close()    
-    
-    
+        self.db_handle.fetchdata('add_employee_start', [self.eid, self.start_date,])    
     
 class instructors(object):
     def __init__(self, db_handle=None):
         """init a set of instructors"""
         self.ilist = []
-        self.db = db_handle
+        if db_handle==None:
+            db_handle = database(owner='instructor.py - instructors')
+        print(db_handle)
+        self.db_handle = db_handle
     
     def sort_person_key(self, person):
         return person.name
@@ -402,23 +367,10 @@ class instructors(object):
             
     def add_instructor_db(self, dump=None):
         """write list of new instructors to db"""
-        c = psycopg2.connect(user="postgres",
-                             port="5432",
-                             host="127.0.0.1",
-                             database="skischool")
-        cur = c.cursor()
         for i in self.ilist:
-            cur.callproc('add_employee', [i.firstname, i.lastname, ])
-            result = cur.fetchall()
-            #print(result)
-            cur.callproc('get_eid', [i.firstname, i.lastname, ])
-            result = cur.fetchall()
+            result = self.db_handle.fetchdata('add_employee', [i.firstname, i.lastname, ])
+            result = self.db_handle.fetchdata('get_eid', [i.firstname, i.lastname, ])
             i.eid = result[0][0]
-            #print(i.eid)
-        #self.print_shift()
-        c.commit()
-        cur.close()
-        c.close()
         return True
 
     def clear(self, dump=None):        
@@ -431,29 +383,34 @@ class instructors(object):
         else:
             eid(raw_input('enter ID: '))
         i = self.checkID(int(eid))
-        print('here')
+        #print('here')
         if i!=None:
             if i.cell_phone==None:
                 i.get_cell_db()
             if i.start_date==None:
                 i.get_season_dates_db()
             if i.jlist==None:
-                i.jlist = jackets()
+                i.jlist = jackets(db_handle=self.db_handle)
                 i.jlist.get_employee_jackets_db(i.eid)
             if i.clist==None and i.eid!=None:
-                i.clist= certs(eid=i.eid, list_type='Employee')
+                i.clist= certs(eid=i.eid,
+                               list_type='Employee',
+                               db_handle=self.db_handle)
+                i.clist.get_employee_certs_db()
+            elif i.eid!=None:
+                i.clist.clear()
                 i.clist.get_employee_certs_db()
             if i.llist==None and i.eid!=None:
-                i.llist = locations()
+                i.llist = locations(db_handle=self.db_handle)
                 i.llist.get_locations_employee_db(i.eid)
             if i.alist==None and i.eid!=None:
-                i.alist = availablities(eid=i.eid)
+                i.alist = availablities(eid=i.eid,
+                                        db_handle=self.db_handle)
                 i.alist.get_employee_availablity()
                 
                 
             i.edit_instructor()
-        
-              
+                      
     def checkID(self, eid):
         for i in self.ilist:
             if i.eid==eid:
@@ -469,7 +426,6 @@ class instructors(object):
     def find_name(self, options=None):
         os.system('clear')
         p = person()
-        if options==None : options = [None, None, []]
         if not options[2]:
             print("""
     Find employees ....
@@ -491,21 +447,24 @@ class instructors(object):
                 p.suffix = options[2][2]
             except:
                 pass
+        clearlist = raw_input('Clear list first Y/N (N)?').upper()
+        try:
+            if clearlist[0]=='Y':
+                self.clear()
+        except:
+            pass
         self.find_name_db(p.firstname, p.lastname)
-        
+                
     def find_name_db(self, firstname, lastname):
-        ski_db = database()
-        ski_db.connect()
-        ski_db.cur.callproc('get_employee', [firstname, lastname])
-        result = ski_db.cur.fetchall()
+        result = self.db_handle.fetchdata('get_employee', [firstname, lastname, ])
         for r in result:
             if self.checkID(r[0])==None:
-                i = instructor(eid=r[0], firstname=r[1], lastname=r[2])
+                i = instructor(eid=r[0], firstname=r[1], lastname=r[2], db_handle=self.db_handle)
                 i.suffix = r[3]
                 i.nickname = r[4]
                 i.DOB = r[5]
-                i.cell_phone = r[6]
-                i.cell_publish = r[7]
+                i.cell_phone.set_phone(r[6])
+                i.cell_phone.set_publish(r[7])
                 i.phone_2_text = r[8]
                 i.phone_2 = r[9]
                 i.phone_3_text = r[10]
@@ -516,7 +475,6 @@ class instructors(object):
                 i.psia_id = r[15]
                 i.aasi_id = r[16]
                 self.ilist.append(i)
-        ski_db.close()
         
     def get_name(self, eid, return_type='INDEX'):
         """return index or name from eid"""
@@ -538,20 +496,13 @@ class instructors(object):
         print('get_available_instructors sid:%s' % (sid))
         if Clear:
             self.clear()
-        ski_db = database()
-        ski_db.connect()
-        ski_db.cur.callproc('list_availble', [sid,])
-        #results = ski_db.call_ski_proc('list_availble', [int(sid)])
-        result = ski_db.cur.fetchall()
+        result = self.db_handle.fetchdata('list_availble', [sid,])
         for r in result:
             i = instructor()
             i.eid = r[0]
             i.firstname = r[1]
             i.lastname = r[2]
             self.add_instructor(i)
-        ski_db.close()                
-
-
         
     def list_instructors(self):
         """Print list of instructors"""
