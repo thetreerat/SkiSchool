@@ -16,9 +16,9 @@ from database import database
 def print_this(dump=None):
     raw_input('This is a test! ')
     
-def jackets_menu(dump=None):    
-    
-    Jackets = Menu('Jacket Main Menu')
+def jackets_menu(options=None):    
+    db_handle = options[3]
+    Jackets = Menu('Jacket Main Menu', db_handle=db_handle)
     Jackets.menu_display = Jackets.print_help
     Jackets.add_item('New', 'Add new jacket series', jackets_new_menu)
     Jackets.add_item('Find', 'FIND - advance find menu', print_this)
@@ -30,8 +30,12 @@ def jackets_new_menu(dump=None):
     new_jackets.new_jackets_menu()    
 
 def instructor_menu(answer=None):
-    I = instructors()
-    instructor = Menu('Instructor Menu')
+    try:       
+        db_handle=answer[3]
+    except:
+        db_handle = database('main.py - instructor_menu')
+    I = instructors(db_handle=db_handle)    
+    instructor = Menu('Instructor Menu', db_handle=db_handle)
     instructor.menu_display = I.print_menu
     instructor.add_item('Add', 'ADD <Firstname> <Lastname> <Suffix> - add a new instructor', I.add)
     instructor.add_item('Clear', 'Clear - clears the list of found instructors', I.clear)
@@ -47,7 +51,7 @@ def private_menu(options=None):
     try:
         db_handle = options[3]
     except:
-        db_handle = database()
+        db_handle = database(owner='main.py Private_menu')
     P = privates(db_handle=db_handle)
     find_help = """FIND DATE <DATE> - Find private lessons on date.
                     - FIND CUSTOMER <Firstname> <LastName> - Find private lessons for customer Name
@@ -93,7 +97,7 @@ def schedule_menu(dump=None):
 #def schedule_private_menu(options):
 
 if __name__ == "__main__":
-    ski_db = database()
+    ski_db = database(owner='main.py __main__')
     Main = Menu('Main Menu', db_handle=ski_db)
     Main.menu_display = Main.print_help    
     Main.add_item('Instructors', 'Manage instructors', instructor_menu)

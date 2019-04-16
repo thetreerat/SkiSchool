@@ -3,11 +3,17 @@
 #
 class phone(object):
     def __init__(self, number=None, display='Cell', publish=True):
-        self._number = number
+
+        if number==None:
+            self._number = number
+        else:
+            self.set_phone(number)
         self.display = display
-        self.publish = publish
-        print(self._number)
-    
+        if publish==None:
+            self._publish = False
+        else:
+            self.set_publish(publish)
+            
     def number(self, number_only=True):
         """convert phone number to display value and return"""
         
@@ -21,46 +27,65 @@ class phone(object):
             
         return phone
     
-    def set_phone(self, options=[]):
-        try:
-            db_handle = options[3]
-            if options[1]:
-                phone = options[1]
-            elif options[2][0]:
-                phone = options[2][0]
-        except:
-            if len(options)>0:
-                phone = options[0]
-            else:
-                phone = raw_input('Enter Phone number: ')
-        try:
-            test = int(phone)
-        except:
-            I = ['-', '(', ')', ' ']
-            number = phone
-            for i in I:
-                phone = number
-                number = ''
-                start=0
-                current=start
-                p=start
-                while True:
-                    current = phone.find(i, start)
-                    if current == -1:
-                        number = number + phone[start:]
-                        break
-                    else:
-                        number = number + phone[start:current]
-                        start= current +1
-                        
-                    start = current +1    
+    def set_phone(self, options=None):
+        if type(options) is list:
+            try:
+                db_handle = options[3]
+                if options[1]:
+                    phone = options[1]
+                elif options[2][0]:
+                    phone = options[2][0]
+            except:
+                if len(options)>0:
+                    phone = options[0]
+                else:
+                    phone = raw_input('Enter Phone number: ')
+        elif type(options) is int:
+            self._number = options
+            return
+        else:
+            phone= options
+        I = ['-', '(', ')', ' ']
+        number = phone
+        for i in I:
+            phone = number
+            number = ''
+            start=0
+            current=start
+            p=start
+            while True:
+                current = phone.find(i, start)
+                if current == -1:
+                    number = number + phone[start:]
+                    break
+                else:
+                    number = number + phone[start:current]
+                    start= current +1
+                            
         self._number = number
+    
+    def set_publish(self, data):
+        try:
+            data.upper()
+        except:
+            pass
+        
+        if data in [0, 'FALSE', False]:
+            self._publish = 0
+        elif data in [1,'TRUE',True]:
+            self._publish = 1
+    
+    def publish(self):
+        if self._publish==1:
+            return 'True'
+        else:
+            return 'False'
             
+        
 if __name__ == '__main__':
-    P = phone()
-    P.set_phone()
-    print(P)
-    print(P._number)
-    print(P.number())
+    P = phone(number='(585) 512-4786', publish=True)
+    print('raw number: %s' % (P._number))
+    print('display: %s' % (P.number()))
+    print('Publish: %s' % (P.publish()))
 
     

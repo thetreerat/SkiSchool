@@ -8,7 +8,7 @@ from datetime import datetime
 
 class cert(object):
     """Cert Object """
-    def __init__(self, ct=None, cert_name=None, cert_org=None):
+    def __init__(self, ct=None, cert_name=None, cert_org=None, db_handle=None):
         self.cid = None
         self.ct = ct
         self.cert_date = None
@@ -18,6 +18,10 @@ class cert(object):
         self.html_class = None
         self.update = False
         self.min_eq = []
+        if db_handle==None:
+            print('New database handle created at __init__ cert')
+            db_handle = database()
+        self.db_handle = db_handle
         
     def Bool_test(self, item, print_return):
         if print_return=='Print':
@@ -72,18 +76,14 @@ class cert(object):
         pass
     
     def assign_cert(self, eid):
-        ski_db = database()
-        ski_db.connect()
-        ski_db.cur.callproc('add_employee_cert', [eid, self.ct, self.cert_current, self.cert_date.strftime('%m/%d/%y')])
-        ski_db.close()
+        result = self.db_handle.fetchdata('add_employee_cert', [eid, self.ct, self.cert_current, self.cert_date.strftime('%m/%d/%y')])
     
     def load_cert_db(self):
         if ct!=None:
-            ski_db = database
-            #result = ski_db.call_ski_proc('get_cert', [self.ct])
-            #for r in result:
-            #    self.cert_org = r[1]
-            #    self.cert_name = r[2]
+            result = self.db_handle.fetchdata('get_cert', [self.ct])
+            for r in result:
+                self.cert_org = r[1]
+                self.cert_name = r[2]
                 
     def pad(self, item, length):
         
@@ -141,12 +141,15 @@ class cert(object):
     
 class certs(object):
     """Cert List Object"""
-    def __init__(self, eid=None, list_type=None):
-        
+    def __init__(self, eid=None, list_type=None, db_handle=None):        
         """init Cert List Object"""
         self.clist = []
         self.eid = eid
         self.list_type = list_type
+        if db_handle==None:
+            print('New database handle created at __init__ certs')
+            db_handle = database()
+        self.db_handle = db_handle
 
     def add(self, item_index=False, options=None):
         """add new cert to list"""
@@ -300,12 +303,9 @@ class certs(object):
 
     def get_employee_certs_db(self):
         if self.eid!=None:
-            ski_db = database()
-            ski_db.connect()
-            ski_db.cur.callproc('get_employee_certs', [self.eid,])
-            result = ski_db.cur.fetchall()
+            result = self.db_handle.fetchdata('get_employee_certs', [self.eid,])
             for r in result:
-                c = cert()
+                c = cert(db_handle=self.db_handle)
                 c.cid = r[0]
                 c.ct = r[1]
                 c.cert_date = r[4]
@@ -313,18 +313,13 @@ class certs(object):
                 c.cert_name = r[2]
                 c.cert_org = r[3]
                 self.clist.append(c)
-            ski_db.close()
     
     def find_certs_db(self, organization=None, title=None):
         self.clear()
-        ski_db = database()
-        ski_db.connect()
-        ski_db.cur.callproc('find_certs', [organization, title,])
-        result = ski_db.cur.fetchall()
+        result = self.db_handle.fetchdata('find_certs', [organization, title,])
         for r in result:
-            c = cert(ct=r[0], cert_name=r[1], cert_org=r[2])
+            c = cert(ct=r[0], cert_name=r[1], cert_org=r[2], db_handle=self.db_handle)
             self.clist.append(c)
-        ski_db.close()
         
     def clear(self):
         self.clist = []
@@ -347,8 +342,12 @@ class cert_min(object):
             print("""        %s - %s""" % (self.ct_min_equal, self.min_equal_title))
 
 class cert_mins(object):
-    def __init__(self):
+    def __init__(self, db_handle=None):
         self.mlist = []
+        if db_handle==None:
+            print('New database handle created at __init__ cert_min')
+            db_handle = database()
+        self.db_handle = db_handle
     
     def checkID(self, ID):
         """ check list for CMID and return that cert_min object"""

@@ -110,7 +110,7 @@ class instructor(person):
         self.llist = None
         self.alist = None
         if db_handle==None:
-            db_handle = database()    
+            db_handle = database(owner='instructor.py instructor')    
         self.db_handle = db_handle
         
     def add_cert(self, answer):
@@ -341,13 +341,13 @@ class instructor(person):
             self.start_date = sd
         self.db_handle.fetchdata('add_employee_start', [self.eid, self.start_date,])    
     
-    
 class instructors(object):
     def __init__(self, db_handle=None):
         """init a set of instructors"""
         self.ilist = []
         if db_handle==None:
-            db_handle = database()
+            db_handle = database(owner='instructor.py - instructors')
+        print(db_handle)
         self.db_handle = db_handle
     
     def sort_person_key(self, person):
@@ -390,16 +390,22 @@ class instructors(object):
             if i.start_date==None:
                 i.get_season_dates_db()
             if i.jlist==None:
-                i.jlist = jackets()
+                i.jlist = jackets(db_handle=self.db_handle)
                 i.jlist.get_employee_jackets_db(i.eid)
             if i.clist==None and i.eid!=None:
-                i.clist= certs(eid=i.eid, list_type='Employee')
+                i.clist= certs(eid=i.eid,
+                               list_type='Employee',
+                               db_handle=self.db_handle)
+                i.clist.get_employee_certs_db()
+            elif i.eid!=None:
+                i.clist.clear()
                 i.clist.get_employee_certs_db()
             if i.llist==None and i.eid!=None:
-                i.llist = locations()
+                i.llist = locations(db_handle=self.db_handle)
                 i.llist.get_locations_employee_db(i.eid)
             if i.alist==None and i.eid!=None:
-                i.alist = availablities(eid=i.eid)
+                i.alist = availablities(eid=i.eid,
+                                        db_handle=self.db_handle)
                 i.alist.get_employee_availablity()
                 
                 
@@ -450,15 +456,15 @@ class instructors(object):
         self.find_name_db(p.firstname, p.lastname)
                 
     def find_name_db(self, firstname, lastname):
-        result = self.db_handle.fetchdata('get_employee', [firstname, lastname])
+        result = self.db_handle.fetchdata('get_employee', [firstname, lastname, ])
         for r in result:
             if self.checkID(r[0])==None:
                 i = instructor(eid=r[0], firstname=r[1], lastname=r[2], db_handle=self.db_handle)
                 i.suffix = r[3]
                 i.nickname = r[4]
                 i.DOB = r[5]
-                i.cell_phone = r[6]
-                i.cell_publish = r[7]
+                i.cell_phone.set_phone(r[6])
+                i.cell_phone.set_publish(r[7])
                 i.phone_2_text = r[8]
                 i.phone_2 = r[9]
                 i.phone_3_text = r[10]

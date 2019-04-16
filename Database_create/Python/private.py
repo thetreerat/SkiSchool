@@ -477,7 +477,7 @@ class privates(object):
 class find_private(object):
     def __init__(self, db_handle=None):
         if db_handle==None:
-            db_handle = database()
+            db_handle = database(owner='Find Private')
         self.db_handle = db_handle
         self.contact = person()
         self.student = person()
@@ -499,7 +499,7 @@ class find_private(object):
         
     
 if __name__ == '__main__':    
-    db_handle = database()
+    db_handle = database(owner='Private __Main__')
     P = private(db_handle=db_handle)
     private_new = Menu('Add New Private Menu', db_handle=db_handle)
     private_new.menu_display = P.PrivateMenu

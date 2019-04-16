@@ -20,7 +20,7 @@ class  Menu(object):
         self.add_item('Return', 'Return to previous menu.', self.return_now)
         self.add_item('Help', 'Help Menu', self.help)
         if db_handle==None:    
-            self.db_handle = database()
+            self.db_handle = database(owner='Menu.py - menu')
         else:
             self.db_handle = db_handle
             
@@ -97,13 +97,13 @@ class  Menu(object):
                     self.help()
                     break
                 else:
-                    not_hit = True
+                    hit = False
                     for i in self.menu_items:
                         if action in i.item_match:
                             i.menu_command( [action, item_index, options, self.db_handle])
-                            not_hit = False
+                            hit = True
                             break
-                    if not_hit:
+                    if not hit:
                         raw_input('%s is invalid. ready?' % (action))
                         break
                     break
