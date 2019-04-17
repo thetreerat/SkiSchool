@@ -12,7 +12,12 @@ class  employee(person):
         person.__init__(self, firstname=firstname, lastname=lastname, db_handle=db_handle)
         self.eid = eid
         self.shifts = []
-        self.set_db_handle(db_handle)
+
+    def __repr__(self):
+        return "Employee - %s, db=%s, pythonID: %s" % (self.name(), self.db_handle.owner, id(self))
+
+    def __str__(self):
+        return "Employees - %s, db=%s" % (self.name(), self.db_handle.owner)
            
     def About(self):
         print("""Author         : Harold Clark  email address thetreerat@gmail.com
@@ -27,12 +32,7 @@ Purpose        : This Class is a temlplete file
     def append_shift(self, shift):
         self.shifts.append(shift)
         self.sort()
-                
-    def set_db_handle(self, db_handle):
-        if db_handle==None:
-            db_handle = database(onwer='employee')
-        self.db_handle = db_handle
-        
+                        
     def sort(self):
         end_time = sorted(self.shifts, key=attrgetter('end_time'))
         start_time = sorted(end_time, key=attrgetter('start_time'))
@@ -42,14 +42,17 @@ class employees(object):
     employee.index = 1
     employee.object = 2
     employee.eid = 3
-    employee.name = 4
+    employee.full_name = 4
     employee.no_index = 5
     def __init__(self, db_handle=None):
         self.elist = []
         self.set_db_handle(db_handle)
 
+    def __repr__(self):
+        return "Employees - %s, db=%s, pythonID: %s" % (len(self.elist), self.db_handle.owner, id(self))
+
     def __str__(self):
-        return "Employees - %s, db=%s" % (len(self.elist), db_handle.owner)
+        return "Employees - %s, db=%s" % (len(self.elist), self.db_handle.owner)
     
     def append(self, employee):
         if not self.check_name(employee.firstname, employee.lastname):
@@ -62,7 +65,7 @@ class employees(object):
             if p.eid==eid:
                 if return_type==employee.index:
                     return i
-                elif return_type==employee.name:
+                elif return_type==employee.full_name:
                     return p.name()
                 elif return_type==employee.object:
                     return p
@@ -97,7 +100,7 @@ class employees(object):
         
     def set_db_handle(self, db_handle):
         if db_handle==None:
-            db_handle = database(owner='employee')
+            db_handle = database(owner='employees')
         self.db_handle = db_handle
 
     def sort_list(self):
@@ -108,10 +111,10 @@ class employees(object):
 if __name__ == "__main__":
     db_handle = database(owner='employee.py - __main__')
     E = employee(db_handle=db_handle)
-    E.set_name()
-    E.set_DOB
-    print(E.age())
-    #E.print_self()
+    #E.set_name()
+    #E.set_DOB()
+    #print(E.age())
+    ##E.print_self()
     print(E)
-    
+    #E
     #print(E.name())
