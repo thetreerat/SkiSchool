@@ -13,7 +13,7 @@ class  employee(person):
         self.eid = eid
         self.shifts = []
         self.set_db_handle(db_handle)
-    
+           
     def About(self):
         print("""Author         : Harold Clark  email address thetreerat@gmail.com
 Class          : New Class
@@ -47,6 +47,9 @@ class employees(object):
     def __init__(self, db_handle=None):
         self.elist = []
         self.set_db_handle(db_handle)
+
+    def __str__(self):
+        return "Employees - %s, db=%s" % (len(self.elist), db_handle.owner)
     
     def append(self, employee):
         if not self.check_name(employee.firstname, employee.lastname):
@@ -94,7 +97,7 @@ class employees(object):
         
     def set_db_handle(self, db_handle):
         if db_handle==None:
-            db_handle = database(onwer='employee')
+            db_handle = database(owner='employee')
         self.db_handle = db_handle
 
     def sort_list(self):
@@ -103,45 +106,12 @@ class employees(object):
         #print(len(firstname))
     
 if __name__ == "__main__":
-    from shift import shift
     db_handle = database(owner='employee.py - __main__')
-    E = employees(db_handle=db_handle)
-    e = employee(eid=15, firstname='Harold', lastname='Clark', db_handle=db_handle)
-    S = shift(shift_name='Test Shift',
-              start_time='10:00',
-              end_time='11:30',
-              date='04/19/19',
-              sid=341,
-              eid=e.eid,
-              db_handle=db_handle)
-    e.append_shift(S)
-    S = shift(shift_name='Test Shift',
-              start_time='13:00',
-              end_time='14:30',
-              date='04/19/19',
-              sid=355,
-              eid=e.eid,
-              db_handle=db_handle)
-    e.append_shift(S)
-    E.append(e)
-    e = employee(eid=18, firstname='Bob', lastname='Anderson', db_handle=db_handle)
-    S = shift(shift_name='Test Shift',
-              start_time='13:00',
-              end_time='14:30',
-              date='04/19/19',
-              sid=356,
-              eid=e.eid,
-              db_handle=db_handle)
-    e.append_shift(S)
-    S = shift(shift_name='Test Shift',
-              start_time='10:00',
-              end_time='11:30',
-              date='04/19/19',
-              sid=344,
-              eid=e.eid,
-              db_handle=db_handle)
-    e.append_shift(S)
-
-    E.append(e)
-    E.list()
+    E = employee(db_handle=db_handle)
+    E.set_name()
+    E.set_DOB
+    print(E.age())
+    #E.print_self()
+    print(E)
     
+    #print(E.name())

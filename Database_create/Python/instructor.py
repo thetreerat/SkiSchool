@@ -15,11 +15,7 @@ from availability import availablities
 from phone import phone
 from person import person
 
-    
- 
-    
-
-        
+            
 class instructor(person):
     """Class for instructor object based on person class object"""
     def __init__(self, eid=None, firstname=None, lastname=None, db_handle=None):

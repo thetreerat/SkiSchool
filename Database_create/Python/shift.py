@@ -5,7 +5,7 @@ from datetime import datetime
 import psycopg2
 from employee import employee
 from employee import employees
-
+from database import database
     
 class shift(object):
     def __init__(self,
@@ -29,7 +29,7 @@ class shift(object):
         self.ct_title = ct_title
         self.date = date
         self.eid = eid
-        self.db_handle = db_handle
+        self.set_db_handle(db_handle)   
 
     def print_shift(self):
         if self.sid==None:
@@ -41,6 +41,11 @@ class shift(object):
                                                             self.start_time,
                                                             self.end_time,
                                                             self.eid)
+
+    def set_db_handle(self, db_handle):
+        if db_handle==None:
+            db_handle = database(owner='employee')
+        self.db_handle = db_handle
     
     def shift_length_segments(self):
         t = ((self.end_time.hour * 60 + self.end_time.minute) - (self.start_time.hour * 60 + self.start_time.minute)) /15
@@ -92,11 +97,12 @@ class shifts(object):
         self.shifts = sorted(start_time, key=attrgetter('date'))        
         
 if __name__ == '__main__':
+    
     s = shift(shift_name = 'Private - test',
               start_time = '10:00',
               end_time = '11:30',
               html_class = 'Private',
-              date = '03/13/19',
+              date = '04/13/19',
               ct_title = 'Ski Instructor')
     s.add_shift_db()
     s.print_shift()

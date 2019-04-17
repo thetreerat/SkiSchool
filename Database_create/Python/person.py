@@ -25,6 +25,9 @@ class  person(object):
         self.db_handle = db_handle
         self.set_db_handle(db_handle)
 
+    def __str__(self):
+        return "Person: %s %s, db: %s" % (self._firstname, self._lastname, self.db_handle.owner)
+
     def age(self, adult=False):
         age = int(int((datetime.now() - self._DOB).days) / 365.2425)
             #calubate age from dob
@@ -146,7 +149,4 @@ Purpose        : This class is for greate a person object and the supporting fun
 
 if __name__ == "__main__":
     P = person()
-    P.set_name(nickname=True)
-    P.set_DOB()
-    print('person %s age is %s' % (P.name(nickname=True), P.age()))
-    
+    print(P)    
