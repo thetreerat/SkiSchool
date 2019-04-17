@@ -3,41 +3,9 @@
 #
 from datetime import datetime
 import psycopg2
+from employee import employee
+from employee import employees
 
-class employee(object):
-    def __init__(self, firstname=None, lastname=None):
-        """Init a employee"""
-        self.eid = None
-        self._firstname = firstname
-        self._lastname = lastname
-        self.shifts = []
-        
-    def append_shift(self, shift_name):
-        self.shifts.append(shift_name)
-        
-    def firstname(self):
-        return self._firstname
-    
-    def lastname(self):
-        return self._lastname
-    
-    def printperson(self):
-        print("""%s %s: %s""" % (self._firstname, self._lastname, len(self.shifts)))
-    
-class employees(object):
-    def __init__(self):
-        self.list = []
-    
-    def add_employee(self, employee):
-        self.list.append(person)
-        
-    def check_name(self, firstname, lastname):
-        i = 0
-        for p in self.list:
-            if p._firstname==firstname and p._lastname==lastname:
-                return i
-            i+=1
-        return None
     
 class shift(object):
     def __init__(self,
@@ -64,7 +32,15 @@ class shift(object):
         self.db_handle = db_handle
 
     def print_shift(self):
-        print """sid: %s %s: %s-%s""" % (self.sid, self.shift_name, self.start_time, self.end_time)
+        if self.sid==None:
+            sid = ''
+        else:
+            sid = str(self.sid)
+        print """        sid: %s %s: %s-%s    eid: %s""" % (sid.ljust(5),
+                                                            self.shift_name,
+                                                            self.start_time,
+                                                            self.end_time,
+                                                            self.eid)
     
     def shift_length_segments(self):
         t = ((self.end_time.hour * 60 + self.end_time.minute) - (self.start_time.hour * 60 + self.start_time.minute)) /15
@@ -96,6 +72,25 @@ class shift(object):
         cur.close()
         c.close()
 
+class shifts(object):
+    def __init__(self, db_handle=None):
+        self.slist = []
+        self.set_db_handle(db_handle)
+    
+    def append(self, shift):
+        self.slist.append(shift)
+        self.sort()
+        
+    def set_db_handle(self, db_handle):
+        if db_handle==None:
+            db_handle = database(onwer='employee')
+        self.db_handle = db_handle
+
+    def sort(self):
+        end_time = sorted(self.shifts, key=attrgetter('end_time'))
+        start_time = sorted(end_time, key=attrgetter('start_time'))
+        self.shifts = sorted(start_time, key=attrgetter('date'))        
+        
 if __name__ == '__main__':
     s = shift(shift_name = 'Private - test',
               start_time = '10:00',

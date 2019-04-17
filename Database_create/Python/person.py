@@ -58,12 +58,17 @@ class  person(object):
             name = '%s (%s)' % (name, self._nickname)
         return name
                 
-    def print_self(self):
-        if self._suffix:
-            print("""    %s %s %s""" % (self._firstname, self._lastname, self._suffix))
+    def print_self(self, count=None):
+        if count==None:
+            count = '    '
         else:
-            print("""    %s %s""" % (self._firstname, self._lastname))
-
+            count = '    %s ' % count
+        if self._suffix:
+            line = """%s%s %s %s""" % (count, self._firstname, self._lastname, self._suffix)
+        else:
+            line = """%s%s %s""" % (count, self._firstname, self._lastname)
+        print(line)
+        
     def set_db_handle(self, db_handle):
         if db_handle==None:
             db_handle = database(owner='person.py - person object')

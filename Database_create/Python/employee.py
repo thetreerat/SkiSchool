@@ -24,36 +24,34 @@ Purpose        : This Class is a temlplete file
 
 """)
     
-    def append_shift(self, shift_name):
-        self.shifts.append(shift_name)
-        self.sort_list()
-        
-    def append_shift(self, shift_name):
-        self.shifts.append(shift_name)
-        
+    def append_shift(self, shift):
+        self.shifts.append(shift)
+        self.sort()
+                
     def set_db_handle(self, db_handle):
         if db_handle==None:
             db_handle = database(onwer='employee')
         self.db_handle = db_handle
         
-    def sort_list(self):
-        end_time = sorted(self.shifts, key=attrgetter(end_time))
-        start_time = sorted(end_time, key=attrgetter(start_time))
-        self.shifts = sorted(start_time, key=attrgetter(date))
+    def sort(self):
+        end_time = sorted(self.shifts, key=attrgetter('end_time'))
+        start_time = sorted(end_time, key=attrgetter('start_time'))
+        self.shifts = sorted(start_time, key=attrgetter('date'))
         
-class employees(object, db_handle=None):
+class employees(object):
     employee.index = 1
     employee.object = 2
     employee.eid = 3
     employee.name = 4
-    def __init__(self):
+    employee.no_index = 5
+    def __init__(self, db_handle=None):
         self.elist = []
         self.set_db_handle(db_handle)
     
     def append(self, employee):
         if not self.check_name(employee.firstname, employee.lastname):
             self.elist.append(employee)
-            self.sort()
+            self.sort_list()
     
     def check_id(self, eid, return_type=employee.index):
         i = 0
@@ -81,19 +79,69 @@ class employees(object, db_handle=None):
             i+=1
         return None
 
-    def list(self):
+    def list(self, return_type=employee.no_index, shifts=True):
+        index = 0
         for e in self.elist:
-            e.print_self()
+            if return_type==employee.index:
+                count = index
+            else:
+                count = None
+            e.print_self(count=count)
+            index += 1
+            if shifts:
+                for s in e.shifts:
+                    s.print_shift()
         
     def set_db_handle(self, db_handle):
         if db_handle==None:
             db_handle = database(onwer='employee')
         self.db_handle = db_handle
 
-    def sort(self):
-        firstname = sorted(self.elist, key=attrgetter(firstname))
-        self.elist = sorted(firstname, key=attrgetter(lastname))
-        
+    def sort_list(self):
+        firstname = sorted(self.elist, key=attrgetter('_firstname'))
+        self.elist = sorted(self.elist, key=attrgetter('_lastname'))
+        #print(len(firstname))
+    
 if __name__ == "__main__":
+    from shift import shift
     db_handle = database(owner='employee.py - __main__')
+    E = employees(db_handle=db_handle)
+    e = employee(eid=15, firstname='Harold', lastname='Clark', db_handle=db_handle)
+    S = shift(shift_name='Test Shift',
+              start_time='10:00',
+              end_time='11:30',
+              date='04/19/19',
+              sid=341,
+              eid=e.eid,
+              db_handle=db_handle)
+    e.append_shift(S)
+    S = shift(shift_name='Test Shift',
+              start_time='13:00',
+              end_time='14:30',
+              date='04/19/19',
+              sid=355,
+              eid=e.eid,
+              db_handle=db_handle)
+    e.append_shift(S)
+    E.append(e)
+    e = employee(eid=18, firstname='Bob', lastname='Anderson', db_handle=db_handle)
+    S = shift(shift_name='Test Shift',
+              start_time='13:00',
+              end_time='14:30',
+              date='04/19/19',
+              sid=356,
+              eid=e.eid,
+              db_handle=db_handle)
+    e.append_shift(S)
+    S = shift(shift_name='Test Shift',
+              start_time='10:00',
+              end_time='11:30',
+              date='04/19/19',
+              sid=344,
+              eid=e.eid,
+              db_handle=db_handle)
+    e.append_shift(S)
+
+    E.append(e)
+    E.list()
     
