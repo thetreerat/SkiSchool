@@ -5,10 +5,10 @@ from database import database
 
 class phone(object):
     def __init__(self, number=None, display='Cell', publish=True, db_handle=None):
-        self._number = None
         self.db_handle = None
-        self._publish = None
         self.display = display
+        self._number = None 
+        self._publish = None 
         self.set_phone(number)
         self.set_publish(publish)
         self.set_db_handle(db_handle)
@@ -31,7 +31,11 @@ class phone(object):
             return 'True'
         else:
             return 'False'
-              
+
+    def set_db_handle(self, db_handle):
+        if db_handle==None:
+            db_handle = database(owner='phone.py - phone')
+                          
     def set_phone(self, options=None):
         if type(options) is list:
             try:
@@ -80,10 +84,6 @@ class phone(object):
         elif data in [1,'TRUE',True]:
             self._publish = 1
     
-    def set_db_handle(self, db_handle):
-        if db_handle==None:
-            db_handle = database(owner='phone.py - phone')
-            
       
 class phones(object):
     def __int__(self, db_handle=None):
@@ -93,7 +93,8 @@ class phones(object):
     
     def set_db_handle(self, db_handle):
         if db_handle==None:
-            s
+            self.db_handle = database(onwer='phone.py - phone')
+        
 if __name__ == '__main__':
     P = phone(number='(585) 512-4786', publish=True)
     print('raw number: %s' % (P._number))

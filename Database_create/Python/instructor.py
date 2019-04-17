@@ -13,79 +13,18 @@ from datetime import datetime
 from availability import availability
 from availability import availablities
 from phone import phone
+from person import person
 
-
-class person(object):
-    """Class for Person Objects"""
-    def __init__(self, firstname=None, lastname=None, suffix=None):
-        self.firstname = firstname
-        self.lastname = lastname
-        self.suffix = suffix
-        self.nickname = None
-        self.DOB = None
-        self.sex = None
-        self._Age = None
-
-    def name(self):      
-        """return instructor name first name<sp> last name as string"""
-        name = ''
-        if self.firstname:
-            name = self.firstname
-        if self.lastname:
-            if len(name)>0:
-                name = '%s %s' % (name, self.lastname)
-            else:
-                name = self.lastname
-        if self.suffix:
-                name = '%s %s' % (name,self.suffix)
-        return name
     
-    def print_person(self):
-        if self.suffix:
-            print("""%s %s %s""" % (self.firstname, self.lastname, self.suffix))
-        else:
-            print("""%s %s""" % (self.firstname, self.lastname)) 
+ 
     
-    def set_name(self, I=None):
-        """Collect name and set"""
-        try:
-            db_handle = I[3]
-            I = I[2]
-        except:
-            pass
-        if not I:
-            try:
-                I = list(raw_input('Name: ').split())
-            except:
-                return
-        try:
-            icount = len(I)
-        except:
-            icount = 0
-        if icount==2:
-            self.firstname = I[0]
-            self.lastname = I[1]
-            #print('Count 2: %s' % (I))
-        elif icount==3:
-            self.firstname = I[0]
-            self.lastname = I[1]
-            self.suffix = I[2]
-            #print('Count 3: %s' % (I))
-        elif icount==1:
-            self.firstname = I[0]
-            self.lastname = raw_input('Last Name: ')
-            self.suffix = raw_input('Suffix (Jr,Sr,III,..): ')
-            #print('Count 1: %s' % (I))
-        else:
-            self.firstname = raw_input('First Name: ')
-            self.lastname = raw_input('Last Name: ')
-            self.suffix = raw_input('Suffix (Jr,Sr,III,..): ')
+
         
 class instructor(person):
     """Class for instructor object based on person class object"""
     def __init__(self, eid=None, firstname=None, lastname=None, db_handle=None):
         """Init a instructor object"""
-        person.__init__(self, firstname=firstname, lastname=lastname)
+        person.__init__(self, firstname=firstname, lastname=lastname, db_handle=db_handle)
         self.eid = eid
         self.cell_phone = phone()
         print(self.cell_phone)
@@ -109,10 +48,7 @@ class instructor(person):
         self.clist = None
         self.llist = None
         self.alist = None
-        if db_handle==None:
-            db_handle = database(owner='instructor.py instructor')    
-        self.db_handle = db_handle
-        
+
     def add_cert(self, answer):
         os.system('clear')
         if len(answer)==1:
@@ -261,6 +197,10 @@ class instructor(person):
                     dump = raw_input('ready?')
                     break        
 
+    def instructor_name(self):
+        """return instructor name first name<sp> last name as string"""
+        return """%s %s""" % (self.firstname, self.lastname)
+, 
     def get_cell_db(self):
         """get employee cell from database"""
         result = self.db_handle.fetchdata('get_employee_cell', [self.eid, ])
@@ -318,11 +258,7 @@ class instructor(person):
     MAIN     - return to Main menu
     EXIT     - exit to system prompt
     ------------------------------------------------""")
-                    
-    def instructor_name(self):
-        """return instructor name first name<sp> last name as string"""
-        return """%s %s""" % (self.firstname, self.lastname)
-    
+                        
     def set_end_date(self):
     
         if self.end_date==None:

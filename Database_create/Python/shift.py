@@ -4,9 +4,9 @@
 from datetime import datetime
 import psycopg2
 
-class person(object):
+class employee(object):
     def __init__(self, firstname=None, lastname=None):
-        """Init a person"""
+        """Init a employee"""
         self.eid = None
         self._firstname = firstname
         self._lastname = lastname
@@ -24,11 +24,11 @@ class person(object):
     def printperson(self):
         print("""%s %s: %s""" % (self._firstname, self._lastname, len(self.shifts)))
     
-class persons(object):
+class employees(object):
     def __init__(self):
         self.list = []
     
-    def add_person(self, person):
+    def add_employee(self, employee):
         self.list.append(person)
         
     def check_name(self, firstname, lastname):
