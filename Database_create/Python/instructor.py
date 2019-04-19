@@ -196,7 +196,7 @@ class instructor(person):
     def instructor_name(self):
         """return instructor name first name<sp> last name as string"""
         return """%s %s""" % (self.firstname, self.lastname)
-, 
+ 
     def get_cell_db(self):
         """get employee cell from database"""
         result = self.db_handle.fetchdata('get_employee_cell', [self.eid, ])

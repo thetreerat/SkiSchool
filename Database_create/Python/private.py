@@ -13,10 +13,12 @@ import os
 import psycopg2
 from menu import Menu
 from database import database
+from date import date
 
 
         
 class private(shift):
+    """class object for a private lesson, subclassed from shift"""
     def __init__(self,
                  shift_name=None,
                  start_time=None,
@@ -70,6 +72,7 @@ class private(shift):
         return True
         
     def check_add_shift(self):
+        """function for check if required fields are enter before writing to db"""
         message = 'Values not set:'
         if self.date==None:
             message = message + ' Date,'
@@ -90,6 +93,7 @@ class private(shift):
         return message
     
     def find_instructor(self, options=None):
+        """method for displaying instructor(s) by name, and selecting  for this private lesson."""
         if not self.available_instructors:
             self.available_instructors = instructors()
             self.available_instructors.find_name()
@@ -110,7 +114,8 @@ class private(shift):
         self.instructor_firstname = instructor.firstname
         self.instructor_lastname = instructor.lastname
         
-    def PrivateMenu(self):        
+    def PrivateMenu(self):
+        """function for collecting and display private lesson while editing or creating"""
         print("""     Private screen
      --------------------------------
      Student Name:         %s %s
@@ -168,6 +173,7 @@ class private(shift):
         return phone
     
     def list_avalible(self):
+        """function for get avalable instructors based on private needs"""
         #print('List_avalible')
         not_set = self.check_add_shift()
         if not_set==None:
@@ -187,6 +193,7 @@ class private(shift):
             return not_set
 
     def load_private(self):
+        """Save a new private, or update a private in the database"""
         if self.sid==None:
             m = self.check_add_shift()
             if m==None:
@@ -201,9 +208,11 @@ class private(shift):
                 self.update_private_db()
                 
     def print_self(self, count):
+        """function for displaying this private, in a list of privates"""
         print("""    %s %s %s %s %s""" % (str(count).ljust(4), self.date.ljust(10), self.start_time.ljust(8), self.end_time.ljust(8), self.shift_name))
         
     def print_private_all(self):
+        """function for displaying private information in a long form"""
         print ("""shift_name = %s,
 start_time = %s,
 end_time = %s,
@@ -249,6 +258,7 @@ self.instructor_lastname = %s""" % (self.shift_name,
                                     self.instructor_lastname))
 
     def set_age(self,options):
+        """function for geting student age and seting in private object"""
         try:
             if options[1]:
                 self.student_age = options[1]
@@ -258,7 +268,8 @@ self.instructor_lastname = %s""" % (self.shift_name,
             self.student_age = raw_input('Student Age: ')
         self.update = True
         
-    def set_contact(self, options):        
+    def set_contact(self, options):
+        """function for getting contact name and storing in private object"""
         try:
             self.contact_firstname = options[2][0].capitalize()
         except:
@@ -298,6 +309,7 @@ self.instructor_lastname = %s""" % (self.shift_name,
         self.update = True
         
     def set_date(self, options):
+        """method for getting date, verifing, and setting in private object""" 
         try:
             self.date = options[2][0]
         except:
@@ -305,6 +317,7 @@ self.instructor_lastname = %s""" % (self.shift_name,
         self.update = True
         
     def set_instructor(self, options):
+        """Method for display available instructor(s) base on private needs and setting object with select instructor"""
         e = self.list_avalible()
         if not e:
             try:
@@ -411,12 +424,12 @@ self.instructor_lastname = %s""" % (self.shift_name,
 class privates(object):
     """Container for private objects"""
     def __init__(self, db_handle=None):
-        self.plist = []
+        self.privates = []
         self.db_handle = db_handle
     
-    def add(private):
-        self.plist.append(private)
-        self.sort_list()
+    def append(private):
+        self.privates.append(private)
+        self.sort()
 
     def checkID(self, pid):
         for i in self.plist:
@@ -425,43 +438,28 @@ class privates(object):
         return None
     
     def find_privates(self, options):
-        try:
-            m = Menu(db_handle=options[4], menu_title='Find Private Menu')
-        except:
-            m = Menu(menu_title='Find Private Menu')
-        try:
-            action, index, option = m.split_command(option[2])
-            if action in ['DATE', 'DAT', 'DA', 'D']:
-                print(option)
-            elif action in ['STUDENT']:
-                pass
-            else:
-                find = find_private()
-                print('find_private if action else section')
-        except:
-            find = find_private(db_handle=self.db_handle)
-            m.menu_display = find.print_self
-            m.add_item('Student', 'Enter Student Name', find.student.set_name)
-            m.add_item('Contact', 'Enter Student Name', find.contact.set_name)
-            m.add_item('Instructor', 'Enter Instuctor Name', find.instructor.set_name)
-            m.add_item('Date', 'Enter Date', self.set_date)
-            m.add_item('Discipline', 'Enter Discipline (Ski/SB/Tele)', self.set_discipline)
-            m.add_item('Type', 'Enter type (assigned/demand)', self.set_type)
-            m.Menu()
-    
-    def set_date(self):
-        raw_input('set date function, noting happening.')
-
-    def set_discipline(self):
-        raw_input('set discipline function, noting happening.')
-    
-    def set_type(self):
-        raw_input('set type function, nothing happening yet!')
-        
-    def sort_list(self):
-        end_time = sorted(self.plist, key=attrgetter(end_time))
-        start_time = sorted(end_time, key=attrgetter(start_time))
-        self.plist = sorted(start_time, key=attrgetter(shift_date))
+        F = find_private(self.db_handle)
+        F.menu(options)
+        result = self.db_handle.fetchdata('Find_private',
+                                 [F.contact.firstname(),
+                                  F.contact.lastname(),
+                                  F.student.firstname(),
+                                  F.student.lastname(),
+                                  F.instructor.firstname(),
+                                  F.instructor.lastname(),
+                                  F.date,
+                                  F.displine,
+                                  F.type,
+                                  F.age,]
+                                 )
+        self.clear()
+        for r in result:
+            self.append(r)
+                    
+    def sort(self):
+        end_time = sorted(self.privates, key=attrgetter('end_time'))
+        start_time = sorted(end_time, key=attrgetter('start_time'))
+        self.privates = sorted(start_time, key=attrgetter('shift_date'))
 
     def print_list(self):
         count = 0
@@ -479,10 +477,10 @@ class find_private(object):
         if db_handle==None:
             db_handle = database(owner='Find Private')
         self.db_handle = db_handle
-        self.contact = person()
-        self.student = person()
-        self.instructor = person()
-        self.date = None
+        self.contact = person(db_handle=self.db_handle)
+        self.student = person(db_handle=self.db_handle)
+        self.instructor = person(db_handle=self.db_handle)
+        self.start_date = None
         self.disapline = None
         self.type = None
         self.age = None
@@ -496,8 +494,42 @@ class find_private(object):
     Lesson Disapline: %s
     Lesson Type:      %s
     Age:              %s""" % (self.contact.name(), self.student.name(), self.instructor.name(), self.date, self.disapline, self.type, self.age))
-        
+
+    def menu(self, options):
+        try:
+            m = Menu(db_handle=options[4], menu_title='Find Private Menu')
+        except:
+            m = Menu(menu_title='Find Private Menu')
+        try:
+            action, index, option = m.split_command(option[2])
+            if action in ['DATE', 'DAT', 'DA', 'D']:
+                print(option)
+            elif action in ['STUDENT']:
+                pass
+            else:
+                find = find_private()
+                print('find_private if action else section')
+        except:
+            m.menu_display = self.print_self
+            m.add_item('Student', 'Enter Student Name', self.student.set_name)
+            m.add_item('Contact', 'Enter Student Name', self.contact.set_name)
+            m.add_item('Instructor', 'Enter Instuctor Name', self.instructor.set_name)
+            m.add_item('Date', 'Enter Date', self.set_date)
+            m.add_item('Discipline', 'Enter Discipline (Ski/SB/Tele)', self.set_discipline)
+            m.add_item('Type', 'Enter type (assigned/demand)', self.set_type)
+            m.add_item('Find', 'Find privates matching', m.return_now)
+            m.Menu()
+
+    def set_date(self, options):
+        raw_input('set date function, noting happening.')
+
+    def set_discipline(self, options):
+        raw_input('set discipline function, noting happening.')
     
+    def set_type(self, options):
+        raw_input('set type function, nothing happening yet!')
+
+   
 if __name__ == '__main__':    
     db_handle = database(owner='Private __Main__')
     P = private(db_handle=db_handle)
