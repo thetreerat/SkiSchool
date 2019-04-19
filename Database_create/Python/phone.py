@@ -4,11 +4,15 @@
 from database import database
 
 class phone(object):
+    phone.return_type.long = 1
+    phone.return_type.short = 2
     def __init__(self, number=None, display='Cell', publish=True, db_handle=None):
         self.db_handle = None
         self.display = display
-        self._number = None 
-        self._publish = None 
+        self.display_pad = 10
+        self._number = None
+        self.number_pad = 20
+        self._publish = None
         self.set_phone(number)
         self.set_publish(publish)
         self.set_db_handle(db_handle)
@@ -84,7 +88,10 @@ class phone(object):
         elif data in [1,'TRUE',True]:
             self._publish = 1
     
-      
+    def print_self(self, return_type=phone.return_type.long, pad=10):
+        if return_type==phone.return_type.long:
+            print('    %s%s%s' % (self.display.ljust(self.display_pad), self.number().ljust(self.number_pad), self.publish()))
+            
 class phones(object):
     def __int__(self, db_handle=None):
         self.plist = []

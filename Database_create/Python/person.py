@@ -83,7 +83,7 @@ class  person(object):
             self._DOB = datetime.strptime(DOB, '%m/%d/%Y')
         except:
             if interactive:
-                self._DOB = datetime.strptime(raw_input('Please enter age (MM/DD/YYYY): '), '%m/%d/%Y')
+                self._DOB = datetime.strptime(raw_input('Please enter Birthday (MM/DD/YYYY): '), '%m/%d/%Y')
             else:
                 self._DOB = datetime.now()
             
