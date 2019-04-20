@@ -111,10 +111,10 @@ class employees(object):
 if __name__ == "__main__":
     db_handle = database(owner='employee.py - __main__')
     E = employee(db_handle=db_handle)
-    #E.set_name()
-    #E.set_DOB()
-    #print(E.age())
-    ##E.print_self()
+    E.set_name()
+    E.DOB.get_date()
+    print(E.DOB.age())
+    E.print_self()
     print(E)
     #E
     #print(E.name())

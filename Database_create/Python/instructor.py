@@ -14,6 +14,7 @@ from availability import availability
 from availability import availablities
 from phone import phone
 from person import person
+from date import date
 
             
 class instructor(person):
@@ -22,8 +23,7 @@ class instructor(person):
         """Init a instructor object"""
         person.__init__(self, firstname=firstname, lastname=lastname, db_handle=db_handle)
         self.eid = eid
-        self.cell_phone = phone()
-        print(self.cell_phone)
+        self.cell_phone = phone(db_handle=self.db_handle)
         self.cell_publish = None
         self.phone_2_text = 'Home'
         self.phone_2 = None
@@ -35,8 +35,14 @@ class instructor(person):
         self.aasi_id = None
         self.payroll_id = None
         self.start_date_New = True
-        self.start_date = None
-        self.end_date = None
+        self.start_date = date(None,
+                               db_handle=self.db_handle,
+                               default_date = '11/01/19')
+        self.start_date.question = 'Enter Start date (%s):' % (self.start_date.default_date)
+        self.end_date = date(None,
+                             db_handle=self.db_handle,
+                             default_date = '03/24/19')
+        self.end_date.question = 'Enter End date (%s):' % (self.start_date.default_date)
         self.employee_returning = None
         self.return_title = None
         self.instructor_update = False
@@ -208,13 +214,16 @@ class instructor(person):
         result = self.db_handle.fetchdata('get_employee_season_dates', [self.eid,])
         if len(result)>0:
             if result[0][0]==self.eid:
-                d,self.start_date,self.end_date,self.employee_returning, self.return_title = result[0]
+                self.start_date.set_date(result[0][1])
+                self.end_date.set_date(result[0][2])
+                self.employee_returning = result[0][3]
+                self.return_title = result[0][4]
                 self.start_date_New = False
         
     def print_instructor(self, form='short'):
         """Print instructor object"""
         if form=='short':
-            print """%s - %s %s""" % (self.eid, self.firstname, self.lastname)
+            print """%s - %s %s""" % (self.eid, self.firstname(), self.lastname())
         elif form=='Long':
             print("""    Emp ID:             %s
     Name:               %s
@@ -224,8 +233,8 @@ class instructor(person):
     Current End Date:   %s""" % (self.eid,
                                  self.name(),
                                  self.cell_phone.number(),
-                                 self.start_date,
-                                 self.end_date
+                                 self.start_date.date(),
+                                 self.end_date.date()
                                 ))
             if self.jlist!=None:
                 self.jlist.print_list('Short')
@@ -256,22 +265,15 @@ class instructor(person):
     ------------------------------------------------""")
                         
     def set_end_date(self):
-    
-        if self.end_date==None:
-            ed = '03/24/19'
-        else:
-            ed = self.end_date
-        self.end_date = raw_input("""Enter End Date (%s): """ % (ed))
-        if self.end_date=='':
-            self.end_date= ed
+        if self.end_date.date()!=None:
+            self.end_date._default = self.end_date._date
+        self.end_date.get_date()
         self.db_handle.fetchdata('add_employee_end', [self.eid, self.end_date,])
     
     def set_start_date(self, sd='11/01/19'):
         """Set start date and update database"""
-        self.start_date = raw_input("""Enter Start date (%s): """% (sd))
-        if self.start_date == '':
-            self.start_date = sd
-        self.db_handle.fetchdata('add_employee_start', [self.eid, self.start_date,])    
+        self.start_date.get_date() 
+        self.db_handle.fetchdata('add_employee_start', [self.eid, self.start_date.date(),])    
     
 class instructors(object):
     def __init__(self, db_handle=None):
@@ -357,7 +359,7 @@ class instructors(object):
     
     def find_name(self, options=None):
         os.system('clear')
-        p = person()
+        p = person(db_handle=self.db_handle)
         if not options[2]:
             print("""
     Find employees ....
@@ -371,12 +373,10 @@ class instructors(object):
             """)
         
             p.set_name()
-            p.print_person()
+            p.print_self()
         else:
             try:
-                p.firstname = options[2][0]
-                p.lastname = options[2][1]
-                p.suffix = options[2][2]
+                p.set_name(options)
             except:
                 pass
         clearlist = raw_input('Clear list first Y/N (N)?').upper()
@@ -385,7 +385,7 @@ class instructors(object):
                 self.clear()
         except:
             pass
-        self.find_name_db(p.firstname, p.lastname)
+        self.find_name_db(p.firstname(), p.lastname())
                 
     def find_name_db(self, firstname, lastname):
         result = self.db_handle.fetchdata('get_employee', [firstname, lastname, ])
@@ -443,7 +443,6 @@ class instructors(object):
                 i.print_instructor('short')
         else:
             print("""No instructors in list!!""")
-
 
     def print_menu(self):
         os.system('Clear')

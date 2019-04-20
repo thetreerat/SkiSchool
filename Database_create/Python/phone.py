@@ -4,8 +4,8 @@
 from database import database
 
 class phone(object):
-    phone.return_type.long = 1
-    phone.return_type.short = 2
+    LONG = 1
+    SHORT = 2
     def __init__(self, number=None, display='Cell', publish=True, db_handle=None):
         self.db_handle = None
         self.display = display
@@ -58,24 +58,27 @@ class phone(object):
             return
         else:
             phone= options
-        I = ['-', '(', ')', ' ']
-        number = phone
-        for i in I:
-            phone = number
-            number = ''
-            start=0
-            current=start
-            p=start
-            while True:
-                current = phone.find(i, start)
-                if current == -1:
-                    number = number + phone[start:]
-                    break
-                else:
-                    number = number + phone[start:current]
-                    start= current +1
+        if phone==None:
+            self._number = phone
+        else:
+            I = ['-', '(', ')', ' ']
+            number = phone
+            for i in I:
+                phone = number
+                number = ''
+                start=0
+                current=start
+                p=start
+                while True:
+                    current = phone.find(i, start)
+                    if current == -1:
+                        number = number + phone[start:]
+                        break
+                    else:
+                        number = number + phone[start:current]
+                        start= current +1
                             
-        self._number = number
+            self._number = number
     
     def set_publish(self, data):
         try:
@@ -88,8 +91,8 @@ class phone(object):
         elif data in [1,'TRUE',True]:
             self._publish = 1
     
-    def print_self(self, return_type=phone.return_type.long, pad=10):
-        if return_type==phone.return_type.long:
+    def print_self(self, return_type=LONG, pad=10):
+        if return_type==LONG:
             print('    %s%s%s' % (self.display.ljust(self.display_pad), self.number().ljust(self.number_pad), self.publish()))
             
 class phones(object):

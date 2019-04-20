@@ -3,6 +3,8 @@
 #
 from database import database
 from datetime import datetime
+from date import date
+from date import DOB
 
 class  person(object):
     """person object"""
@@ -11,33 +13,24 @@ class  person(object):
                  lastname=None,
                  suffix=None,
                  nickname=None,
-                 DOB=None,
+                 dob=None,
                  sex=None,
                  db_handle=None):
         """Create New Instanace of person"""
+        self.set_db_handle(db_handle)
         self._firstname = firstname
         self._lastname = lastname
         self._suffix = suffix
         self._nickname = nickname
-        self.set_DOB(DOB, interactive=False)
+        self.DOB = DOB(DOB=dob, db_handle=self.db_handle)
         self.sex = sex
-        self._Age = None
-        self.db_handle = db_handle
-        self.set_db_handle(db_handle)
+       
 
     def __str__(self):
-        return "Person: %s %s, db: %s" % (self._firstname, self._lastname, self.db_handle.owner)
+        return "PERSON - Name: %s, DOB: %s, db: %s" % (self.name(True), self._DOB.date(), self.db_handle.owner)
 
     def age(self, adult=False):
-        age = int(int((datetime.now() - self._DOB).days) / 365.2425)
-            #calubate age from dob
-        if adult:
-            if age>18:
-                age = 'Adult'
-        return age
-    
-    def DOB():
-        return self._DOB
+        return self.DOB.age(adult)
     
     def firstname(self):
         return self._firstname
@@ -76,16 +69,6 @@ class  person(object):
         if db_handle==None:
             db_handle = database(owner='person.py - person object')
         self.db_handle = db_handle
-
-    def set_DOB(self, DOB=None, interactive=True):
-        """set self._DOB as date"""
-        try:   
-            self._DOB = datetime.strptime(DOB, '%m/%d/%Y')
-        except:
-            if interactive:
-                self._DOB = datetime.strptime(raw_input('Please enter Birthday (MM/DD/YYYY): '), '%m/%d/%Y')
-            else:
-                self._DOB = datetime.now()
             
     def set_name(self, options=None, nickname=False):
         """Collect name and set"""
@@ -148,5 +131,5 @@ Purpose        : This class is for greate a person object and the supporting fun
 
 
 if __name__ == "__main__":
-    P = person()
+    P = person(firstname='Harold', lastname='Clark', DOB='12/25/1969')
     print(P)    
