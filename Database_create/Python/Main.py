@@ -66,9 +66,9 @@ def private_menu(options=None):
     private.add_item('Edit', 'EDIT # - Edit a private lesson', print_this)
     private.Menu()
 
-def private_new_menu(dump=None):
-    P = private()
-    private_new = Menu('Add New Private Menu', db_handle_db_handle)
+def private_new_menu(options=None):
+    P = private(db_handle=options[3])
+    private_new = Menu('Add New Private Menu', db_handle=options[3])
     private_new.menu_display = P.PrivateMenu
     private_new.add_item('Contact', 'CONTACT <firstname> <lastname> <relationship> - Enter contact person information for private lesson', P.set_contact)
     private_new.add_item('Student', 'STUDENT <Firstname> <Lastname> - Name of person taking the lesson', P.set_student)

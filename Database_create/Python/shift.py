@@ -6,6 +6,7 @@ import psycopg2
 from employee import employee
 from employee import employees
 from database import database
+from date import date
     
 class shift(object):
     def __init__(self,
