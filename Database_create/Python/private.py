@@ -283,7 +283,7 @@ self.instructor_lastname = %s""" % (self.shift_name,
         except:
             self.contact_relation = raw_input('Contact Relationship: ').capitalize()
         self.update = True
-            
+        
     def set_discipline(self, options):
         """collect discipline and set discpline and ct_title"""
         
@@ -474,13 +474,18 @@ class privates(object):
         
 class find_private(object):
     def __init__(self, db_handle=None):
-        if db_handle==None:
-            db_handle = database(owner='Find Private')
-        self.db_handle = db_handle
+        self.set_db_handle(db_handle)
         self.contact = person(db_handle=self.db_handle)
         self.student = person(db_handle=self.db_handle)
         self.instructor = person(db_handle=self.db_handle)
-        self.start_date = None
+        self.start_date = date(None,
+                               question_test='Enter Start Date: ',
+                               db_handle=self.db_handle)
+        self.end_date = date(None,
+                             question_test='Enter End Date: ',
+                             db_handle=self.db_handle)
+        self.start_time = None
+        self.end_date = None
         self.disapline = None
         self.type = None
         self.age = None
@@ -514,14 +519,17 @@ class find_private(object):
             m.add_item('Student', 'Enter Student Name', self.student.set_name)
             m.add_item('Contact', 'Enter Student Name', self.contact.set_name)
             m.add_item('Instructor', 'Enter Instuctor Name', self.instructor.set_name)
-            m.add_item('Date', 'Enter Date', self.set_date)
+            m.add_item('Start', 'Enter start date', self.start_date.get_date)
+            m.add_item('End', 'Enter end date', self.end_date.get_date)
             m.add_item('Discipline', 'Enter Discipline (Ski/SB/Tele)', self.set_discipline)
             m.add_item('Type', 'Enter type (assigned/demand)', self.set_type)
             m.add_item('Find', 'Find privates matching', m.return_now)
             m.Menu()
 
-    def set_date(self, options):
-        raw_input('set date function, noting happening.')
+    def set_db_handle(self, db_handle):
+        if db_handle==None:
+            db_handle = database(onwer='private.py - find_private')
+        self.db_handle = db_handle
 
     def set_discipline(self, options):
         raw_input('set discipline function, noting happening.')

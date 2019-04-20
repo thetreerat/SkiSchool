@@ -21,6 +21,7 @@ class shift(object):
                  eid=None,
                  db_handle=None):
         """init a shift"""
+        self.set_db_handle(db_handle)
         self.shift_name = shift_name
         self.start_time = start_time
         self.end_time = end_time
@@ -28,9 +29,35 @@ class shift(object):
         self.sid = sid
         self.ct = ct
         self.ct_title = ct_title
-        self.date = date
+        self.date = date(date=date, db_handle=self.db_handle)
         self.eid = eid
-        self.set_db_handle(db_handle)   
+           
+
+    def add_employee_shift(self):
+        """add eid to shift"""
+        c = psycopg2.connect(user="postgres",
+                             port="5432",
+                             host="127.0.0.1",
+                             database="skischool")
+        cur = c.cursor()
+        cur.callproc('add_employee_shift', [self.eid, self.sid, ])
+        result = cur.fetchall()
+
+        
+        #self.print_shift()
+        c.commit()
+        cur.close()
+        c.close()
+
+    def add_shift_db(self):
+        """Add shift object to the shift table in database"""
+        result = self.db_handle.fetchdata('add_shift', [self.shift_name,
+                                                        self.start_time,
+                                                        self.end_time,
+                                                        self.date.date(True),
+                                                        self.ct_title,
+                                                        self.html_class, ])
+        self.sid = result[0][0]
 
     def print_shift(self):
         if self.sid==None:
@@ -51,32 +78,6 @@ class shift(object):
     def shift_length_segments(self):
         t = ((self.end_time.hour * 60 + self.end_time.minute) - (self.start_time.hour * 60 + self.start_time.minute)) /15
         return t
-
-    def add_shift_db(self):
-        """Add shift object to the shift table in database"""
-        result = self.db_handle.fetchdata('add_shift', [self.shift_name,
-                                                        self.start_time,
-                                                        self.end_time,
-                                                        self.date,
-                                                        self.ct_title,
-                                                        self.html_class, ])
-        self.sid = result[0][0]
-    
-    def add_employee_shift(self):
-        """add eid to shift"""
-        c = psycopg2.connect(user="postgres",
-                             port="5432",
-                             host="127.0.0.1",
-                             database="skischool")
-        cur = c.cursor()
-        cur.callproc('add_employee_shift', [self.eid, self.sid, ])
-        result = cur.fetchall()
-
-        
-        #self.print_shift()
-        c.commit()
-        cur.close()
-        c.close()
 
 class shifts(object):
     def __init__(self, db_handle=None):
