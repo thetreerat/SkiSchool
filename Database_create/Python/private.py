@@ -479,52 +479,60 @@ class find_private(object):
         self.student = person(db_handle=self.db_handle)
         self.instructor = person(db_handle=self.db_handle)
         self.start_date = date(None,
-                               question_test='Enter Start Date: ',
+                               question_text='Enter Start Date: ',
                                db_handle=self.db_handle)
         self.end_date = date(None,
-                             question_test='Enter End Date: ',
+                             question_text='Enter End Date: ',
                              db_handle=self.db_handle)
-        self.start_time = None
-        self.end_date = None
         self.disapline = None
         self.type = None
         self.age = None
         
+        
     def print_self(self, dump=None):
         print("""
-    Contact Name:     %s
-    Student Name:     %s
-    Instructor Name:  %s
-    Lesson Date:      %s
-    Lesson Disapline: %s
-    Lesson Type:      %s
-    Age:              %s""" % (self.contact.name(), self.student.name(), self.instructor.name(), self.date, self.disapline, self.type, self.age))
+    Contact Name:       %s
+    Student Name:       %s
+    Instructor Name:    %s
+    Search Start Date:  %s
+    Search End Date:    %s
+    Lesson Disapline:   %s
+    Lesson Type:        %s
+    Age:                %s""" % (self.contact.name(),
+                                 self.student.name(),
+                                 self.instructor.name(),
+                                 self.start_date.date(True),
+                                 self.end_date.date(True),
+                                 self.disapline,
+                                 self.type,
+                                 self.age))
 
     def menu(self, options):
         try:
             m = Menu(db_handle=options[4], menu_title='Find Private Menu')
         except:
             m = Menu(menu_title='Find Private Menu')
-        try:
-            action, index, option = m.split_command(option[2])
-            if action in ['DATE', 'DAT', 'DA', 'D']:
-                print(option)
-            elif action in ['STUDENT']:
-                pass
-            else:
-                find = find_private()
-                print('find_private if action else section')
-        except:
-            m.menu_display = self.print_self
-            m.add_item('Student', 'Enter Student Name', self.student.set_name)
-            m.add_item('Contact', 'Enter Student Name', self.contact.set_name)
-            m.add_item('Instructor', 'Enter Instuctor Name', self.instructor.set_name)
-            m.add_item('Start', 'Enter start date', self.start_date.get_date)
-            m.add_item('End', 'Enter end date', self.end_date.get_date)
-            m.add_item('Discipline', 'Enter Discipline (Ski/SB/Tele)', self.set_discipline)
-            m.add_item('Type', 'Enter type (assigned/demand)', self.set_type)
-            m.add_item('Find', 'Find privates matching', m.return_now)
-            m.Menu()
+        #try:
+        #    action, index, option = m.split_command(option[2])
+        #    if action in ['DATE', 'DAT', 'DA', 'D']:
+        #        print(option)
+        #    elif action in ['STUDENT']:
+        #        pass
+        #    else:
+        #        find = find_private()
+        #        print('find_private if action else section')
+        #except:
+        
+        m.menu_display = self.print_self
+        m.add_item('Student', 'Enter Student Name', self.student.set_name)
+        m.add_item('Contact', 'Enter Student Name', self.contact.set_name)
+        m.add_item('Instructor', 'Enter Instuctor Name', self.instructor.set_name)
+        m.add_item('Start', 'Enter start date', self.start_date.get_date)
+        m.add_item('End', 'Enter end date', self.end_date.get_date)
+        m.add_item('Discipline', 'Enter Discipline (Ski/SB/Tele)', self.set_discipline)
+        m.add_item('Type', 'Enter type (assigned/demand)', self.set_type)
+        m.add_item('Find', 'Find privates matching', m.return_now)
+        m.Menu()
 
     def set_db_handle(self, db_handle):
         if db_handle==None:
@@ -537,9 +545,7 @@ class find_private(object):
     def set_type(self, options):
         raw_input('set type function, nothing happening yet!')
 
-   
-if __name__ == '__main__':    
-    db_handle = database(owner='Private __Main__')
+def menu(db_handle):
     P = private(db_handle=db_handle)
     private_new = Menu('Add New Private Menu', db_handle=db_handle)
     private_new.menu_display = P.PrivateMenu
@@ -556,5 +562,10 @@ if __name__ == '__main__':
     private_new.add_item('Find', 'FIND <firstname> <lastname> - find instrutors by name', P.find_instructor)
     private_new.add_item('Skill', 'SKILL <1-9> or SKILL <Yellow,Yellow+,green,blue> - Skill level of the student', P.set_skill)
     private_new.Menu()
+   
+if __name__ == '__main__':    
+    db_handle = database(owner='Private __Main__')
+    F = find_private(db_handle)
+    F.print_self()
     
         
