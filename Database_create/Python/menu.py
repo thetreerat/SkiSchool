@@ -199,7 +199,8 @@ class menu_item(object):
 
     
 if __name__ == "__main__":
-    M = Menu()
+    db_handle = database(owner='main.py - __main__')
+    M = Menu(db_handle=db_handle)
     M.add_item('Add', 'Add <NAME> <ORG> as a new Cert to database')
     M.add_item('Edit', 'Edit <#> Cert and commit to database')
     M.print_items()

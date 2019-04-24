@@ -124,6 +124,7 @@ class shift(object):
             self._student_level = str(level)
         except:
             self._student_level = None
+        self.db_handle.fetchdata('update_shifts_student_level', [self.sid, self._student_level, ])
             
     def shift_length_segments(self):
         t = ((self.end_time.hour * 60 + self.end_time.minute) - (self.start_time.hour * 60 + self.start_time.minute)) /15
@@ -195,7 +196,7 @@ class shifts(object):
         M = Menu(db_handle=self.db_handle, menu_title='Shfits for a Date')
         M.add_item('Count', 'COUNT <SID> - Add count to shift', self.update_student_count)
         M.add_item('Cancel', 'CANCEL <SID> - Cancel a shift', self.under_construction)
-        M.add_item('Level', 'LEVEL <SID> - edit student level or assigment', self.under_construction)
+        M.add_item('Level', 'LEVEL <SID> - edit student level or assigment', self.update_student_level)
         M.add_item('Hours', 'HOURS <SID> <HOURS> - Edit hours by instructor for Lesson', self.under_construction)
         M.add_item('NoShow', 'NOSHOW <SID> - Mark an instructor as no show for shift', self.under_construction)
         M.add_item('Instrcutor', 'INSTRUCTOR <SID> <firstname> <lastname> - add instructor for shift', self.under_construction)
@@ -229,7 +230,11 @@ class shifts(object):
     def update_student_count(self, options):
         s = self.check_sid(options[1])
         s.set_student_count()
-    
+
+    def update_student_level(self, options):
+        s = self.check_sid(options[1])
+        s.set_student_level()
+        
     def under_construction(self, options):
         raw_input('%s - not functional yet' % options[0])
         
