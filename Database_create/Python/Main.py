@@ -1,14 +1,17 @@
 # Author: Harold Clark
 # Copyright Harold Clark 2019
 #
-from menu import Menu
+
 #from instructor import intructor
+from database import database
 from instructor import instructors
 from jacket import jacket
 from jacket import jackets
+from menu import Menu
 from private import private
 from private import privates
-from database import database
+from shift import shifts
+
 #from jacket import jacket_histories
 #from jacket import jacket_history
         
@@ -84,11 +87,12 @@ def private_new_menu(options=None):
     private_new.add_item('Skill', 'SKILL <1-9> or SKILL <Yellow,Yellow+,green,blue> - Skill level of the student', P.set_skill)
     private_new.Menu()
     
-def schedule_menu(dump=None):
+def schedule_menu(options=None):
+    S = shifts(db_handle=options[3])
     schedule = Menu('Schedule Menu')
     schedule.menu_display = schedule.print_help
-    schedule.add_item('View', 'Veiw templates for a day', print_this)
-    schedule.add_item('Day', 'View all shfits for a date', print_this)
+    schedule.add_item('Templates', 'View/mange Templates for a day', print_this)
+    schedule.add_item('Day', 'View all shfits for a date', S.menu_date)
     schedule.add_item('Off', 'View Doys off requests', print_this)
     schedule.add_item('Privates', 'view privates for the Week', print_this)
     schedule.add_item('availability', 'list availability for a day of the week', print_this)

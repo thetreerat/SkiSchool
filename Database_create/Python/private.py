@@ -487,8 +487,7 @@ class find_private(object):
         self.disapline = None
         self.type = None
         self.age = None
-        
-        
+                
     def print_self(self, dump=None):
         print("""
     Contact Name:       %s

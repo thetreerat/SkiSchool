@@ -1096,6 +1096,45 @@ order by e.lastname, e.firstname;
 end; $$
 LANGUAGE plpgsql;
 
+create function list_shifts_for_date(p_shift_date date)
+    returns table (sid integer,
+                   shift_name varchar(50),
+                   shift_date date,
+                   start_time time,
+                   end_time time,
+                   eid integer,
+                   firstname varchar(30),
+                   lastname varchar(30),
+                   no_show boolean,
+                   student_level varchar(25),
+                   student_count integer,
+                   worked_time numeric(6,2),
+                   ct integer,
+                   cancelled boolean,
+                   html_class varchar(20)) as $$
+begin
+    return query select s.sid,
+       s.shift_name,
+       s.shift_date,
+       s.start_time,
+       s.end_time,
+       s.eid,
+       e.firstname,
+       e.lastname,
+       s.no_show,
+       s.student_level,
+       s.student_count,
+       s.worked_time,
+       s.ct,
+       s.cancelled,
+       s.html_class
+from shifts as s
+full join employee as e on s.eid=e.eid
+where s.shift_date=p_shift_date;
+
+end; $$
+LANGUAGE plpgsql;  
+
 create function list_shift(p_shift_date date)
     returns table (firstname varchar(50),
                    lastname varchar(50),
@@ -1144,6 +1183,15 @@ create function update_employee_availability_end(p_eaid integer,
     returns integer as $$
 begin
     update employee_availability set end_time = p_end where eaid=p_eaid;
+    return 1;
+end; $$
+LANGUAGE plpgsql;
+
+create function update_shifts_student_count(p_sid integer,
+                                            p_student_count integer)
+    returns integer as $$
+begin
+    update shifts set student_count=p_student_count where sid=p_sid;
     return 1;
 end; $$
 LANGUAGE plpgsql;

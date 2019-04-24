@@ -25,7 +25,6 @@ class  person(object):
         self.DOB = DOB(DOB=dob, db_handle=self.db_handle)
         self.sex = sex
        
-
     def __str__(self):
         return "PERSON - Name: %s, DOB: %s, db: %s" % (self.name(True), self._DOB.date(), self.db_handle.owner)
 

@@ -78,6 +78,9 @@ Purpose        : This Class for handleing dates in ski_school
     
     def set_date(self, date):
         """method for getting date, verifing, and setting in object"""
+        if 'datetime.date' in str(type(date)):
+            self._date = date
+            return
         if date!=None:
             try:
                 self._date = datetime.strptime(date, '%m/%d/%Y')
