@@ -24,7 +24,6 @@ class  Menu(object):
         else:
             self.db_handle = db_handle
             
-
     def sort_item_key(self, i):
         return i.display_text
         
@@ -58,8 +57,7 @@ class  Menu(object):
                         menu_item.item_match.pop(ii)
                     except:
                         pass
-                
-            
+                            
     def exit_now(self, dump=None):
         sys.exit(1)
 
@@ -167,8 +165,6 @@ Output         : Menu
 Purpose        : This Class creates a menu, display info and, runs functions assigned to menu items 
 
 """)
-
-
 
 class menu_item(object):
     """Menu item class object"""

@@ -96,8 +96,7 @@ class cert(object):
             for l in range(length):
                 item = item + chr(32)
         return item
-    
-    
+        
     def print_cert(self, print_return='Print', count=None):
         """Print or return cert object in printable string form"""
         if print_return=='find':

@@ -7,9 +7,15 @@ import psycopg2
 import hashlib
 
 class database(object):
-    """ """
-    def __init__(self, user='postgres', host='127.0.0.1', port='5432', database='skischool', password=None, owner='Unknown', debug=True):
-        """ """
+    """database class object for a postgres database"""
+    def __init__(self, user='postgres',
+                 host='127.0.0.1',
+                 port='5432',
+                 database='skischool',
+                 password=None,
+                 owner='Unknown',
+                 debug=True):
+        """init database object """
         self.cur = None
         self.set_password(password)
         self.user = user

@@ -1057,10 +1057,14 @@ LANGUAGE plpgsql;
 
 -- end of get_employee_season_dates
 
-create or replace function list_availble(p_sid integer)
+create or replace function list_available(p_sid integer)
     returns table (empID integer,
                    first_name varchar(50),
-                   last_name varchar(50)
+                   last_name varchar(50),
+                   suffix varchar(5),
+                   nickname varchar(45),
+                   dob date,
+                   sex varchar(6)
                   ) as $$
 declare
     p_start_time time;
@@ -1073,7 +1077,7 @@ begin
  select into p_end_time end_time from shifts where sid=p_sid;
  select into p_dow RTRIM(to_char(shift_date, 'day')) from shifts where sid=p_sid;
  select into p_shift_date shift_date from shifts where sid=p_sid;
- return query select a.eid,e.firstname,e.lastname from employee_availability as a
+ return query select a.eid,e.firstname,e.lastname, e.suffix, e.nickname, e.dob, e.sex from employee_availability as a
 inner join employee as e on a.eid=e.eid
 where a.start_time <= (p_start_time)
       and a.end_time >= (p_end_time)
@@ -1193,5 +1197,48 @@ create function update_shifts_student_count(p_sid integer,
 begin
     update shifts set student_count=p_student_count where sid=p_sid;
     return 1;
+end; $$
+LANGUAGE plpgsql;
+
+create function update_shifts_student_level(p_sid integer,
+                                            p_student_level varchar(25))
+    returns integer as $$
+begin
+    update shifts set student_level=p_student_level where sid=p_sid;
+    return 1;
+end; $$
+LANGUAGE plpgsql;
+
+create function update_shifts_worked_time(p_sid integer,
+                                           p_worked_time numeric(6,2))
+    returns integer as $$
+begin
+    update shifts set worked_time=p_worked_time where sid=p_sid;
+    return 1;
+end; $$
+LANGUAGE plpgsql;
+
+create function shift_count_date_range(start_date date,
+                                       end_date date)
+    returns table(eid integer,
+                  lastname varchar(45),
+                  suffix varchar(5),
+                  firstname varchar(45),
+                  shift_count bigint,
+                  scheduled_hours double precision,
+                  worked_hours numeric(6,2)) as $$
+begin
+    return query select e.eid,
+           e.lastname,
+           e.suffix,
+           e.firstname,
+           count(s.eid),
+           sum(extract(epoch from (s.end_time-s.start_time)) / 3600),
+           sum(s.worked_time)
+    from shifts as s
+    inner join employee as e on s.eid=e.eid
+    where s.shift_date between start_date and end_date
+    group by e.eid
+    order by e.lastname, e.suffix, e.firstname;
 end; $$
 LANGUAGE plpgsql;

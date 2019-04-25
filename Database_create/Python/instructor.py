@@ -223,7 +223,7 @@ class instructor(person):
     def print_instructor(self, form='short'):
         """Print instructor object"""
         if form=='short':
-            print """%s - %s %s""" % (self.eid, self.firstname(), self.lastname())
+            print """%s - %s""" % (self.eid, self.name(nickname=True))
         elif form=='Long':
             print("""    Emp ID:             %s
     Name:               %s
@@ -392,9 +392,9 @@ class instructors(object):
         for r in result:
             if self.checkID(r[0])==None:
                 i = instructor(eid=r[0], firstname=r[1], lastname=r[2], db_handle=self.db_handle)
-                i.suffix = r[3]
-                i.nickname = r[4]
-                i.DOB = r[5]
+                i._suffix = r[3]
+                i._nickname = r[4]
+                i.DOB.set_date(r[5])
                 i.cell_phone.set_phone(r[6])
                 i.cell_phone.set_publish(r[7])
                 i.phone_2_text = r[8]
@@ -406,6 +406,7 @@ class instructors(object):
                 i.payroll_id = r[14]
                 i.psia_id = r[15]
                 i.aasi_id = r[16]
+                i.sex = r[17]
                 self.ilist.append(i)
         
     def get_name(self, eid, return_type='INDEX'):

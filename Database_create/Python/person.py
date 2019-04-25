@@ -5,6 +5,8 @@ from database import database
 from datetime import datetime
 from date import date
 from date import DOB
+import sys
+import os
 
 class  person(object):
     """person object"""

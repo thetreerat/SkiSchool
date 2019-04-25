@@ -101,7 +101,7 @@ def schedule_menu(options=None):
 #def schedule_private_menu(options):
 
 if __name__ == "__main__":
-    ski_db = database(owner='main.py __main__')
+    ski_db = database(owner='main.py - __main__')
     Main = Menu('Main Menu', db_handle=ski_db)
     Main.menu_display = Main.print_help    
     Main.add_item('Instructors', 'Manage instructors', instructor_menu)

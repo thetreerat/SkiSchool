@@ -4,6 +4,8 @@
 from database import database
 from person import person
 from operator import attrgetter
+import sys
+import os
 
 class  employee(person):
     """employee object subclassed from person"""
@@ -57,7 +59,7 @@ class employees(object):
     def append(self, employee):
         if not self.check_name(employee.firstname, employee.lastname):
             self.elist.append(employee)
-            self.sort_list()
+            self.sort()
     
     def check_id(self, eid, return_type=employee.index):
         i = 0
@@ -85,6 +87,48 @@ class employees(object):
             i+=1
         return None
 
+    def find_name(self, options=None):
+        os.system('clear')
+        p = person(db_handle=self.db_handle)
+        if not options[2]:
+            print("""
+    Find employees ....
+    
+        wildcards
+            %K    - find any name that ends in K
+            Cl%   - find any name that starts with Cl
+            %la%  - find any name that contains la
+            _lark - find any name that has one letter that end in lark
+            __ar% - find any name that ingoring frist to letter that has ar and any ending.
+            """)
+        
+            p.set_name()
+            p.print_self()
+        else:
+            try:
+                p.set_name(options)
+            except:
+                pass
+        clearlist = raw_input('Clear list first Y/N (N)?').upper()
+        try:
+            if clearlist[0]=='Y':
+                self.clear()
+        except:
+            pass
+        result = self.db_handle.fetchdata('get_employee', [p.firstname(), p.lastname(), ])
+        self.load_from_db(result)
+                
+    def load_from_db(self, results):
+        """Load employee list with results form a query"""
+        for r in results:
+            if self.check_id(r[0])==None:
+                e = employee(eid=r[0], firstname=r[1], lastname=r[2], db_handle=self.db_handle)
+                e._suffix = r[3]
+                e._nickname = r[4]
+                e.DOB.set_date(r[5])
+                e.sex = r[17]
+                self.append(e)
+
     def list(self, return_type=employee.no_index, shifts=True):
         index = 0
         for e in self.elist:
@@ -97,13 +141,17 @@ class employees(object):
             if shifts:
                 for s in e.shifts:
                     s.print_shift()
+    
+    def list_availability(self, sid):
+        results = self.db_handle.fetchdata('list_available', [sid,])
+        self.load_from_db(results)
         
     def set_db_handle(self, db_handle):
         if db_handle==None:
             db_handle = database(owner='employees')
         self.db_handle = db_handle
 
-    def sort_list(self):
+    def sort(self):
         firstname = sorted(self.elist, key=attrgetter('_firstname'))
         self.elist = sorted(self.elist, key=attrgetter('_lastname'))
         #print(len(firstname))
