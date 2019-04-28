@@ -855,7 +855,7 @@ begin
 end; $$
 LANGUAGE plpgsql;
 
-create function find_certs(p_org varchar(30),
+create function sorts(p_org varchar(30),
                            p_title varchar(50))
     returns table (r_ct integer,
                    r_title varchar(50),
@@ -951,7 +951,8 @@ create function get_employee(p_firstname varchar(30),
                    Email_SMS character varying(50),
                    payroll_id character varying(15),
                    PSIA_ID character varying(15),
-                   AASI_ID character varying(15)
+                   AASI_ID character varying(15),
+                   sex varchar(6)
                    ) as $$
 begin
     if p_firstname is null  or p_firstname='' then
@@ -976,10 +977,11 @@ begin
                         e.email_sms,
                         e.payroll_id,
                         e.psia_id,
-                        e.aasi_id
+                        e.aasi_id,
+                        e.sex
                  from employee as e
-                 where e.lastname like p_lastname and 
-                       e.firstname like p_firstname
+                 where e.lastname ilike p_lastname and 
+                       e.firstname ilike p_firstname
                 order by e.lastname, e.firstname;
 end; $$
 LANGUAGE plpgsql;
@@ -1055,6 +1057,82 @@ begin
 end; $$
 LANGUAGE plpgsql;
 
+create or replace function get_private (p_student_firstname varchar(45),
+                             p_student_lastname varchar(45),
+                             p_student_skill varchar(6),
+                             p_contact_firstname varchar(45),
+                             p_contact_lastname varchar(45),
+                             p_contact_phone varchar(10),
+                             p_instructor_firstname varchar(45),
+                             p_instructor_lastname varchar(45),
+                             p_start_date date,
+                             p_end_date date,
+                             p_disapline varchar(4),
+                             p_type varchar(1),
+                             p_age integer)
+    returns table (pid integer,
+                   sid integer,
+                   s_firstname varchar(45),
+                   s_lastname varchar(45),
+                   s_skill_level varchar(6),
+                   c_firstname varchar(45),
+                   c_lastname varchar(45),
+                   c_phone varchar(30),
+                   lesson_type varchar(1),
+                   lesson_disapline varchar(4),
+                   assigned_eid integer,
+                   s_age integer,
+                   e_firstname varchar(45),
+                   e_lastname varchar(45)) as $$
+declare
+    find_query text;
+    where_clause text;
+begin
+    if p_instructor_firstname='' and p_instructor_lastname='' then
+        where_clause := '(p.assigned_eid is null or
+                          p.assigned_eid in (select eid
+                                             from employee
+                                             where lastname ilike ''%'' and
+                                                   firstname ilike ''%'')) ';
+    
+    elsif p_instructor_firstname='' and p_instructor_lastname!='' then
+        where_clause := 'p.assigned_eid in (select eid
+                                            from employee
+                                            where firstname=''%'' and
+                                                  lastname= '''||p_instructor_lastname||''') ';
+    elsif p_instructor_firstname!='' and p_instructor_lastname='' then
+        where_clause := 'p.assigned_eid in (select eid
+                                            from employee
+                                            where firstname='''||p_instructor_firstname||''' and
+                                                  lastname= ''%'') ';
+    else 
+        where_clause := 'p.assigned_eid in (select eid
+                                             from employee
+                                             where firstname=''%'' and
+                                             lastname=''%'') ';
+    end if;
+    find_query := 'select p.pid,
+                    p.sid,
+                    p.s_firstname,
+                    p.s_lastname,
+                    p.s_skill_level,
+                    p.c_firstname,
+                    p.c_lastname,
+                    p.c_phone,
+                    p.lesson_type,
+                    p.lesson_disapline,
+                    p.assigned_eid,
+                    p.s_age,
+                    e.firstname,
+                    e.lastname
+             from private_lesson as p
+             join employee as e on e.eid=p.assigned_eid
+             where '||where_clause||' order by p.pid';
+    return query execute find_query ;
+            
+end; $$
+LANGUAGE plpgsql;
+                             
 -- end of get_employee_season_dates
 
 create or replace function list_available(p_sid integer)
@@ -1242,3 +1320,27 @@ begin
     order by e.lastname, e.suffix, e.firstname;
 end; $$
 LANGUAGE plpgsql;
+
+create or replace function test_excute (hal varchar(45))
+    returns table(sid integer,
+                  pid integer,
+                  eid integer) as $$
+declare
+    myquery text;
+begin
+    myquery := 'select sid, pid, assigned_eid from private_lesson where  c_firstname ilike '''||hal||''' ';
+    return query execute myquery;
+end; $$
+LANGUAGE plpgsql;
+    
+---- hold -----
+where p.s_firstname ilike p_student_firstname and
+                   p.s_lastname ilike p_student_lastname and
+                   p.s_skill_level ilike p_student_skill and
+                   p.c_firstname  ilike p_contact_firstname and
+                   p.c_lastname ilike p_contact_lastname and
+                   p.c_phone ilike p_student_skill and
+                   p.lesson_type ilike p_type  and
+                   p.lesson_disapline ilike p_disapline and 
+                   p.s_age is null and
+---- end hold ------

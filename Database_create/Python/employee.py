@@ -15,6 +15,7 @@ class  employee(person):
         self.eid = eid
         self.shifts = []
 
+    
     def __repr__(self):
         return "Employee - %s, db=%s, pythonID: %s" % (self.name(), self.db_handle.owner, id(self))
 
@@ -49,7 +50,10 @@ class employees(object):
     def __init__(self, db_handle=None):
         self.elist = []
         self.set_db_handle(db_handle)
-
+        
+    def __len__(self):
+        return len(self.elist)
+    
     def __repr__(self):
         return "Employees - %s, db=%s, pythonID: %s" % (len(self.elist), self.db_handle.owner, id(self))
 

@@ -279,11 +279,16 @@ class instructors(object):
     def __init__(self, db_handle=None):
         """init a set of instructors"""
         self.ilist = []
-        if db_handle==None:
-            db_handle = database(owner='instructor.py - instructors')
-        print(db_handle)
-        self.db_handle = db_handle
+        self.set_db_handle(db_handle)
     
+    def __len__(self):
+        return len(self.ilist)
+    
+    def __repr__(self):
+        return "Instructors - %s, db=%s, pythonID: %s" % (len(self), self.db_handle.owner, id(self))
+
+    def __str__(self):
+        return "Employees - %s, db=%s" % (len(self), self.db_handle.owner)
     def sort_person_key(self, person):
         return person.name
     
@@ -444,7 +449,11 @@ class instructors(object):
                 i.print_instructor('short')
         else:
             print("""No instructors in list!!""")
-
+    
+    def set_db_handle(self, db_handle):
+        if db_handle==None:
+            db_handle = database(owner='employee.py - init_employee')
+        self.db_handle = db_handle
     def print_menu(self):
         os.system('Clear')
         self.list_instructors()

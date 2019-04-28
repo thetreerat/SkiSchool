@@ -120,6 +120,7 @@ create table private_lesson
      s_firstname varchar(30),
      s_lastname varchar(30),
      s_skill_level varchar(6),
+     s_age integer,
      lesson_length float,
      c_firstname varchar(30),
      c_lastname varchar(30),
@@ -130,7 +131,7 @@ create table private_lesson
      s2_lastname varchar(30),
      checked_in boolean,
      payed boolean,
-     Notes varchar(250),
+     Notes text,
      foreign key (sid) REFERENCES shifts (sid) on delete restrict,
      foreign key (assigned_eid) references employee (eid) on delete restrict
     );
