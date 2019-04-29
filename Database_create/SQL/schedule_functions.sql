@@ -1088,14 +1088,8 @@ declare
     find_query text;
     where_clause text;
 begin
-    if p_instructor_firstname='' and p_instructor_lastname='' then
-        where_clause := '(p.assigned_eid is null or
-                          p.assigned_eid in (select eid
-                                             from employee
-                                             where lastname ilike ''%'' and
-                                                   firstname ilike ''%'')) ';
     
-    elsif p_instructor_firstname='' and p_instructor_lastname!='' then
+    if p_instructor_firstname='' and p_instructor_lastname!='' then
         where_clause := 'p.assigned_eid in (select eid
                                             from employee
                                             where firstname=''%'' and
@@ -1111,8 +1105,23 @@ begin
                                              where firstname=''%'' and
                                              lastname=''%'') ';
     end if;
+
     if p_student_firstname!='' then
-        where_clause := 'p.s_firstname ilike p_student_firstname and'
+        where_clause := where_clause||' p.s_firstname ilike '||p_student_firstname||' and';
+    else:
+        where_clasue := where_clause||' p.s_firstname ilike ''%'' and';
+    end if;
+    
+    if p_student_lastname!='' then
+        where_clause := where_clause||' p.s_lastname ilike '||p_student_lastname||' and';
+    else:
+        where_clause := where_clause||' p.s_lastname ilike ''%'' and';
+    end if;
+    
+    if p_contact_lastname!='' then
+        where_clause := where_clause||' p.c_lastname ilike '||p_contact_lastname||' and';
+    else:
+        where_clause := where_clause||' p.c_lastname ilike ''%'' and';
     end if;
     find_query := 'select p.pid,
                     p.sid,

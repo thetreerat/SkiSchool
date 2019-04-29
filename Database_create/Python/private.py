@@ -34,7 +34,7 @@ class private(shift):
                              start_time=start_time,
                              end_time=end_time,
                              html_class=html_class,
-                             date=date,
+                             shift_date=date,
                              sid=sid,
                              ct=ct,
                              ct_title=ct_title,
@@ -74,7 +74,7 @@ class private(shift):
     def check_add_shift(self):
         """function for check if required fields are enter before writing to db"""
         message = 'Values not set:'
-        if self.date==None:
+        if self.shift_date.date()==None:
             message = message + ' Date,'
         if self.start_time==None:
             message = message + ' Start Time,'
@@ -151,9 +151,9 @@ class private(shift):
                                        self.contact_lastname,
                                        self.contact_relation,
                                        self.phone_display(),
-                                       self.date,
-                                       self.start_time,
-                                       self.end_time,
+                                       self.shift_date.date(True),
+                                       self.start_time.time(True),
+                                       self.end_time.time(True),
                                        self.lesson_length,
                                        self.instructor_firstname,
                                        self.instructor_lastname,
@@ -192,7 +192,7 @@ class private(shift):
         else:
             return not_set
 
-    def load_private(self):
+    def load_private(self, dump=None):
         """Save a new private, or update a private in the database"""
         if self.sid==None:
             m = self.check_add_shift()
@@ -238,7 +238,7 @@ self.instructor_lastname = %s""" % (self.shift_name,
                                     self.start_time,
                                     self.end_time,
                                     self.html_class,
-                                    self.date,
+                                    self.date.date(),
                                     self.sid,
                                     self.ct,
                                     self.ct_title,
@@ -311,9 +311,9 @@ self.instructor_lastname = %s""" % (self.shift_name,
     def set_date(self, options):
         """method for getting date, verifing, and setting in private object""" 
         try:
-            self.date = options[2][0]
+            self.shift_date.date(options[2][0])
         except:
-            self.date = raw_input('Lesson Date: ')            
+            self.shift_date.date(raw_input('Lesson Date: ') )          
         self.update = True
         
     def set_instructor(self, options):
@@ -365,19 +365,21 @@ self.instructor_lastname = %s""" % (self.shift_name,
         self.update = True
         
     def set_time(self, options):
+        print(options)
         try:
-            self.start_time = options[2][0]
+            t = options[2][0]
+            print(t)
         except:
-            self.start_time = raw_input('Lesson Start (HH:MM): ')
+            t = None
+        self.start_time.set_time(t)
         try:
-            self.end_time = options[2][1]
+            t = options[2][1]
+            print(t)
         except:
-            self.end_time = raw_input('Lesson End (HH:MM): ')
-        try:
-            self.lesson_length = datetime.strptime(self.end_time, '%H:%M') - datetime.strptime(self.start_time, '%H:%M')
-        except:
-            self.set_time([])
+            t = None
+        self.end_time.set_time(t)
         self.update = True
+        print("""start time: %s, end time:%s""" % (self.start_time.time(True), self.end_time.time(True)))
         
     def set_type(self, options):
         self.lesson_type = ''
@@ -441,10 +443,10 @@ class privates(object):
         F = find_private(self.db_handle)
         F.menu(options)
         result = self.db_handle.fetchdata('Find_private',
-                                 [F.contact.firstname(),
-                                  F.contact.lastname(),
-                                  F.student.firstname(),
+                                 [F.student.firstname(),
                                   F.student.lastname(),
+                                  F.contact.firstname(),
+                                  F.contact.lastname(),
                                   F.instructor.firstname(),
                                   F.instructor.lastname(),
                                   F.date,

@@ -152,7 +152,7 @@ class employees(object):
         
     def set_db_handle(self, db_handle):
         if db_handle==None:
-            db_handle = database(owner='employees')
+            db_handle = database(owner='employee.py - init_employee')
         self.db_handle = db_handle
 
     def sort(self):

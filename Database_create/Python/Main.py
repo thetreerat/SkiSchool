@@ -70,6 +70,7 @@ def private_menu(options=None):
     private.Menu()
 
 def private_new_menu(options=None):
+    print(options[3])
     P = private(db_handle=options[3])
     private_new = Menu('Add New Private Menu', db_handle=options[3])
     private_new.menu_display = P.PrivateMenu
@@ -80,7 +81,7 @@ def private_new_menu(options=None):
     private_new.add_item('Age', 'AGE <#> - Enter the students age', P.set_age)
     private_new.add_item('Time', 'TIME <starttime> <endtime> - Enter start and stop times', P.set_time)
     private_new.add_item('Discipline', 'DISCIPLINE <SKI/SB/TELE>- Set the disapline', P.set_discipline)
-    private_new.add_item('Date', 'DATE <MM/DD/YYYY> - set date of the lesson', P.set_date)
+    private_new.add_item('Date', 'DATE <MM/DD/YYYY> - set date of the lesson', P.shift_date.get_date)
     private_new.add_item('Load', 'LOAD - Save private to database', P.load_private)
     private_new.add_item('List', 'LIST - List instructors', P.set_instructor)
     private_new.add_item('Find', 'FIND <firstname> <lastname> - find instrutors by name', P.find_instructor)
