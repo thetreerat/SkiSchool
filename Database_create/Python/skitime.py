@@ -3,6 +3,7 @@
 #
 from database import database
 from datetime import datetime
+from six import string_types
 
 class  SkiTime(object):
     """skitime"""
@@ -40,15 +41,17 @@ Purpose        : This Class is a temlplete file
         self.db_handle = db_handle
     
     def set_time(self, time=None):
+        
         if time==None:
             self._time = raw_input(self.question).upper()
-        if type(self._time)==str:  
+        if isinstance(time, string_types):
+            
             try:
-                if self._time.find('PM')==-1 and self._time.find('AM')==-1:
+                if time.find('PM')==-1 and time.find('AM')==-1:
                     format_string = '%H:%M'
                 else:
                     format_string = '%I:%M %p'
-                self._time = datetime.strptime(self._time, format_string)
+                self._time = datetime.strptime(time, format_string)
             except:
                 self._time = None
                 self.set_time()

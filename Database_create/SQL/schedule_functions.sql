@@ -1088,14 +1088,8 @@ declare
     find_query text;
     where_clause text;
 begin
-    if p_instructor_firstname='' and p_instructor_lastname='' then
-        where_clause := '(p.assigned_eid is null or
-                          p.assigned_eid in (select eid
-                                             from employee
-                                             where lastname ilike ''%'' and
-                                                   firstname ilike ''%'')) ';
     
-    elsif p_instructor_firstname='' and p_instructor_lastname!='' then
+    if p_instructor_firstname='' and p_instructor_lastname!='' then
         where_clause := 'p.assigned_eid in (select eid
                                             from employee
                                             where firstname=''%'' and
@@ -1110,6 +1104,24 @@ begin
                                              from employee
                                              where firstname=''%'' and
                                              lastname=''%'') ';
+    end if;
+
+    if p_student_firstname!='' then
+        where_clause := where_clause||' p.s_firstname ilike '||p_student_firstname||' and';
+    else:
+        where_clasue := where_clause||' p.s_firstname ilike ''%'' and';
+    end if;
+    
+    if p_student_lastname!='' then
+        where_clause := where_clause||' p.s_lastname ilike '||p_student_lastname||' and';
+    else:
+        where_clause := where_clause||' p.s_lastname ilike ''%'' and';
+    end if;
+    
+    if p_contact_lastname!='' then
+        where_clause := where_clause||' p.c_lastname ilike '||p_contact_lastname||' and';
+    else:
+        where_clause := where_clause||' p.c_lastname ilike ''%'' and';
     end if;
     find_query := 'select p.pid,
                     p.sid,
@@ -1332,9 +1344,29 @@ begin
     return query execute myquery;
 end; $$
 LANGUAGE plpgsql;
+
+    
+create or replace function private_eid_null() returns trigger as $$
+declare
+    unassigned_eid integer;
+begin
+
+    if new.assigned_eid is Null then
+        select into unassigned_eid eid from employee where firstname='Unassigned' and lastname='Shift';
+        update private_lesson set assigned_eid = unassigned_eid where pid=new.pid;
+    end if;
+    return new; 
+end; $$
+LANGUAGE plpgsql;
+
+create TRIGGER new_private
+    after insert
+    on private_lesson
+    for each row
+    execute procedure private_eid_null();
     
 ---- hold -----
-where p.s_firstname ilike p_student_firstname and
+where 
                    p.s_lastname ilike p_student_lastname and
                    p.s_skill_level ilike p_student_skill and
                    p.c_firstname  ilike p_contact_firstname and
