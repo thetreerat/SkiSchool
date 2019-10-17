@@ -57,7 +57,7 @@ Purpose        : This Class for handleing dates in ski_school
             return self._default_date
     
     def get_date(self, options=None):
-        """method for getting date, verifing, and setting in object"""
+        """method for getting date from user, verifing, and setting in object"""
         try:
             self._date = datetime.strptime(options[2][0], '%m/%d/%Y')
         except:
@@ -77,7 +77,7 @@ Purpose        : This Class for handleing dates in ski_school
         self.db_handle = db_handle
     
     def set_date(self, date):
-        """method for getting date, verifing, and setting in object"""
+        """method for setting date from passed value after verifing is a date"""
         if 'datetime.date' in str(type(date)):
             self._date = date
             return

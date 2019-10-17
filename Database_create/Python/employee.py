@@ -14,13 +14,12 @@ class  employee(person):
         person.__init__(self, firstname=firstname, lastname=lastname, db_handle=db_handle)
         self.eid = eid
         self.shifts = []
-
     
     def __repr__(self):
         return "Employee - %s, db=%s, pythonID: %s" % (self.name(), self.db_handle.owner, id(self))
 
     def __str__(self):
-        return "Employees - %s, db=%s" % (self.name(), self.db_handle.owner)
+        return "Employee - %s, db=%s" % (self.name(), self.db_handle.owner)
            
     def About(self):
         print("""Author         : Harold Clark  email address thetreerat@gmail.com
@@ -154,6 +153,7 @@ class employees(object):
         if db_handle==None:
             db_handle = database(owner='employee.py - init_employee')
         self.db_handle = db_handle
+
 
     def sort(self):
         firstname = sorted(self.elist, key=attrgetter('_firstname'))

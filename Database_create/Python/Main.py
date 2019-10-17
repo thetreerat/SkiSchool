@@ -18,7 +18,15 @@ from shift import shifts
     
 def print_this(dump=None):
     raw_input('This is a test! ')
+
+def admin_menu(options=None):
+    db_handle = options[3]
+    Admin = Menu('Admin Main Menu', db_handle=db_handle)
+    Admin.menu_display = Admin.print_help
+    Admin.add_item('New', 'Add new season', print_this)
+    Admin.Menu()
     
+       
 def jackets_menu(options=None):    
     db_handle = options[3]
     Jackets = Menu('Jacket Main Menu', db_handle=db_handle)
@@ -28,9 +36,11 @@ def jackets_menu(options=None):
     Jackets.add_item('CheckIn', 'Check In a jacket', print_this)
     Jackets.Menu()
     
+    
 def jackets_new_menu(dump=None):
     new_jackets = jackets()
     new_jackets.new_jackets_menu()    
+
 
 def instructor_menu(answer=None):
     try:       
@@ -45,9 +55,8 @@ def instructor_menu(answer=None):
     instructor.add_item('Edit', 'Edit # - Open instructor # for editing or veiwing. must be selected from a found list of instructors', I.edit)
     instructor.add_item('Find', 'FIND <Fisrtname> <Lastname> - find matching instructor(s) and display list of them', I.find_name)
     instructor.add_item('Load', 'LOAD - Save New Names to database', I.add_instructor_db)
-
-
     instructor.Menu()
+  
     
 def private_menu(options=None):
     print(options[3])
@@ -69,6 +78,7 @@ def private_menu(options=None):
     private.add_item('Edit', 'EDIT # - Edit a private lesson', print_this)
     private.Menu()
 
+
 def private_new_menu(options=None):
     print(options[3])
     P = private(db_handle=options[3])
@@ -80,6 +90,8 @@ def private_new_menu(options=None):
     private_new.add_item('Type', 'TYPE <A/D> - set lesson type as assigned or Demand', P.set_type)
     private_new.add_item('Age', 'AGE <#> - Enter the students age', P.set_age)
     private_new.add_item('Time', 'TIME <starttime> <endtime> - Enter start and stop times', P.set_time)
+    private_new.add_item('Start', 'START <DATE> - Enter start time', P.start_time.set_time)
+    private_new.add_item('End', 'END <DATE> - Enter end time', P.end_time.set_time)
     private_new.add_item('Discipline', 'DISCIPLINE <SKI/SB/TELE>- Set the disapline', P.set_discipline)
     private_new.add_item('Date', 'DATE <MM/DD/YYYY> - set date of the lesson', P.shift_date.get_date)
     private_new.add_item('Load', 'LOAD - Save private to database', P.load_private)
@@ -87,6 +99,7 @@ def private_new_menu(options=None):
     private_new.add_item('Find', 'FIND <firstname> <lastname> - find instrutors by name', P.find_instructor)
     private_new.add_item('Skill', 'SKILL <1-9> or SKILL <Yellow,Yellow+,green,blue> - Skill level of the student', P.set_skill)
     private_new.Menu()
+  
     
 def schedule_menu(options=None):
     S = shifts(db_handle=options[3])
@@ -99,7 +112,6 @@ def schedule_menu(options=None):
     schedule.add_item('availability', 'list availability for a day of the week', print_this)
     schedule.Menu()
 
-#def schedule_private_menu(options):
 
 if __name__ == "__main__":
     ski_db = database(owner='main.py - __main__')
@@ -110,5 +122,6 @@ if __name__ == "__main__":
     Main.add_item('Lockers', 'Manage lockers and offices', print_this)
     Main.add_item('Certs', 'Manage Certifications', print_this)
     Main.add_item('Schedule', 'Manage Schedules', schedule_menu)
-    Main.add_item('Private', 'Manage Private Schedule', private_menu)    
+    Main.add_item('Private', 'Manage Private Schedule', private_menu)
+    Main.add_item('Setup', 'Setup functions', admin_menu)
     Main.Menu()

@@ -7,6 +7,7 @@ from six import string_types
 
 class  SkiTime(object):
     """skitime"""
+    ampm = ['am', 'AM', 'PM', 'pm']
     def __init__(self, time=None, question='Enter Time: ', db_handle=None):
         """Create New Instanace of New Class"""
         self.set_db_handle(db_handle)
@@ -41,12 +42,17 @@ Purpose        : This Class is a temlplete file
         self.db_handle = db_handle
     
     def set_time(self, time=None):
-        
+        print('skitime.set_time: time is %s' % (time))
+
+        if type(time) is list:
+            if len(time[2])==2:
+                time = '%s %s' % (time[2][0], time[2][1])
         if time==None:
-            self._time = raw_input(self.question).upper()
+            time = raw_input(self.question).upper()
         if isinstance(time, string_types):
-            
             try:
+                time = time.upper()
+                print('skitime.set_time: time is %s' % (time))
                 if time.find('PM')==-1 and time.find('AM')==-1:
                     format_string = '%H:%M'
                 else:
@@ -74,4 +80,5 @@ if __name__ == "__main__":
     N.set_time()
     print(N.time(True))
     N.print_self()
+    print(N.ampm)
     

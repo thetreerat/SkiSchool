@@ -19,8 +19,10 @@ class phone(object):
             
     def number(self, number_only=True):
         """convert phone number to display value and return"""
-        
-        l = len(self._number)
+        try: 
+            l = len(self._number)
+        except:
+            return ''
         if l==7:
             phone = """%s-%s""" % (self._number[0:3], self._number[3:7])
         elif l==10:
