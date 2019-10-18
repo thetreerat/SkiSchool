@@ -80,7 +80,7 @@ Purpose        : Season class
             self.said = r[0]
             self.ss_date.set_date(r[1])
             self.se_date.set_date(r[2])
-            self.season_name = r[3]
+            self._season_name = r[3]
         
     def print_self(self):
         print('Season Name: %s' % self._season_name)
@@ -91,6 +91,6 @@ Purpose        : Season class
 if __name__ == "__main__":
     db_handle = database(owner='season.py - __main__')
     N = Season(db_handle)
-    N.get_season_db(4)
+    #N.get_season_db(4)
     N.menu()
     N.About()
