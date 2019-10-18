@@ -44,6 +44,14 @@ Purpose        : Season class
                                                        ]
                                          )
         self.said = result[0][0]
+      
+    def menu(self):
+        SMenu = Menu('Season Menu', db_handle=self.db_handle)
+        SMenu.menu_display = N.print_self
+        SMenu.add_item('Season', 'set/update Season display name', N.set_season_name)
+        SMenu.add_item('Start', 'set season start date', N.ss_date.get_date)
+        SMenu.add_item('End', 'set season end date', N.se_date.get_date)
+        SMenu.Menu()
         
     def season_name(self, season_name):
         """Return season name"""
@@ -75,10 +83,5 @@ Purpose        : Season class
 if __name__ == "__main__":
     db_handle = database(owner='season.py - __main__')
     N = Season(db_handle)
-    SMenu = Menu('Season Menu', db_handle=db_handle)
-    SMenu.menu_display = N.print_self
-    SMenu.add_item('Season', 'set/update Season display name', N.set_season_name)
-    SMenu.add_item('Start', 'set season start date', N.ss_date.get_date)
-    SMenu.add_item('End', 'set season end date', N.se_date.get_date)
-    SMenu.Menu()
+    N.menu()
     N.About()

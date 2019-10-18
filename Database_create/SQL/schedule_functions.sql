@@ -1076,6 +1076,8 @@ begin
 end; $$
 LANGUAGE plpgsql;
 
+-- end of get_employee_season_dates
+
 create or replace function get_private (p_student_firstname varchar(45),
                              p_student_lastname varchar(45),
                              p_student_skill varchar(6),
@@ -1186,7 +1188,44 @@ begin
 end; $$
 LANGUAGE plpgsql;
                              
--- end of get_employee_season_dates
+-- end of get_private
+
+create or replace function get_seasons()
+    returns table (said integer,
+                  ss_date date,
+                  se_date date,
+                  season_name character varying(25)
+                 ) as $$
+begin
+    return query select s.said,
+                        s.ss_date,
+                        s.se_date,
+                        s.season_name
+                 from seasons as s
+                 order by s.ss_date;
+end; $$
+LANGUAGE plpgsql;  
+  
+-- end of get_seasons
+
+create or replace function get_seasons(p_said integer)
+    returns table (said integer,
+                  ss_date date,
+                  se_date date,
+                  season_name character varying(25)
+                 ) as $$
+begin
+    return query select s.said,
+                        s.ss_date,
+                        s.se_date,
+                        s.season_name
+                 from seasons as s
+                 where s.said=p_said
+                 order by s.ss_date;
+end; $$
+LANGUAGE plpgsql;  
+  
+-- end of get_seasons (p_said)
 
 create or replace function list_available(p_sid integer)
     returns table (empID integer,
