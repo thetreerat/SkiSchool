@@ -25,7 +25,7 @@ class availability(object):
         self.end_time = end_time
         self.said = said
         if db_handle==None:
-            db_handle = database(onwer='availability.py - availability')
+            db_handle = database(owner='availability.py - availability')
         self.db_handle = db_handle
     
     def add(self):
@@ -119,9 +119,9 @@ class availablities(object):
             db_handle = database(owner='availablity.py - availablitites')
         self.db_handle =  db_handle
                 
-    def add(self, answer):
+    def add(self, options=None):
         if self.eid!=None:
-            a = availability(eid=self.eid)
+            a = availability(eid=self.eid, db_handle=self.db_handle)
             a.add()
             self.alist.append(a)
                         
@@ -202,10 +202,18 @@ class availablities(object):
         print("""    -----------------------------------------------------""")
 
 if __name__ == '__main__':
+    ski_db = database(owner='availablity.py -__main__')
     A = availablities(eid=15)
     A.get_employee_availablity()
     A.eid
-    A.menu()
+    
+    M = Menu('Employee Availablity Menu', db_handle=ski_db)
+    M.menu_display = A.print_list
+    M.add_item('Add', 'Add an availablity on a day for employee', A.add)
+    M.add_item('Edit', 'Edit # - Edit availablity id for employee', A.edit)
+    M.add_item('Delete', 'Delete # - Delete availablity id for employee', A.print_list)
+    M.Menu()
+    #A.menu()
     #A.print_list()
     #a = A.alist[0]
     #a.edit()
