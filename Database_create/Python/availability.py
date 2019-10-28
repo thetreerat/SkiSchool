@@ -6,6 +6,8 @@ import sys
 import os
 import psycopg2
 from database import database
+from date import date
+from skitime import SkiTime
 from menu import Menu
 
 class availability(object):
@@ -18,15 +20,18 @@ class availability(object):
                  end_time=None,
                  said=None,
                  db_handle=None):
+        """init availability object"""
+        self.set_db_handle(db_handle)
         self.eaid = eaid
         self.eid = eid
         self.dow = dow
-        self.start_time = start_time
-        self.end_time = end_time
+        self.start_time = SkiTime(time=start_time,
+                                  question='Enter start Time of Availability: ',
+                                  db_handle=self.db_handle)
+        self.end_time = SkiTime(time=end_time,
+                                question='Enter end time of availability: ',
+                                db_handle=self.db_handle)
         self.said = said
-        if db_handle==None:
-            db_handle = database(owner='availability.py - availability')
-        self.db_handle = db_handle
     
     def add(self):
         """create a new record and save to db"""
@@ -34,8 +39,8 @@ class availability(object):
         while dow not in ['monday', 'tuesday', 'wednesday', 'thursday','friday', 'saturday', 'sunday']:
             dow = raw_input("""Enter Day of week (%s): """ % (dow)).lower()
         self.dow = dow
-        self.start_time = raw_input('Enter Start Time: ')
-        self.end_time = raw_input('Enter End Time: ')
+        self.start_time.set_time()
+        self.end_time.set_time()
         result = self.db_handle.fetchdata('add_employee_availabilty', [self.eid, self.dow, self.start_time, self.end_time])
         self.eaid = result[0][0]
 
@@ -91,13 +96,13 @@ class availability(object):
                
     def print_availability(self):
         try:
-            start_time = self.start_time.strftime('%H:%M').ljust(15)
+            start_time = self.start_time.time(True).ljust(15)
         except:
-            start_time = self.start_time.ljust(15)
+            start_time = ' '.ljust(15)
         try:
-            end_time = self.end_time.strftime('%H:%M').ljust(15)
+            end_time = self.end_time.time(True).ljust(15)
         except:
-            end_time = self.end_time.ljust(15)
+            end_time = ''.ljust(15)
             
         print("""    %s %s %s %s""" % (str(self.eaid).ljust(7),
                                        self.dow.ljust(12),
@@ -108,6 +113,10 @@ class availability(object):
         print("""    DOW, START, END, EXIT, RETURN
             """)        
         
+    def set_db_handle(self, db_handle):
+        if db_handle==None:
+            db_handle = database(owner='availablity.py - set_db_handle')
+        self.db_handle = db_handle
 
     
 class availablities(object):

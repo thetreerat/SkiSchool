@@ -100,7 +100,7 @@ class shift(object):
               
     def set_db_handle(self, db_handle):
         if db_handle==None:
-            db_handle = database(owner='employee')
+            db_handle = database(owner='shift.py - set_db_handle')
         self.db_handle = db_handle
     
     def get_worked_time(self, hours=None):
