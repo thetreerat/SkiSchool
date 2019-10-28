@@ -41,7 +41,7 @@ class availability(object):
         self.dow = dow
         self.start_time.set_time()
         self.end_time.set_time()
-        result = self.db_handle.fetchdata('add_employee_availabilty', [self.eid, self.dow, self.start_time, self.end_time])
+        result = self.db_handle.fetchdata('add_employee_availabilty', [self.eid, self.dow, self.start_time.time(True), self.end_time.time(True)])
         self.eaid = result[0][0]
 
     def edit(self):
@@ -96,11 +96,11 @@ class availability(object):
                
     def print_availability(self):
         try:
-            start_time = self.start_time.time(True).ljust(15)
+            start_time = self.start_time.time(True, True).ljust(15)
         except:
             start_time = ' '.ljust(15)
         try:
-            end_time = self.end_time.time(True).ljust(15)
+            end_time = self.end_time.time(True, True).ljust(15)
         except:
             end_time = ''.ljust(15)
             

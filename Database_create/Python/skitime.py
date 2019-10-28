@@ -64,11 +64,15 @@ Purpose        : This Class is a temlplete file
         else:
             self._time = time
              
-    def time(self, as_string=False):
+    def time(self, as_string=False, ampm=False):
         _time = self._time
         if as_string:
+            if ampm:
+                timestring = '%H:%M %p'
+            else:
+                timestring = '%H:%M'
             try:
-                _time = self._time.strftime('%H:%M')
+                _time = self._time.strftime(timestring)
             except:
                 _time = ''
         return _time
