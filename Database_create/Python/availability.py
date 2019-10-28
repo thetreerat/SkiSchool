@@ -36,6 +36,8 @@ class availability(object):
     def add(self):
         """create a new record and save to db"""
         dow = ''
+        ## need to move next three lines to function set_dow(), and add self._dow to init. then add set_dow to edit_dow
+        ## also add check for 0-6 and use that to convert to list below. 
         while dow not in ['monday', 'tuesday', 'wednesday', 'thursday','friday', 'saturday', 'sunday']:
             dow = raw_input("""Enter Day of week (%s): """ % (dow)).lower()
         self.dow = dow
@@ -54,24 +56,26 @@ class availability(object):
         M.Menu()
         
         
-    def edit_end(self):
-        end = raw_input("""Enter End Time (%s): """ % (self.end_time))
-        if end!='' and end!=self.end_time:
-            self.database_update('update_employee_availability_end', [self.eaid, end])
-            self.end_time = end
+    def edit_end(self, options=None):
+        end = raw_input("""Enter End Time (%s): """ % (self.end_time.time(True, True)))
+        if end!='' and end!=self.end_time.time(True, True):
+            # need to fix following line to use db_handle.bahbah()
+            self.db_handle.fetchdata('update_employee_availability_end', [self.eaid, end])
+            self.end_time.set_time(time=end)
 
     def edit_dow(self, options=None):
         """edit dow string and update database"""
-        print(options)
         dow = raw_input('Enter Day of Week (%s): ' % (self.dow)).lower()
         if dow!='' and dow!=self.dow:
-            r = self.database_update('update_employee_availability_dow', [self.eaid, dow,])
+            # need to fix following line to use db_handle.bahbah()
+            self.db_handle.fetchdata('update_employee_availability_dow', [self.eaid, dow,])
             self.dow = dow
     
-    def edit_start(self):
-        start = raw_input("""Enter Start Time (%s): """ % (self.start_time))
+    def edit_start(self, options=None):
+        start = raw_input("""Enter Start Time (%s): """ % (self.start_time.time(True, True)))
         if start!='' and start!=self.start_time:
-            self.database_update('update_employee_availability_start', [self.eaid, start])
+            # need to fix following line to use db_handle.bahbah()
+            #self.database_update('update_employee_availability_start', [self.eaid, start])
             self.start_time = start
                
     def print_availability(self, options=None):
