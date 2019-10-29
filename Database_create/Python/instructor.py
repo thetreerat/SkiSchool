@@ -292,7 +292,7 @@ class instructors(object):
         
     def add(self, options):
         """creates and instructor object, and updates instructor name from options passed """
-        i = instructor()
+        i = instructor(db_handle=self.db_handle)
         i.set_name(options[2])
         self.append(i)
         
@@ -305,8 +305,8 @@ class instructors(object):
     def add_instructor_db(self, dump=None):
         """write list of new instructors to db"""
         for i in self.ilist:
-            result = self.db_handle.fetchdata('add_employee', [i.firstname, i.lastname, ])
-            result = self.db_handle.fetchdata('get_eid', [i.firstname, i.lastname, ])
+            result = self.db_handle.fetchdata('add_employee', [i.firstname(), i.lastname(), ])
+            result = self.db_handle.fetchdata('get_eid', [i.firstname(), i.lastname(), ])
             i.eid = result[0][0]
         return True
 
