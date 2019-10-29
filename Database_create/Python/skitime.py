@@ -8,14 +8,20 @@ from six import string_types
 class  SkiTime(object):
     """skitime"""
     ampm = ['am', 'AM', 'PM', 'pm']
-    def __init__(self, time=None, question='Enter Time: ', db_handle=None, debug=False ):
+    def __init__(self,
+                 time=None,
+                 question='Enter Time: ',
+                 db_handle=None,
+                 debug=False):
         """Create New Instanace of New Class"""
+        self.debug = debug
         self.set_db_handle(db_handle)
         if time==None:
             self._time = time
         else:
             self.set_time(time)
         self.question = question
+        
     
     def __str__(self):
         return "Time - %s  timedb: %s" % (self.time(True), self.db_handle.owner)

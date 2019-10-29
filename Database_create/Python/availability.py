@@ -95,10 +95,19 @@ class availability(object):
                                        end_time))
     
     def print_edit_menu(self, options=None):
-        e = employee(eid=self.eid, firstname='Harold', lastname='Clark', db_handle=self.db_handle)
-        
-        print("""Employee: %s       Age: %s""" % (e.name(), e.age()))
-        self.print_availability()
+        e = employee(eid=self.eid, firstname='Harold', lastname='Clark', dob='12/24/1969', db_handle=self.db_handle)
+        print("""    Employee:    %s
+    Age: %s
+    EAID:        %s
+    Day of Week: %s
+    Start Time:  %s
+    End Time:    %s""" % (e.name(),
+                          e.age(),
+                          self.eaid,
+                          self.dow,
+                          self.start_time.time(True),
+                          self.end_time.time(True)))
+
                 
     def set_db_handle(self, db_handle):
         if db_handle==None:
@@ -162,8 +171,7 @@ class availablities(object):
         M.add_item('Edit', 'Edit # - Edit availablity id for employee', self.edit)
         M.add_item('Delete', 'Delete # - Delete availablity id for employee', self.print_list)
         M.Menu()
-           
-                                   
+                                              
     def print_list(self):
         print("""    EAID    Day of Week  Start Time      End Time
     ------- ------------ --------------- ---------------- """)
@@ -173,10 +181,10 @@ class availablities(object):
 
 if __name__ == '__main__':
     ski_db = database(owner='availablity.py -__main__')
-    A = availablities(eid=15)
+    A = availablities(eid=15, db_handle=ski_db)
     A.get_employee_availablity()
     #A.eid
-    A.alist[0].print_edit_menu()
-    #A.menu(db_handle=ski_db)
+    #A.alist[0].print_edit_menu()
+    A.menu(db_handle=ski_db)
     #A.print_list()
-    #A.menu()
+    A.menu()
