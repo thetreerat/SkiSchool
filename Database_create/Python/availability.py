@@ -9,6 +9,7 @@ from database import database
 from date import date
 from skitime import SkiTime
 from menu import Menu
+from employee import employee
 
 class availability(object):
     """Base Class object for availbiltiy"""
@@ -49,7 +50,7 @@ class availability(object):
     def edit(self):
         """function for editing an availablility object"""
         M = Menu('Edit an employee availablity Menu', db_handle=self.db_handle)
-        M.menu_display = self.print_availability
+        M.menu_display = self.print_edit_menu
         M.add_item('Start', 'Start - edit start time', self.edit_start)
         M.add_item('DOW', 'DOW <dow> - edit dow of the week.', self.edit_dow)
         M.add_item('End', 'END <time> - edit end time.', self.edit_end)
@@ -75,7 +76,7 @@ class availability(object):
         start = raw_input("""Enter Start Time (%s): """ % (self.start_time.time(True, True)))
         if start!='' and start!=self.start_time:
             # need to fix following line to use db_handle.bahbah()
-            #self.database_update('update_employee_availability_start', [self.eaid, start])
+            self.db_handle.fetchdata('update_employee_availability_start', [self.eaid, start])
             self.start_time = start
                
     def print_availability(self, options=None):
@@ -93,10 +94,12 @@ class availability(object):
                                        start_time,
                                        end_time))
     
-    def print_options(self):
-        print("""    DOW, START, END, EXIT, RETURN
-            """)        
+    def print_edit_menu(self, options=None):
+        e = employee(eid=self.eid, firstname='Harold', lastname='Clark', db_handle=self.db_handle)
         
+        print("""Employee: %s       Age: %s""" % (e.name(), e.age()))
+        self.print_availability()
+                
     def set_db_handle(self, db_handle):
         if db_handle==None:
             db_handle = database(owner='availablity.py - set_db_handle')
@@ -173,7 +176,7 @@ if __name__ == '__main__':
     A = availablities(eid=15)
     A.get_employee_availablity()
     #A.eid
-    #A.alist[0].print_availability()
+    A.alist[0].print_edit_menu()
     #A.menu(db_handle=ski_db)
     #A.print_list()
-    A.menu()
+    #A.menu()
