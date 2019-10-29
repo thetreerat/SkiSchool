@@ -123,6 +123,7 @@ class  Menu(object):
                 comma = ', '
             print("""%s""" % (commands))
 
+    
     def print_help(self):
         print('      Menu help ...')
         print('    --------------------------------------------------------------------------------------')
@@ -130,6 +131,13 @@ class  Menu(object):
             i.print_help()
         print('    --------------------------------------------------------------------------------------')
 
+    def print_new(self, options=None):
+        """function for undefind menu items"""
+        print('Menu Item function under construction')
+        print(options)
+        raw_input('Okay?')
+        
+        
     def print_items(self):
         """ """
         print("    Menu Items list ....")

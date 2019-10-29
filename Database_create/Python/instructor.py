@@ -15,6 +15,7 @@ from availability import availablities
 from phone import phone
 from person import person
 from date import date
+from menu import Menu
 
             
 class instructor(person):
@@ -116,88 +117,80 @@ class instructor(person):
             L.llist[line].assign_location_db(self.eid)
 
     def edit_instructor(self):
-        run = True
-        while run:
-            self.print_menu()
-            answer = raw_input('Please eneter selection: ').upper()
-            answer = list(answer.split())
-            while answer:
-                if answer[0] in ['MAIN','MAI','MA','M']:
-                    self.jlist = None
-                    run = False
-                    break
-                elif answer[0] in ['AVAILABILITY','AVAILABILIT','AVAILABILI',
-                                   'AVAILABIL', 'AVAILABI','AVAILAB',
-                                   'AVAILA','AVAIL','AVAI','AVA',
-                                   'AV','A']:
-                    self.alist.menu()
-                    break
-                elif answer[0] in ['CERT','CER','CE']:
-                    if len(answer)>2:
-                        if answer[1].upper() in ['ADD', 'AD', 'A']:
-                            self.alist.list_type='EditEmp'
-                            self.clist.add()
-                        elif answer[1].upper() in ['EDIT', 'EDI', 'ED', 'E']:
-                            c = self.alist.checkID(int(answer[2]))
-                            if c!=None:
-                                c.edit()
-                    self.alist.menu()
-                    self.add_cert(answer)
-                    break
+        m = Menu('Edit Instructor Menu', db_handle=self.db_handle)
+        m.menu_display = self.print_menu
+        m.add_item('Availabilitiy', 'Availability - manage instructors availability', self.alist.menu)
+        m.add_item('Cert', 'CERT - Manage instructors certifications', self.clist.menu)
+        m.Menu()
+        #run = True
+        #while run:
+        #    self.print_menu()
+                #elif answer[0] in ['CERT','CER','CE']:
+                 #   if len(answer)>2:
+                  #      if answer[1].upper() in ['ADD', 'AD', 'A']:
+                   #         self.alist.list_type='EditEmp'
+                    #        self.clist.add()
+                     #   elif answer[1].upper() in ['EDIT', 'EDI', 'ED', 'E']:
+                      #      c = self.alist.checkID(int(answer[2]))
+                       #     if c!=None:
+                        #        c.edit()
+                    #self.alist.menu()
+                    #self.add_cert(answer)
+                    #break
 
-                elif answer[0] in ['CELL','CEL','CE']:
-                    self.cell_phone.set_phone()
-                    break
+                #elif answer[0] in ['CELL','CEL','CE']:
+                 #   self.cell_phone.set_phone()
+                  #  break
 
-                elif answer[0] == 'C':
-                    answer = raw_input('CEll or CERT').upper()
-                    answer = list(answer.split())
+                #elif answer[0] == 'C':
+                #    answer = raw_input('CEll or CERT').upper()
+                #    answer = list(answer.split())
                     
-                elif answer[0] in ['HELP', 'HEL', 'HE','H', '?']:
-                    self.print_help()
-                    answer = raw_input('Enter Selectioin: ').upper()
-                    answer = list(answer.split())
-                    break
+                #elif answer[0] in ['HELP', 'HEL', 'HE','H', '?']:
+                #    self.print_help()
+                #    answer = raw_input('Enter Selectioin: ').upper()
+                #    answer = list(answer.split())
+                #    break
                 
-                elif answer[0] in ['JACKET','JACKE','JACK','JAC','JA','J' ]:
-                    self.assign_jacket(answer)
-                    if self.jlist==None:
-                        self.jlist = jackets()
-                        self.jlist.get_employee_jackets_db(self.eid)
-                    else:
-                        self.jlist.clear()
-                        self.jlist.get_employee_jackets_db(self.eid)
-                    break
+                #elif answer[0] in ['JACKET','JACKE','JACK','JAC','JA','J' ]:
+                #    self.assign_jacket(answer)
+                #    if self.jlist==None:
+                #        self.jlist = jackets()
+                 #       self.jlist.get_employee_jackets_db(self.eid)
+                 #   else:
+                 #       self.jlist.clear()
+                 #       self.jlist.get_employee_jackets_db(self.eid)
+                 #   break
                 
-                elif answer[0] in ['LOCATION','LOCATIO','LOCATI','LOCAT','LOCA','LOC','LO','L']:
-                    self.assign_location_db()
-                    if self.llist==None:
-                        self.llist = locations()
-                        self.llist.get_locations_employee_db(self.eid)
-                    else:
-                        self.llist.clear()
-                        self.llist.get_locations_employee_db(self.eid)
-                    break
+                #elif answer[0] in ['LOCATION','LOCATIO','LOCATI','LOCAT','LOCA','LOC','LO','L']:
+                #    self.assign_location_db()
+                #    if self.llist==None:
+                 #       self.llist = locations()
+                 #       self.llist.get_locations_employee_db(self.eid)
+                 #   else:
+                 #       self.llist.clear()
+                 #       self.llist.get_locations_employee_db(self.eid)
+                 #   break
                     
-                elif answer[0] in ['NAME','NAM','NA','N']:
-                    self.set_name()
-                    break
-                elif answer[0] in ['START','S','ST','STA','STAR']:
-                    self.set_start_date()
-                    break
-                elif answer[0] in ['END','EN']:
-                    self.set_end_date()
-                    break                
-                elif answer[0] in ['UPDATE','UPDAT','UPDA','UPD','UP','U' ]:
-                    self.update_instructor()
-                    break
-                elif answer[0] in ['EXIT', 'EXI','EX','E']:
-                    sys.exit(1)
-                else:
-                    print("""Lost in space!!!""")
-                    print(answer)
-                    dump = raw_input('ready?')
-                    break        
+                #elif answer[0] in ['NAME','NAM','NA','N']:
+                #    self.set_name()
+                #    break
+                #elif answer[0] in ['START','S','ST','STA','STAR']:
+                #    self.set_start_date()
+                #    break
+                #elif answer[0] in ['END','EN']:
+                #    self.set_end_date()
+                #    break                
+                #elif answer[0] in ['UPDATE','UPDAT','UPDA','UPD','UP','U' ]:
+                #    self.update_instructor()
+                #    break
+                #elif answer[0] in ['EXIT', 'EXI','EX','E']:
+                #    sys.exit(1)
+                #else:
+                #    print("""Lost in space!!!""")
+                #    print(answer)
+               #     dump = raw_input('ready?')
+                #    break        
 
     def instructor_name(self):
         """return instructor name first name<sp> last name as string"""
