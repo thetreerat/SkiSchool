@@ -28,15 +28,15 @@ class shift(object):
         self.sid = sid
         self.shift_name = shift_name
         self.start_time = SkiTime(time=start_time,
-                                   question='Enter Start Time',
+                                   question='Enter Start Time: ',
                                    db_handle=self.db_handle)
         self.end_time = SkiTime(time=end_time,
-                                 question='Enter End Time',
+                                 question='Enter End Time: ',
                                  db_handle=self.db_handle)
         self.html_class = html_class
         self.ct = ct
         self.ct_title = ct_title
-        self.shift_date = date(db_handle=db_handle)
+        self.shift_date = date(db_handle=self.db_handle)
         self.eid = eid
         self.employee = employee(db_handle=self.db_handle)
         self.no_show = None
@@ -65,9 +65,9 @@ class shift(object):
     def add_shift_db(self):
         """Add shift object to the shift table in database"""
         result = self.db_handle.fetchdata('add_shift', [self.shift_name,
-                                                        self.start_time,
-                                                        self.end_time,
-                                                        self.date.date(True),
+                                                        self.start_time.time(),
+                                                        self.end_time.time(),
+                                                        self.shift_date.date(True),
                                                         self.ct_title,
                                                         self.html_class, ])
         self.sid = result[0][0]
@@ -100,7 +100,7 @@ class shift(object):
               
     def set_db_handle(self, db_handle):
         if db_handle==None:
-            db_handle = database(owner='employee')
+            db_handle = database(owner='shift.py - set_db_handle')
         self.db_handle = db_handle
     
     def get_worked_time(self, hours=None):

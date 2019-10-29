@@ -467,12 +467,31 @@ LANGUAGE plpgsql;
 
 -- end of add_emp_cert_title(p_firstname,p_lastname,p_season_name, p_start_date)
 
-create function add_shift(p_shift_name varchar(50),
+create or replace function add_season(p_season_name varchar(50),
+                                      p_ss_date date,
+                                      p_se_date date) returns integer as $$
+    declare
+        p_said integer;        
+    begin
+        insert into seasons (season_name,
+                             se_date,
+                             ss_date)
+        values (p_season_name,
+                p_se_date,
+                p_ss_date);
+        
+        select into p_said max(said) from seasons;
+        return p_said;
+end; $$
+LANGUAGE plpgsql;    
+
+-- end of add_season()
+create or replace function add_shift(p_shift_name varchar(50),
                           p_start_time time,
                           p_end_time time,
                           p_shift_date date,
                           p_ct_title varchar(50),
-                          p_html_class varchar) returns varchar(150) as $$
+                          p_html_class varchar) returns integer as $$
     declare
         p_ct integer;
         p_sid integer;
@@ -574,15 +593,15 @@ LANGUAGE plpgsql;
 -- end add_private(p_pid,p_sid,p_s_firstname,p_s_lastname,p_s_skill_level,
 --                 p_lesson_length, p_c_firstname,p_c_lastname,p_c_phone,
 --                   p_lesson_type,p_lesson_disapline,p_s2_firstname, p_s2_lastname)
-create function add_private(p_s_firstname varchar(25),
+create or replace function add_private(p_s_firstname varchar(25),
                             p_s_lastname varchar(25),
+                            p_s_age integer, 
                             p_c_firstname varchar(25),
                             p_c_lastname varchar(25),
                             p_c_phone varchar(10),
                             p_lesson_type varchar(1),
                             p_s_skill_level varchar(6),
                             p_discipline varchar(4),
-                            p_eid integer,
                             p_sid integer) returns integer as $$
 declare
     p_pid integer;
@@ -590,24 +609,24 @@ begin
     insert into private_lesson (sid,
                                 s_firstname,
                                 s_lastname,
+                                s_age,
                                 s_skill_level,
                                 c_firstname,
                                 c_lastname,
                                 c_phone,
                                 lesson_type,
-                                lesson_disapline,
-                                assigned_eid
+                                lesson_disapline
                                 )
                         values (p_sid,
                                 p_s_firstname,
                                 p_s_lastname,
+                                p_s_age,
                                 p_s_skill_level,
                                 p_c_firstname,
                                 p_c_lastname,
                                 p_c_phone,
                                 p_lesson_type,
-                                p_discipline,
-                                p_eid
+                                p_discipline
                                 );
     select into p_pid pid from private_lesson where sid=p_sid;                            
     return p_pid;
@@ -1057,6 +1076,8 @@ begin
 end; $$
 LANGUAGE plpgsql;
 
+-- end of get_employee_season_dates
+
 create or replace function get_private (p_student_firstname varchar(45),
                              p_student_lastname varchar(45),
                              p_student_skill varchar(6),
@@ -1123,6 +1144,28 @@ begin
     else:
         where_clause := where_clause||' p.c_lastname ilike ''%'' and';
     end if;
+
+    if p_contact_firstname!='' then
+        where_clause := where_clause||' p.c_firstname ilike '||p_contact_firstname||' and';
+    else:
+        where_clause := where_clause||' p.c_firstname ilike ''%'' and';
+    end if;
+    
+    if p_contact_phone!='' then
+        where_clause := where_clause||' p.c_phone ilike '||p_contact_phone||' and';
+    else:
+        where_clause := where_clause||' p.c_phone ilike ''%'' and';
+    end if;
+    
+    if p_student_skill!='' then
+        where_clause := where_clause||' p.s_skill_level ilike'||p_student_skill||' and';
+    else:
+        where_clause := where_clause||' p.s_skill_level ilike''%'' and';
+    end if;
+    
+    if p_start_date is not null and p_end_date is null then
+        where_clause := where_clause|| 'date'
+        
     find_query := 'select p.pid,
                     p.sid,
                     p.s_firstname,
@@ -1145,7 +1188,44 @@ begin
 end; $$
 LANGUAGE plpgsql;
                              
--- end of get_employee_season_dates
+-- end of get_private
+
+create or replace function get_seasons()
+    returns table (said integer,
+                  ss_date date,
+                  se_date date,
+                  season_name character varying(25)
+                 ) as $$
+begin
+    return query select s.said,
+                        s.ss_date,
+                        s.se_date,
+                        s.season_name
+                 from seasons as s
+                 order by s.ss_date;
+end; $$
+LANGUAGE plpgsql;  
+  
+-- end of get_seasons
+
+create or replace function get_seasons(p_said integer)
+    returns table (said integer,
+                  ss_date date,
+                  se_date date,
+                  season_name character varying(25)
+                 ) as $$
+begin
+    return query select s.said,
+                        s.ss_date,
+                        s.se_date,
+                        s.season_name
+                 from seasons as s
+                 where s.said=p_said
+                 order by s.ss_date;
+end; $$
+LANGUAGE plpgsql;  
+  
+-- end of get_seasons (p_said)
 
 create or replace function list_available(p_sid integer)
     returns table (empID integer,
@@ -1365,6 +1445,8 @@ create TRIGGER new_private
     for each row
     execute procedure private_eid_null();
     
+create or replace function get_sid_by_date_range(s_date date,
+                                                 e_date date) returns 
 ---- hold -----
 where 
                    p.s_lastname ilike p_student_lastname and

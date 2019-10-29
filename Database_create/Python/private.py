@@ -14,6 +14,7 @@ import psycopg2
 from menu import Menu
 from database import database
 from date import date
+from phone import phone
 
 
         
@@ -47,11 +48,9 @@ class private(shift):
         self.contact_relation = ''
         self.student_age = None
         self.student_skill_level = ''
-        self.lesson_length = None
         self.lesson_type = None
         self.discipline = None
-        self.instructor_firstname = None
-        self.instructor_lastname = None
+        self.sort = None
         self.available_instructors = None
         self.update = False
         
@@ -59,15 +58,14 @@ class private(shift):
         """write private info to database """
         result = self.db_handle.fetchdata('add_private', [self.student_firstname,
                                                           self.student_lastname,
+                                                          self.student_age,
                                                           self.contact_firstname,
                                                           self.contact_lastname,
                                                           self.contact_phone,
                                                           self.lesson_type,
                                                           self.student_skill_level,
                                                           self.discipline,
-                                                          self.eid,
                                                           self.sid, ])
-        print(result)
         self.pid = result[0][0]
         return True
         
@@ -96,10 +94,13 @@ class private(shift):
         """method for displaying instructor(s) by name, and selecting  for this private lesson."""
         if not self.available_instructors:
             self.available_instructors = instructors()
-            self.available_instructors.find_name()
+        else:
+            self.available_instructors.clear()
+        self.available_instructors.find_name(options)
         os.system('clear')
         self.available_instructors.list_instructors()
         self.eid = raw_input('employee id: ')
+        print(self.eid)
         if self.lesson_type in [None, 'A']:
             demand = raw_input('Is this a demand lesson?(YES)')
             if demand in ['', 'YES', 'YE', 'Y']:
@@ -111,9 +112,9 @@ class private(shift):
         else:
             print(self.lesson_type)
         instructor = self.available_instructors.get_name(eid=self.eid, return_type='Object')
-        self.instructor_firstname = instructor.firstname
-        self.instructor_lastname = instructor.lastname
-        
+        if instructor:
+            self.employee = instructor
+               
     def PrivateMenu(self):
         """function for collecting and display private lesson while editing or creating"""
         print("""     Private screen
@@ -128,22 +129,12 @@ class private(shift):
      Lesson Start:         %s
      Lesson End:           %s
      Lesson Length:        %s
-     Instructor:           %s %s
+     Instructor:           %s
      A/D:                  %s
      Ski/SB/Tele:          %s
      
      --------------------------------
-     NAME      - Input Student Name
-     CONTACT   - Input Contact Name
-     PHONE     - Input Phone
-     AGE       - Input Student Age
-     DATE      - Input Lesson Date
-     DISAPLINE - Input Ski/Tele/SB
-     TIME      - Input lesson Time
-     TYPE      - Input lesson type A/D
-     LIST      - List instructors
-     LOAD      - Load Entered Data into Table
-     EXIT      - Quit or Exit program""" % (self.student_firstname,
+     """ % (self.student_firstname,
                                        self.student_lastname,
                                        self.student_age,
                                        self.student_skill_level,
@@ -154,9 +145,8 @@ class private(shift):
                                        self.shift_date.date(True),
                                        self.start_time.time(True),
                                        self.end_time.time(True),
-                                       self.lesson_length,
-                                       self.instructor_firstname,
-                                       self.instructor_lastname,
+                                       self.lesson_length(),
+                                       self.employee.name(nickname=True),
                                        self.lesson_type,
                                        self.discipline))
 
@@ -171,7 +161,13 @@ class private(shift):
             phone = self.contact_phone
             
         return phone
-    
+
+    def lesson_length(self):
+        try:
+            return (self.end_time.time() - self.start_time.time())
+        except:
+            return ''
+        
     def list_avalible(self):
         """function for get avalable instructors based on private needs"""
         #print('List_avalible')
@@ -233,8 +229,8 @@ self.lesson_length = %s
 self.lesson_type = %s
 self.discipline = %s
 self.eid = %s
-self.instructor_firstname = %s
-self.instructor_lastname = %s""" % (self.shift_name,
+self.employee = %s
+""" % (self.shift_name,
                                     self.start_time,
                                     self.end_time,
                                     self.html_class,
@@ -250,12 +246,11 @@ self.instructor_lastname = %s""" % (self.shift_name,
                                     self.contact_relation,
                                     self.student_age,
                                     self.student_skill_level,
-                                    self.lesson_length,
+                                    self.lesson_length(),
                                     self.lesson_type,
                                     self.discipline,
                                     self.eid,
-                                    self.instructor_firstname,
-                                    self.instructor_lastname))
+                                    self.employee.name(True)))
 
     def set_age(self,options):
         """function for geting student age and seting in private object"""
@@ -325,12 +320,14 @@ self.instructor_lastname = %s""" % (self.shift_name,
                 bad = False
             except:
                 bad = True
-            if not bad:
+            print(self.eid)
+            if not bad or self.eid!='':
                 instructor = self.available_instructors.get_name(eid=self.eid, return_type='Object')
-                self.instructor_firstname = instructor.firstname
-                self.instructor_lastname = instructor.lastname
-                self.add_employee_shift()
-                self.update = True
+                print(instructor)
+                if instructor!=None:
+                    self.employee = instructor
+                    self.add_employee_shift()
+                    self.update = True
         else:
             dump = raw_input(e)
 
@@ -343,10 +340,10 @@ self.instructor_lastname = %s""" % (self.shift_name,
     def set_skill(self, options):
         try:
             if options[1]:
-                print(options[1])
+                #print(options[1])
                 self.student_skill_level = options[1]
             else:
-                print(options[2][0])
+                #print(options[2][0])
                 self.student_skill_level = options[2][0]
             
         except:
@@ -365,19 +362,36 @@ self.instructor_lastname = %s""" % (self.shift_name,
         self.update = True
         
     def set_time(self, options):
-        print(options)
         try:
-            t = options[2][0]
-            print(t)
-        except:
-            t = None
-        self.start_time.set_time(t)
-        try:
-            t = options[2][1]
-            print(t)
-        except:
-            t = None
-        self.end_time.set_time(t)
+            if len(options[2]) == 4:                
+                s = "%s %s" % (options[2][0], options[2][1])
+                print('private.set_time: start time=%s' % (s))
+                e = "%s %s" % (options[2][2], options[2][3])
+                print('private.set_time: end time=%s' % (e))
+            elif len(options[2]) == 3:
+                if options[2][1] in self.end_time.ampm:
+                    s = '%s %s' % (options[2][0], options[2][1])
+                    e = options[2][2]
+                else:
+                    s = options[2][0]
+                    e = '%s %s' % (options[2][1], options[2][2])
+            elif len(options[2]) == 2:
+                s = options[2][0]
+                e = options[2][1]
+            elif len(options[2]) == 1:
+                s = options[2]
+                e = None
+            else:
+                print('private.set_time: error in else start_time set to None')
+                s = None
+                e = None
+        except Exception as e:
+            print(e)
+            print('private.set_time: error in except start_time set to None')
+            s = None
+            e = None
+        self.start_time.set_time(s)
+        self.end_time.set_time(e)
         self.update = True
         print("""start time: %s, end time:%s""" % (self.start_time.time(True), self.end_time.time(True)))
         
@@ -428,6 +442,9 @@ class privates(object):
     def __init__(self, db_handle=None):
         self.privates = []
         self.db_handle = db_handle
+        
+    def __len__(self):
+        return len(self.privates)
     
     def append(private):
         self.privates.append(private)
@@ -438,25 +455,32 @@ class privates(object):
             if i.pid==pid:
                 return i
         return None
-    
+
+    def clear(self):
+        self.privates = []
+        
     def find_privates(self, options):
         F = find_private(self.db_handle)
         F.menu(options)
-        result = self.db_handle.fetchdata('Find_private',
+        result = self.db_handle.fetchdata('get_private',
                                  [F.student.firstname(),
                                   F.student.lastname(),
+                                  F.student_skill, 
                                   F.contact.firstname(),
                                   F.contact.lastname(),
+                                  F.contact_phone._number,
                                   F.instructor.firstname(),
                                   F.instructor.lastname(),
-                                  F.date,
-                                  F.displine,
+                                  F.start_date.date(),
+                                  F.end_date.date(),
+                                  F.disapline,
                                   F.type,
                                   F.age,]
                                  )
         self.clear()
         for r in result:
             self.append(r)
+        print len(self)
                     
     def sort(self):
         end_time = sorted(self.privates, key=attrgetter('end_time'))
@@ -478,7 +502,9 @@ class find_private(object):
     def __init__(self, db_handle=None):
         self.set_db_handle(db_handle)
         self.contact = person(db_handle=self.db_handle)
+        self.contact_phone = phone(db_handle=self.db_handle)
         self.student = person(db_handle=self.db_handle)
+        self.student_skill = None
         self.instructor = person(db_handle=self.db_handle)
         self.start_date = date(None,
                                question_text='Enter Start Date: ',
@@ -566,7 +592,6 @@ def menu(db_handle):
    
 if __name__ == '__main__':    
     db_handle = database(owner='Private __Main__')
-    F = find_private(db_handle)
-    F.print_self()
+    menu(db_handle)
     
         

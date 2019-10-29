@@ -289,17 +289,15 @@ class instructors(object):
 
     def __str__(self):
         return "Instructors - %s, db=%s" % (len(self), self.db_handle.owner)
-    def sort_person_key(self, person):
-        return person.name
-    
+        
     def add(self, options):
+        """creates and instructor object, and updates instructor name from options passed """
         i = instructor()
         i.set_name(options[2])
-        self.add_instructor(i)
-        self.ilist.sort(key=self.sort_person_key)
+        self.append(i)
         
-    def add_instructor(self, i, sort=True):
-        """Add instructor to instructors list """
+    def append(self, i, sort=True):
+        """Add instructor object to instructors list, and resort list """
         if self.checkName(i.instructor_name)==None:
             self.ilist.append(i)
             self.ilist.sort(key=self.sort_person_key)
@@ -416,19 +414,24 @@ class instructors(object):
         
     def get_name(self, eid, return_type='INDEX'):
         """return index or name from eid"""
+        if eid=='':
+            return None
         index = 0
         for i in self.ilist:
             #print("""%s - %s""" % (index, i.eid))
             if int(i.eid)==int(eid):
                 break
             index+=1
-        rt=return_type.upper()
-        if rt=='INDEX':
-            return index
-        elif rt=='NAME':
-            return self.ilist[index].instructor_name()
-        elif rt=='OBJECT':
-            return self.ilist[index]
+        if index==len(self.ilist):
+            return None
+        else:
+            rt=return_type.upper()
+            if rt=='INDEX':
+                return index
+            elif rt=='NAME':
+                return self.ilist[index].instructor_name()
+            elif rt=='OBJECT':
+                return self.ilist[index]
 
     def get_available_instructors(self, sid, Clear=True):
         print('get_available_instructors sid:%s' % (sid))
@@ -440,7 +443,11 @@ class instructors(object):
             i.eid = r[0]
             i.firstname = r[1]
             i.lastname = r[2]
-            self.add_instructor(i)
+            i._suffix = r[3]
+            i._nickname = r[4]
+            i.DOB = r[5]
+            i.sex = r[6]
+            self.append(i)
         
     def list_instructors(self):
         """Print list of instructors"""
@@ -454,6 +461,7 @@ class instructors(object):
         if db_handle==None:
             db_handle = database(owner='employee.py - init_employee')
         self.db_handle = db_handle
+        
     def print_menu(self):
         os.system('Clear')
         self.list_instructors()
@@ -465,6 +473,8 @@ class instructors(object):
      CLEAR     - Clear list of intructors
      EXIT      - Quit or Exit program """)
  
+    def sort_person_key(self, person):
+        return person.name
         
 from location import location
 from location import locations

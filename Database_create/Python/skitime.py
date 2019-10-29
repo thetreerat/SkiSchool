@@ -7,14 +7,21 @@ from six import string_types
 
 class  SkiTime(object):
     """skitime"""
-    def __init__(self, time=None, question='Enter Time: ', db_handle=None):
+    ampm = ['am', 'AM', 'PM', 'pm']
+    def __init__(self,
+                 time=None,
+                 question='Enter Time: ',
+                 db_handle=None,
+                 debug=False):
         """Create New Instanace of New Class"""
+        self.debug = debug
         self.set_db_handle(db_handle)
         if time==None:
             self._time = time
         else:
             self.set_time(time)
         self.question = question
+        
     
     def __str__(self):
         return "Time - %s  timedb: %s" % (self.time(True), self.db_handle.owner)
@@ -41,12 +48,19 @@ Purpose        : This Class is a temlplete file
         self.db_handle = db_handle
     
     def set_time(self, time=None):
-        
+        if self.debug:
+            print('skitime.set_time: time is %s' % (time))
+
+        if type(time) is list:
+            if len(time[2])==2:
+                time = '%s %s' % (time[2][0], time[2][1])
         if time==None:
-            self._time = raw_input(self.question).upper()
+            time = raw_input(self.question).upper()
         if isinstance(time, string_types):
-            
             try:
+                time = time.upper()
+                if self.debug:
+                    print('skitime.set_time: time is %s' % (time))
                 if time.find('PM')==-1 and time.find('AM')==-1:
                     format_string = '%H:%M'
                 else:
@@ -58,11 +72,15 @@ Purpose        : This Class is a temlplete file
         else:
             self._time = time
              
-    def time(self, as_string=False):
+    def time(self, as_string=False, ampm=False):
         _time = self._time
         if as_string:
+            if ampm:
+                timestring = '%H:%M %p'
+            else:
+                timestring = '%H:%M'
             try:
-                _time = self._time.strftime('%H:%M')
+                _time = self._time.strftime(timestring)
             except:
                 _time = ''
         return _time
@@ -74,4 +92,5 @@ if __name__ == "__main__":
     N.set_time()
     print(N.time(True))
     N.print_self()
+    print(N.ampm)
     
