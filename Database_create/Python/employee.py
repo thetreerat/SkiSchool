@@ -9,9 +9,24 @@ import os
 
 class  employee(person):
     """employee object subclassed from person"""
-    def __init__(self, eid=None, firstname=None, lastname=None, db_handle=None):
+    def __init__(self,
+                 eid=None,
+                 firstname=None,
+                 lastname=None,
+                 suffix=None,
+                 nickname=None,
+                 sex=None,
+                 dob=None,
+                 db_handle=None):
         """Create new instanace of employee"""
-        person.__init__(self, firstname=firstname, lastname=lastname, db_handle=db_handle)
+        person.__init__(self,
+                        firstname=firstname,
+                        lastname=lastname,
+                        suffix=suffix,
+                        nickname=nickname,
+                        sex=sex,
+                        dob=dob,
+                        db_handle=db_handle)
         self.eid = eid
         self.shifts = []
     
