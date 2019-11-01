@@ -3,8 +3,12 @@
 #
 from database import database
 from date import date
+from dow import DOW
 from skitime import SkiTime
 from menu import Menu
+from season import Season
+from cert import cert
+from cert import certs
 
 
 class  ShiftTemplate(object):
@@ -18,17 +22,19 @@ class  ShiftTemplate(object):
                  dow=None,
                  cert_required=None,
                  said=None,
-                 number_needed=None):
+                 number_needed=1):
         """Create New Instanace of ShiftTemplate"""
         self.set_db_handle(db_handle)
         self.stid = stid
         self.shift_name = shift_name
-        self.start_time = start_time
-        self.end_time = end_time
-        self.dow = dow
-        self.cert_required = cert_required
+        self.start_time = SkiTime(start_time, 'Enter Shift Start Time:', db_handle=self.db_handle)
+        self.end_time = SkiTime(end_time, 'Enter Shift End Time:', db_handle=self.db_handle)
+        self.dow = DOW(dow=dow, db_handle=self.db_handle)
+        self.cert_required = cert(ct=cert_required, db_handle=self.db_handle)
+        self.cert_required.load_cert_db()
+        self.said = Season(db_handle=self.db_handle)
         self.set_said(said) 
-        self.number_needed
+        self.number_needed = number_needed
     
     def __str__(self):
         return "ShiftTemplate: db: %s" % (self.db_handle.owner)
@@ -45,19 +51,128 @@ Output         : None
 Purpose        : This class is for handling shift templates. 
 
 """)
-
+    
+    def find_cert(self, options=None):
+        """find cert to assign to shift template"""
+        clist = certs(list_type='cert', db_handle=self.db_handle)
+        clist.find_certs_db()
+        clist.print_certs()
+        cert_index = clist.get_item_index()
+        self.cert_required = clist.clist[cert_index]
+        self.cert_required.print_cert(print_return='Find')
+    
+    def add_template_db(self, optoins=None):
+        """Load record into database """
+        if self.start_time.time(True)=='':
+            start = None
+        else:
+            start = self.start_time.time(True)
+        
+        if self.end_time.time(True)=='':
+            end = None
+        else:
+            end = self.end_time.time(True)
+        result = self.db_handle.fetchdata('add_shift_template', [self.shift_name,
+                                                                 start,
+                                                                 end,
+                                                                 self.dow.DOW(),
+                                                                 self.cert_required.ct,
+                                                                 self.said.said,
+                                                                 self.number_needed,
+                                                        ])
+        for r in result:
+            self.stid = r[0]
+        
+        
+    def menu(self):
+        """ """
+        m = Menu('Shift Template Menu', db_handle=self.db_handle)
+        m.menu_display = self.print_menu
+        m.add_item('Name','NAME <text> - set or change the name of the shift.', self.set_shift_name)
+        m.add_item('Start', 'START <TIME> - Set or change the start time of the current template', self.start_time.get_time)
+        m.add_item('End', 'End <TIME> - Set or change the end time of the current template', self.end_time.get_time)
+        m.add_item('DOW', 'DOW <DOW> - Set the Day of week for template', self.dow.get_dow)
+        m.add_item('Certification', 'CERT <CID> - Set the required cert level for shift.', m.print_new)
+        m.add_item('Needed', 'NEEDED <#> - set the number of shifts created from the template.', self.set_number_needed)
+        m.add_item('Find', 'FIND - Find cert from list', self.find_cert)
+        m.add_item('Save', 'SAVE - Save the record in the database', self.add_template_db)
+        m.Menu()
+        
     def set_db_handle(self, db_handle):
         if db_handle==None:
             db_handle = database(onwer='ShiftTemplate')
+            db_handle = database(owner='shifttemplate.py - set_dbhandle')    
         self.db_handle = db_handle
         
-    def set_db_handle(self, said):
-        if said==None:
-            db_handle = database(onwer='ShiftTemplate')
-        self.db_handle = db_handle
+    def set_DOW(self, option=None):
+        print(options)
+        self.DOW = raw_input('Enter DOW: ')
+    
+    def set_shift_name(self, options=None):
+        #print(options)
+        title = ''
+        if options[2]:
+            for o in options[2]:
+                if len(title):
+                    title = title + " " + o
+                else:
+                    title = o
+            self.shift_name = title
+            return
+        name = raw_input('Enter Shift Name: ')
+        if name!='':
+            self.shift_name=name
+        
+    def set_number_needed(self, options=None):
+        if options[1]:
+            self.number_needed = options[1]
+        else:
+            try:
+                self.number_needed = int(raw_input('Enter number: '))
+            except:
+                print('Please enter an integer, field unchanged')
+            
+    def print_menu(self):
+        print("""-------------------------------------------------------------------
+STID:          %s
+Season Name:   %s - %s
+Shift Name:    %s
+Shift Start:   %s
+Shift End:     %s
+Day of Week:   %s
+Cert Required: %s - %s - %s
+Number Needed: %s
+-------------------------------------------------------------------
+""" % (self.stid,
+       self.said.said,
+       self.said.season_name(),
+       self.shift_name,
+       self.start_time.time(True),
+       self.end_time.time(True),
+       self.dow.DOW(),
+       self.cert_required.ct,
+       self.cert_required.cert_name,
+       self.cert_required.cert_org,
+       self.number_needed 
+      )
+              )
+    
+    def set_said(self, said=None):
+        if said:
+            self.said.get_season_db(said)
+        else:
+            said = self.said.get_current_season_id()
+        self.said.get_season_db()
+            
         
 
 
 if __name__ == "__main__":
-    N = ShiftTemplate()
-    N.About()
+    db_handle = database(owner='shifttemplate.py - __main__')
+    N = ShiftTemplate(db_handle=db_handle)
+    #N.print_menu()
+    #print(N.said.season_name())
+    #N.said()
+    #N.About()
+    #N.said.print_self()
+    N.menu()    

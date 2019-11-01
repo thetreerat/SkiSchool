@@ -82,7 +82,7 @@ class cert(object):
         result = self.db_handle.fetchdata('add_employee_cert', [eid, self.ct, self.cert_current, self.cert_date.strftime('%m/%d/%y')])
     
     def load_cert_db(self):
-        if ct!=None:
+        if self.ct!=None:
             result = self.db_handle.fetchdata('get_cert', [self.ct])
             for r in result:
                 self.cert_org = r[1]
@@ -269,7 +269,7 @@ class certs(object):
     def clear(self):
         self.clist = []
 
-
+    
 class cert_min(object):
     """class object for cert equivalents"""
     def __init__(self, cmid=None,ct=None, ct_min_equal=None, title=None, min_equal_title=None):
@@ -305,7 +305,23 @@ class cert_mins(object):
         """Print list of min certs """
         for m in self.mlist:
             m.print_min_cert()
-            
+    """ """
+    
+
+class cert_search(object):
+    def __init__(self,
+                 ct=None,
+                 cid=None,
+                 title=None,
+                 org=None,
+                 cmid=None):
+        """init a serach object for certs"""
+        self.ct = ct
+        self.cid = cid
+        self.title=title
+        self.org = org
+        self.cmid = cmid
+        
 if __name__ == '__main__':
     certs = certs(list_type='Employee', eid=15)
     certs.get_employee_certs_db()

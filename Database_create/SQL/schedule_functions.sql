@@ -561,7 +561,37 @@ end; $$
 LANGUAGE plpgsql;
 
 -- end add_shift(p_shift_name, etc)
-                  
+create or replace function  add_shift_template(p_Shift_Name varchar(45),
+                                   p_start_time time, 
+                                   p_End_Time time,
+                                   p_DOW varchar(25),
+                                   p_cert_required integer ,
+                                   p_SaID integer,
+                                   p_number_needed integer
+                                  ) returns integer as $$
+declare
+    p_stid integer;
+begin
+    insert into shift_templates (shift_name,
+                                 start_time,
+                                 end_time,
+                                 dow,
+                                 cert_required,
+                                 said,
+                                 number_needed)
+        values (p_shift_name,
+                p_start_time,
+                p_end_time,
+                p_dow,
+                p_cert_required,
+                p_said,
+                p_number_needed);
+    select into p_stid max(stid) from shift_templates where shift_name=p_shift_name;
+    return p_stid;
+end $$
+LANGUAGE plpgsql;
+-- end add_shift_template()
+
 create function add_private(p_sid integer,
                             p_s_firstname varchar(30),
                             p_s_lastname varchar(30),
@@ -1109,7 +1139,6 @@ declare
     find_query text;
     where_clause text;
 begin
-    
     if p_instructor_firstname='' and p_instructor_lastname!='' then
         where_clause := 'p.assigned_eid in (select eid
                                             from employee
@@ -1183,8 +1212,7 @@ begin
              from private_lesson as p
              join employee as e on e.eid=p.assigned_eid
              where '||where_clause||' order by p.pid';
-    return query execute find_query ;
-            
+    return query execute find_query ;            
 end; $$
 LANGUAGE plpgsql;
                              

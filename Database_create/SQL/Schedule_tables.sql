@@ -114,6 +114,20 @@ create table employee_seasons
       foreign key (returning) references employee_returning_templates (rt) on delete restrict
     );
     
+create table menu_roles
+    (MRID serial primary Key,
+     Role varchar(30)
+    );
+
+create table menu_items
+    (MIID serial primary key,
+     MRID integer,
+     display_text varchar(20),
+     help_text varchar(150),
+     menu_command varchar(150),
+     foreign key (MRID) REFERENCES menu_roles (MRID) on delete restrict
+    );
+     
 create table private_lesson
     (PID serial primary key,
      sid integer,

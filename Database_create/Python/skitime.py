@@ -39,6 +39,15 @@ Purpose        : This Class is a temlplete file
 
 """)
     
+    def get_time(self, options=None):
+        if options[2]:
+            print(options)
+            time=options
+        else:
+            time = raw_input(self.question)
+            print(time)
+        self.set_time(time=time)
+        
     def print_self(self):
         print("""%s""" % (self._time))
     
@@ -49,7 +58,7 @@ Purpose        : This Class is a temlplete file
     
     def set_time(self, time=None):
         if self.debug:
-            print('skitime.set_time: time is %s' % (time))
+            print('skitime.set_time: Passed time is value: %s' % (time))
 
         if type(time) is list:
             if len(time[2])==2:
@@ -60,7 +69,7 @@ Purpose        : This Class is a temlplete file
             try:
                 time = time.upper()
                 if self.debug:
-                    print('skitime.set_time: time is %s' % (time))
+                    print('skitime.set_time: try time value: %s' % (time))
                 if time.find('PM')==-1 and time.find('AM')==-1:
                     format_string = '%H:%M'
                 else:

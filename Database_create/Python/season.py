@@ -47,15 +47,15 @@ Purpose        : Season class
       
     def menu(self):
         SMenu = Menu('Season Menu', db_handle=self.db_handle)
-        SMenu.menu_display = N.print_self
-        SMenu.add_item('Season', 'set/update Season display name', N.set_season_name)
-        SMenu.add_item('Start', 'set season start date', N.ss_date.get_date)
-        SMenu.add_item('End', 'set season end date', N.se_date.get_date)
+        SMenu.menu_display = self.print_self
+        SMenu.add_item('Season', 'set/update Season display name', self.set_season_name)
+        SMenu.add_item('Start', 'set season start date', self.ss_date.get_date)
+        SMenu.add_item('End', 'set season end date', self.se_date.get_date)
         SMenu.Menu()
         
-    def season_name(self, season_name):
+    def season_name(self):
         """Return season name"""
-        if self.season_name:
+        if self._season_name:
             return self._season_name
         else:
             return ""
@@ -73,15 +73,22 @@ Purpose        : Season class
             if answer[0].upper()!='Y':
                 return
         self._season_name = raw_input("""Enter Season Display Name(%s): """ % self._season_name)
-        
-    def get_season_db(self, said):
-        result = self.db_handle.fetchdata('get_seasons', [said, ])
+    
+    def get_current_season_id(self):
+        result = self.db_handle.fetchdata('get_current_season', [])
         for r in result:
             self.said = r[0]
-            self.ss_date.set_date(r[1])
-            self.se_date.set_date(r[2])
-            self._season_name = r[3]
+        return self.said
         
+    def get_season_db(self):
+        if self.said:
+            result = self.db_handle.fetchdata('get_seasons', [self.said, ])
+            for r in result:
+                #self.said = r[0]
+                self._season_name = r[3]
+                self.ss_date.set_date(r[1])
+                self.se_date.set_date(r[2])
+                
     def print_self(self):
         print('Season Name: %s' % self._season_name)
         print('Season Start: %s' % self.ss_date.date(True))
