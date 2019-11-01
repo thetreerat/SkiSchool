@@ -10,9 +10,8 @@ class  DOW(object):
         self.set_db_handle(db_handle)
         self._dow = None
         self.question = question
-        if not dow:
+        if dow:
             self.set_dow(dow)
-        
     
     def __str__(self):
         return "DOW: db: %s" % (self.db_handle.owner)
@@ -43,6 +42,7 @@ Purpose        : This Class is a temlplete file
     
     def get_dow(self, options=None):
         dow = options[2]
+        
         if not dow:
             dow = raw_input(self.question)
         else:
@@ -50,31 +50,32 @@ Purpose        : This Class is a temlplete file
         self.set_dow(dow)
     
     def set_dow(self, dow=None):
+        safe_dow = None
         if dow:
             try:
                 if dow.lower() in ('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'):
-                    dow = dow.lower()
+                    safe_dow = dow.lower()
                 else:
                     dow = int(dow)
                     if dow==0:
-                        dow = 'monday'
+                        safe_dow = 'monday'
                     elif dow==1:
-                        dow = 'tuesday'
+                        safe_dow = 'tuesday'
                     elif dow==2:
-                        dow = 'wednesday'
+                        safe_dow = 'wednesday'
                     elif dow==3:
-                        dow = 'thursday'
+                        safe_dow = 'thursday'
                     elif dow==4:
-                        dow = 'friday'
+                        safe_dow = 'friday'
                     elif dow==5:
-                        dow = 'saturday'
+                        safe_dow = 'saturday'
                     elif dow==6:
-                        dow = 'sunday'
+                        safe_dow = 'sunday'
             except:
-                dow = raw_input(self.question).lower()
-            self._dow = dow
-        else:
-            self._dow = None
+                print("""    invalid entery %s""" % (dow))
+                safe_dow = raw_input(self.question).lower()
+        self._dow = safe_dow
+
 
 if __name__ == "__main__":
     db_handle = database(owner='dow.py - __main__')

@@ -8,6 +8,7 @@ import psycopg2
 from database import database
 from date import date
 from skitime import SkiTime
+from dow import DOW
 from menu import Menu
 from employee import employee
 
@@ -117,18 +118,26 @@ class availability(object):
     
 class availablities(object):
     """Class for list of availbilties"""
-    def __init__(self, eid=None, db_handle=None):
+    def __init__(self, eid=None, dow=None, db_handle=None):
         self.alist = []
         self.eid = eid
+        self.dow = DOW(dow=dow, db_handle=self.db_handle)
         if db_handle==None:
             db_handle = database(owner='availablity.py - availablitites')
         self.db_handle =  db_handle
-                
+        
+    def __len__(self):
+        return len(self.alist)
+    
+    def append(self, availablity):
+        self.alist.append(availability)
+        self.sort()
+        
     def add(self, options=None):
         if self.eid!=None:
             a = availability(eid=self.eid, db_handle=self.db_handle)
             a.add()
-            self.alist.append(a)
+            self.append(a)
                         
     def checkID(self, ID):
         """check to list for ID"""
@@ -179,6 +188,16 @@ class availablities(object):
             a.print_availability()
         print("""    -----------------------------------------------------""")
 
+    def sort(self):
+        eid_alist = sorted(self.alist, key=self.sort_eid)
+        self.alist = sorted(eid_alist, key=self.sort_start)
+    
+    def sort_eid(self, i):
+        return i.eid
+    
+    def sort_start(self, i):
+        return i.start_time.time(True)
+        
 if __name__ == '__main__':
     ski_db = database(owner='availablity.py -__main__')
     A = availablities(eid=15, db_handle=ski_db)

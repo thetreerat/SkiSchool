@@ -85,8 +85,8 @@ class cert(object):
         if self.ct!=None:
             result = self.db_handle.fetchdata('get_cert', [self.ct])
             for r in result:
-                self.cert_org = r[1]
-                self.cert_name = r[2]
+                self.cert_org = r[2]
+                self.cert_name = r[1]
                 
     def pad(self, item, length):
         

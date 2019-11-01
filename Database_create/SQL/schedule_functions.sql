@@ -953,8 +953,25 @@ END;
 $BODY$
 LANGUAGE plpgsql VOLATILE
 COST 100;
+-- end insert_into_calendar
 
+create or replace function get_cert(p_ct integer)
+    returns table (ct integer,
+                   title varchar(50),
+                   org varchar(30),
+                   html_class varchar(10)
+                  ) as $$
+begin
+    return query select t.ct,
+                        t.title,
+                        t.org,
+                        t.html_class
+                 from cert_template as t
+                 where t.ct=p_ct;
+end; $$
+LANGUAGE plpgsql;
 
+-- end get_cert(p_ct integer)
                    
 create function get_current_season()
     returns integer as $$
@@ -1108,6 +1125,7 @@ LANGUAGE plpgsql;
 
 -- end of get_employee_season_dates
 
+
 create or replace function get_private (p_student_firstname varchar(45),
                              p_student_lastname varchar(45),
                              p_student_skill varchar(6),
@@ -1254,6 +1272,111 @@ end; $$
 LANGUAGE plpgsql;  
   
 -- end of get_seasons (p_said)
+
+create or replace function get_shift_template(p_stid integer)
+    returns table (StID integer,
+                   shift_name character varying(45),
+                   start_time time, 
+                   end_time time,
+                   DOW character varying(25),
+                   cert_required integer,
+                   SaID integer,
+                   number_needed integer) as $$
+begin
+    return query select s.stid,
+                        s.shift_name,
+                        s.start_time,
+                        s.end_time,
+                        s.dow,
+                        s.cert_required,
+                        s.said,
+                        s.number_needed
+                 from shift_templates as s
+                 where s.stid=p_stid
+                 order by s.dow, s.shift_name;
+end $$
+LANGUAGE plpgsql;
+                   
+-- end get_shift_template ()
+
+create or replace function get_shift_templates(p_said integer, p_dow varchar(25))
+    returns table (StID integer,
+                   shift_name character varying(45),
+                   start_time time, 
+                   end_time time,
+                   DOW character varying(25),
+                   cert_required integer,
+                   SaID integer,
+                   number_needed integer) as $$
+begin
+    return query select s.stid,
+                        s.shift_name,
+                        s.start_time,
+                        s.end_time,
+                        s.dow,
+                        s.cert_required,
+                        s.said,
+                        s.number_needed
+                 from shift_templates as s
+                 where s.said=p_said and s.dow=p_dow
+                 order by s.dow, s.shift_name;
+end $$
+LANGUAGE plpgsql;
+-- end get_shift_templates (said, dow)
+
+create or replace function get_current_shift_templates()
+    returns table (StID integer,
+                   shift_name character varying(45),
+                   start_time time, 
+                   end_time time,
+                   DOW character varying(25),
+                   cert_required integer,
+                   SaID integer,
+                   number_needed integer) as $$
+begin
+
+    return query select s.stid,
+                        s.shift_name,
+                        s.start_time,
+                        s.end_time,
+                        s.dow,
+                        s.cert_required,
+                        s.said,
+                        s.number_needed
+                 from shift_templates as s
+                 where s.said=(select * from get_current_season()) 
+                 order by s.dow, s.shift_name;
+end $$
+LANGUAGE plpgsql;
+                   
+-- end get_current_shift_templates ()
+
+create or replace function get_current_shift_templates(p_dow varchar(25))
+    returns table (StID integer,
+                   shift_name character varying(45),
+                   start_time time, 
+                   end_time time,
+                   DOW character varying(25),
+                   cert_required integer,
+                   SaID integer,
+                   number_needed integer) as $$
+begin
+
+    return query select s.stid,
+                        s.shift_name,
+                        s.start_time,
+                        s.end_time,
+                        s.dow,
+                        s.cert_required,
+                        s.said,
+                        s.number_needed
+                 from shift_templates as s
+                 where s.said=(select * from get_current_season()) and
+                       s.dow=p_dow
+                 order by s.dow, s.shift_name;
+end $$
+LANGUAGE plpgsql;
+-- end get_current_shift_templates(dow varchar(25))
 
 create or replace function list_available(p_sid integer)
     returns table (empID integer,
@@ -1415,6 +1538,33 @@ begin
     return 1;
 end; $$
 LANGUAGE plpgsql;
+
+-- end update_shifts_worked_time(sid, worked_time)
+
+create or replace function update_shift_template(p_stid integer,
+                                        p_shift_name varchar(45),
+                                        p_start_time time,
+                                        p_end_time time,
+                                        p_dow varchar(25),
+                                        p_cert_required integer,
+                                        p_said integer,
+                                        p_number_needed integer
+                                       )
+    returns integer as $$
+begin
+    update shift_templates
+        set shift_name=p_shift_name,
+            start_time=p_start_time,
+            end_time=p_end_time,
+            dow=p_dow,
+            cert_required=p_cert_required,
+            said=p_said,
+            number_needed=p_number_needed
+        where stid=p_stid;
+    return 1;
+end; $$
+LANGUAGE plpgsql;
+-- end update_shift_template
 
 create function shift_count_date_range(start_date date,
                                        end_date date)
