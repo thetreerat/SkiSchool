@@ -12,6 +12,7 @@ from private import private
 from private import privates
 from shift import shifts
 from shifttemplates import ShiftTemplates
+from availability import availablities
 
 #from jacket import jacket_histories
 #from jacket import jacket_history
@@ -105,6 +106,8 @@ def private_new_menu(options=None):
 def schedule_menu(options=None):
     S = shifts(db_handle=options[3])
     T = ShiftTemplates(db_handle=options[3])
+    A = availablities(db_handle=options[3])
+    
     
     schedule = Menu('Schedule Menu')
     schedule.menu_display = schedule.print_help
@@ -112,7 +115,7 @@ def schedule_menu(options=None):
     schedule.add_item('Day', 'View all shfits for a date', S.menu_date)
     schedule.add_item('Off', 'View Doys off requests', print_this)
     schedule.add_item('Privates', 'view privates for the Week', print_this)
-    schedule.add_item('availability', 'list availability for a day of the week', print_this)
+    schedule.add_item('availability', 'list availability for a day of the week', A.menu_dow)
     schedule.Menu()
 
 

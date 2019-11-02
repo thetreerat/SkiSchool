@@ -984,6 +984,29 @@ end;  $$
 LANGUAGE plpgsql;
 
 -- end of get_current_season()
+create or replace function get_dow_avalibility(p_dow varchar(25))
+    returns table (eaid integer,
+                  eid integer,
+                  dow varchar(25),
+                  start_time time,
+                  end_tiem time,
+                  said integer,
+                  dow_sort integer) as $$
+begin
+    return query select a.eaid,
+                  a.eid,
+                  a.dow,
+                  a.start_time,
+                  a.end_time,
+                  a.said,
+                  a.dow_sort
+    from employee_availability as a
+    where a.dow=p_dow and
+          a.said=(select * from get_current_season());
+end;  $$
+LANGUAGE plpgsql;
+
+-- end of get_dow_avalibility()
 
 create function get_eid(p_firstname varchar(30),
                         p_lastname varchar(30)

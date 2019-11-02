@@ -81,15 +81,8 @@ class availability(object):
             self.start_time = start
                
     def print_availability(self, options=None):
-        try:
-            start_time = self.start_time.time(True, True).ljust(15)
-        except:
-            start_time = ' '.ljust(15)
-        try:
-            end_time = self.end_time.time(True, True).ljust(15)
-        except:
-            end_time = ''.ljust(15)
-            
+        start_time = self.start_time.time(True).ljust(15)
+        end_time = self.end_time.time(True).ljust(15)
         print("""    %s %s %s %s""" % (str(self.eaid).ljust(7),
                                        self.dow.ljust(12),
                                        start_time,
@@ -119,19 +112,17 @@ class availability(object):
 class availablities(object):
     """Class for list of availbilties"""
     def __init__(self, eid=None, dow=None, db_handle=None):
+        self.set_db_handle(db_handle)
         self.alist = []
         self.eid = eid
-        self.dow = DOW(dow=dow, db_handle=self.db_handle)
-        if db_handle==None:
-            db_handle = database(owner='availablity.py - availablitites')
-        self.db_handle =  db_handle
+        self.dow = DOW(dow=dow, db_handle=self.db_handle)    
         
     def __len__(self):
         return len(self.alist)
     
     def append(self, availablity):
-        self.alist.append(availability)
-        self.sort()
+        self.alist.append(availablity)
+        #self.sort()
         
     def add(self, options=None):
         if self.eid!=None:
@@ -146,6 +137,9 @@ class availablities(object):
                 return i
         return None
     
+    def clear(self):
+        self.alist = []
+        
     def edit(self, answer):
         """edit an availablity by ID"""
         if len(answer)==1:
@@ -159,7 +153,24 @@ class availablities(object):
         a = self.checkID(ID)
         if a!=None:
             a.edit()
-                        
+
+    def get_dow_availablity(self, options=None):
+        
+        if not self.dow.DOW():
+            self.dow.get_dow(options)
+        self.clear()
+        result = self.db_handle.fetchdata('get_dow_avalibility', [self.dow.DOW(),])
+        for r in result:
+            a = availability(eaid=r[0],
+                             eid=r[1],
+                             dow=r[2],
+                             start_time=r[3],
+                             end_time=r[4],
+                             said=r[5],
+                             db_handle=self.db_handle)
+            self.append(a)
+            
+            
     def get_employee_availablity(self):
         if self.eid!=None:
             result = self.db_handle.fetchdata('get_employee_availability',[self.eid,])
@@ -172,9 +183,19 @@ class availablities(object):
                                  db_handle=self.db_handle)
                 self.alist.append(a)
                         
-    def menu(self, db_handle=None):
+    def menu_dow(self, options=None, db_handle=None):
         """main menu for availability"""
-        M = Menu('Employee Availablities Menu', db_handle=db_handle)
+        self.get_dow_availablity(options=options)
+        M = Menu('Day of Week Availablities Menu', db_handle=self.db_handle)
+        M.menu_display = self.print_list
+        M.add_item('DOW', 'Add an availablity on a day for employee', self.dow.get_dow) # 
+        M.add_item('Edit', 'Edit # - Edit availablity id for employee', self.edit)
+        M.add_item('Delete', 'Delete # - Delete availablity id for employee', M.print_new)
+        M.Menu()
+
+    def menu(self, options=None, db_handle=None):
+        """main menu for availability"""
+        M = Menu('Employee Availablities Menu', db_handle=self.db_handle)
         M.menu_display = self.print_list
         M.add_item('Add', 'Add an availablity on a day for employee', self.add)
         M.add_item('Edit', 'Edit # - Edit availablity id for employee', self.edit)
@@ -187,7 +208,13 @@ class availablities(object):
         for a in self.alist:
             a.print_availability()
         print("""    -----------------------------------------------------""")
+        print("""Count: %s """ % (len(self)))
 
+    def set_db_handle(self, db_handle):
+        if db_handle==None:
+            db_handle = database(onwer='availability.py - set_db_handle')
+        self.db_handle = db_handle
+        
     def sort(self):
         eid_alist = sorted(self.alist, key=self.sort_eid)
         self.alist = sorted(eid_alist, key=self.sort_start)
@@ -200,10 +227,13 @@ class availablities(object):
         
 if __name__ == '__main__':
     ski_db = database(owner='availablity.py -__main__')
-    A = availablities(eid=15, db_handle=ski_db)
-    A.get_employee_availablity()
+    A = availablities(db_handle=ski_db)
+    A.dow.set_dow('tuesday')
+    A.get_dow_availablity()
+    #print(A.alist[0].eid)
+    A.print_list()
     #A.eid
     #A.alist[0].print_edit_menu()
-    A.menu(db_handle=ski_db)
+    #A.menu_dow()
     #A.print_list()
-    A.menu()
+    #A.menu()
