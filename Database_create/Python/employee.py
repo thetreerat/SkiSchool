@@ -46,10 +46,21 @@ Purpose        : This Class is a temlplete file
 
 """)
     
+    # shouold this be a shifts object? 
     def append_shift(self, shift):
         self.shifts.append(shift)
         self.sort()
-                        
+    
+    def load_emp_db(self):
+        if self.eid:
+            result = self.db_handle.fetchdata('get_employee', [self.eid])
+            for r in result:
+                self._firstname = r[1]
+                self._lastname = r[2]
+                self._nickname = r[4]
+                self._suffix = r[3]
+                self.DOB.set_date(r[5])
+
     def sort(self):
         end_time = sorted(self.shifts, key=attrgetter('end_time'))
         start_time = sorted(end_time, key=attrgetter('start_time'))

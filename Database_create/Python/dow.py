@@ -41,7 +41,10 @@ Purpose        : This Class is a temlplete file
         self.db_handle = db_handle
     
     def get_dow(self, options=None):
-        dow = options[2]
+        try: 
+            dow = options[2]
+        except:
+            dow = None
         
         if not dow:
             dow = raw_input(self.question)

@@ -107,7 +107,7 @@ Purpose        : This class is for handling shift templates.
         m.add_item('Certification', 'CERT <CID> - Set the required cert level for shift.', m.print_new)
         m.add_item('Needed', 'NEEDED <#> - set the number of shifts created from the template.', self.set_number_needed)
         m.add_item('Find', 'FIND - Find cert from list', self.find_cert)
-        if options[0]=='NEW':
+        if options[0]=='NEW' or 'Copy':
             m.add_item('Save', 'SAVE - Save the record in the database', self.add_template_db)
         elif options[0]=='EDIT':
             m.add_item('Save', 'SAVE - Update the shift template in the database', self.update_template_db)

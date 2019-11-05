@@ -1022,6 +1022,51 @@ LANGUAGE plpgsql;
 
 -- end of get_eid()
 
+create function get_employee(p_eid integer)
+    returns table (eid integer,
+                   firstname varchar(30),
+                   lastname varchar(30),
+                   suffix varchar(5),
+                   Nickname varchar(30),
+                   DOB date,
+                   phone_cell varchar(11),
+                   Phone_cell_publish Boolean,
+                   Phone_2_text character varying(20),
+                   Phone_2 character varying(11),
+                   Phone_3_text character varying(20),
+                   Phone_3 character varying(11),
+                   Email character varying(50),
+                   Email_SMS character varying(50),
+                   payroll_id character varying(15),
+                   PSIA_ID character varying(15),
+                   AASI_ID character varying(15),
+                   sex varchar(6)
+                   ) as $$
+begin
+    return query select e.eid,
+                        e.firstname,
+                        e.lastname,
+                        e.suffix, 
+                        e.nickname,
+                        e.dob,
+                        e.phone_cell,
+                        e.phone_cell_publish,
+                        e.phone_2_text,
+                        e.phone_2,
+                        e.phone_3_text,
+                        e.phone_3,
+                        e.email,
+                        e.email_sms,
+                        e.payroll_id,
+                        e.psia_id,
+                        e.aasi_id,
+                        e.sex
+                 from employee as e
+                 where p_eid=e.eid;
+end; $$
+LANGUAGE plpgsql;
+-- end onf get_employee()
+
 create function get_employee(p_firstname varchar(30),
                              p_lastname varchar(30))
     returns table (eid integer,

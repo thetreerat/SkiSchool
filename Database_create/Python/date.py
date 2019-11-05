@@ -120,12 +120,16 @@ class DOB(date):
     
     def age(self, adult=False, use_date=None):
         """method that returns age calculated on DOB,"""
-        if use_date==None:
-            use_date = datetime.now()
-        age = int(int((use_date - self.date()).days) / 365.2425)
-        if adult:
-            if age>18:
-                age = 'Adult'
+        try:
+            if use_date==None:
+                use_date = datetime.date(datetime.now())
+            #raw_input("""use: %s dob: %s """ % (use_date, self.date))
+            age = int(int((use_date - self.date()).days) / 365.2425)
+            if adult:
+                if age>18:
+                    age = 'Adult'
+        except:
+            age = 0
         return age
 
     def DOB(self, as_string=False):
