@@ -64,7 +64,6 @@ Purpose        : This Class is a temlplete file
     def copy_template(self, options=None):
         if options[1]:
             t = self.check_id(options[1])
-            raw_input(t.shift_name)
             n = ShiftTemplate(db_handle=self.db_handle)
             n.shift_name = t.shift_name
             n.start_time.set_time(t.start_time.time(True))
@@ -74,15 +73,17 @@ Purpose        : This Class is a temlplete file
             n.cert_required.load_cert_db()
             n.set_said(said=t.said.said)
             n.number_needed = t.number_needed
-            n.menu(options)
-            raw_input(n.cert_required.cert_name)
+            return n
+            #n.menu(options)
                     
     def get_current_templates(self, options=None):
+        self.clear()
         if self.dow.DOW():
             results = self.db_handle.fetchdata('get_current_shift_templates', [self.dow.DOW(),])
         else:
             results = self.db_handle.fetchdata('get_current_shift_templates',[])
         for r in results:
+            
             t = ShiftTemplate(stid=r[0],
                               shift_name=r[1],
                               start_time=r[2],
@@ -92,14 +93,18 @@ Purpose        : This Class is a temlplete file
                               said=r[6],
                               number_needed=r[7],
                               db_handle=self.db_handle)
-            self.shifttemplates.append(t)
+            self.append(t)
     
     def manage_template(self, options=None):
         #print(options)
-        if options[0]=='EDIT':
+        if options[0][0:2]=='ED':
             stid = options[1]
             T = ShiftTemplate(stid=stid, db_handle=self.db_handle)
             T.load_template_db()
+            
+        elif options[0][0:3]=='CO':
+            T = self.copy_template(options)
+            ## currently copy menu option calls copy_template, should come here. 
         else:
             stid = None
             T = ShiftTemplate(db_handle=self.db_handle)
@@ -109,6 +114,7 @@ Purpose        : This Class is a temlplete file
         self.get_current_templates()
   
     def menu(self, options=None):
+        
         self.get_current_templates()
         M = Menu('Shift Templates Menu', db_handle=self.db_handle)
         M.menu_display = self.print_menu
@@ -128,9 +134,14 @@ Purpose        : This Class is a temlplete file
             self.get_current_templates()
         
     def sort(self):
-        first = sorted(self.shifttemplates, key=self.sort_start_time)
-        self.shifttemplates = sorted(first, key=self.sort_shift_name)
         
+        name = sorted(self.shifttemplates, key=self.sort_shift_name)
+        time = sorted(name, key=self.sort_start_time)
+        self.shifttemplates = sorted(time, key=self.sort_dow)
+    
+    def sort_dow(self, i):
+        return i.dow.sort()
+    
     def sort_start_time(self, i):
         return i.start_time.time(True)
 

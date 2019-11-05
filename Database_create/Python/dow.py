@@ -40,6 +40,25 @@ Purpose        : This Class is a temlplete file
             db_handle = database(owner='dow.py - set_db_handle')
         self.db_handle = db_handle
     
+    def sort(self):
+        if self._dow=='monday':
+            return 1
+        elif self._dow=='tuesday':
+            return 2
+        elif self._dow=='wednesday':
+            return 3
+        elif self._dow=='thursday':
+            return 4
+        elif self._dow=='friday':
+            return 5
+        elif self._dow=='saturday':
+            return 6
+        elif self._dow=='sunday':
+            return 7
+        else:
+            return 8 
+
+        
     def get_dow(self, options=None):
         try: 
             dow = options[2]

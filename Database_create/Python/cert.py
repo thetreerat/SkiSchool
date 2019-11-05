@@ -138,6 +138,18 @@ class cert(object):
     REVERT - Revert to Database Values
     -----------------------------------------------""" % (save, save))
                 
+    def set_CT(self, options=None):
+        if options[1]:
+            ct = options[1]
+        else:
+            try:
+                ct = int(raw_input('Enter (CT) Certificate Template id: '))
+            except:
+                raw_input('Value not an integer nothing updated!')
+                return ct
+        self.ct = ct
+        self.load_cert_db()
+            
     def update_cert_db(self):
         pass
     

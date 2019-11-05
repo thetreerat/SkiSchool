@@ -104,13 +104,14 @@ Purpose        : This class is for handling shift templates.
         m.add_item('Start', 'START <TIME> - Set or change the start time of the current template', self.start_time.get_time)
         m.add_item('End', 'End <TIME> - Set or change the end time of the current template', self.end_time.get_time)
         m.add_item('DOW', 'DOW <DOW> - Set the Day of week for template', self.dow.get_dow)
-        m.add_item('Certification', 'CERT <CID> - Set the required cert level for shift.', m.print_new)
+        m.add_item('Certification', 'CERT <CID> - Set the required cert level for shift.', self.cert_required.set_CT)
         m.add_item('Needed', 'NEEDED <#> - set the number of shifts created from the template.', self.set_number_needed)
         m.add_item('Find', 'FIND - Find cert from list', self.find_cert)
-        if options[0]=='NEW' or 'Copy':
+        if options[0] in ('NEW','COPY'):
+            raw_input(options[0])
             m.add_item('Save', 'SAVE - Save the record in the database', self.add_template_db)
         elif options[0]=='EDIT':
-            m.add_item('Save', 'SAVE - Update the shift template in the database', self.update_template_db)
+            m.add_item('Update', 'UPDATE - Update the shift template in the database', self.update_template_db)
         m.Menu()
     
     def print_menu(self):
