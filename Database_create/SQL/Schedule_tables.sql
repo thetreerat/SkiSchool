@@ -195,7 +195,8 @@ create table shift_templates
       DOW character varying(25),
       cert_required integer default 1,
       SaID integer default 1,
-      number_needed integer
+      number_needed integer default 1,
+      deleted boolean default FALSE
     )
 ;
 

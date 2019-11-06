@@ -62,6 +62,7 @@ Purpose        : This Class is a temlplete file
         return None
     
     def copy_template(self, options=None):
+        options[0] = 'COPY'
         if options[1]:
             t = self.check_id(options[1])
             n = ShiftTemplate(db_handle=self.db_handle)
@@ -73,9 +74,37 @@ Purpose        : This Class is a temlplete file
             n.cert_required.load_cert_db()
             n.set_said(said=t.said.said)
             n.number_needed = t.number_needed
-            return n
-            #n.menu(options)
-                    
+            self.manage_template(n, options)
+    
+    def create_template(self, options=None):
+        """Create shift for date from shift templates"""
+        raw_input(options)
+        
+    def delete_template(self, options=None):
+        if options[1]:
+            stid=options[1]
+        else:
+            try:
+                stid = int(raw_input('Enter (STID)number of shift template to delete: '))
+            except:
+                raw_input('STID value not an integer returning!' )
+                return None
+        t = self.check_id(stid, ShiftTemplate.object)
+        t.print_self()
+        delete = raw_input('Delete template <YES/NO>? ').upper()
+        if delete=='YES':
+            self.db_handle.fetchdata('delete_shift_template', [t.stid])
+        self.clear()
+        self.get_current_templates()
+            
+    def edit_template(self, options=None):
+        options[0] = 'EDIT'
+        if options[1]:
+            stid = options[1]
+        T = ShiftTemplate(stid=stid, db_handle=self.db_handle)
+        T.load_template_db()
+        self.manage_template(T, options)
+
     def get_current_templates(self, options=None):
         self.clear()
         if self.dow.DOW():
@@ -94,22 +123,10 @@ Purpose        : This Class is a temlplete file
                               number_needed=r[7],
                               db_handle=self.db_handle)
             self.append(t)
-    
-    def manage_template(self, options=None):
+                
+    def manage_template(self, shifttemplate, options=None):
         #print(options)
-        if options[0][0:2]=='ED':
-            stid = options[1]
-            T = ShiftTemplate(stid=stid, db_handle=self.db_handle)
-            T.load_template_db()
-            
-        elif options[0][0:3]=='CO':
-            T = self.copy_template(options)
-            ## currently copy menu option calls copy_template, should come here. 
-        else:
-            stid = None
-            T = ShiftTemplate(db_handle=self.db_handle)
-        T.menu(options)
-        
+        T.menu(options)        
         self.clear()
         self.get_current_templates()
   
@@ -119,12 +136,19 @@ Purpose        : This Class is a temlplete file
         M = Menu('Shift Templates Menu', db_handle=self.db_handle)
         M.menu_display = self.print_menu
         M.add_item('DOW', 'DOW <dow> - Change/set DOW for Display templates', self.set_dow)
-        M.add_item('New', 'NEW - Create new shift template', self.manage_template)
-        M.add_item('Edit', 'EDIT <stid> - edit a shift Template', self.manage_template)
+        M.add_item('New', 'NEW - Create new shift template', self.new_template)
+        M.add_item('Edit', 'EDIT <stid> - edit a shift Template', self.edit_template)
         M.add_item('Copy', 'COPY <stid> - make a copy of template', self.copy_template)
+        M.add_item('Delete', 'DELETE <stid> - Delete a template', self.delete_template)
+        M.add_item('Create', 'CREATE <date> - Create shifts from templates for date', M.print_new)
         #M.menu_display()
         M.Menu()
         
+    def new_template(self, options=None):
+        options[0] = 'NEW'
+        T = ShiftTemplate(db_handle=self.db_handle)
+        T.dow.set_dow(self.dow.DOW())
+        self.manage_template(T, options)
         
     def set_dow(self, options=None):
         cdow = self.dow.DOW()

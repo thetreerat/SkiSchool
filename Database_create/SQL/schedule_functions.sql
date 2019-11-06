@@ -955,6 +955,15 @@ LANGUAGE plpgsql VOLATILE
 COST 100;
 -- end insert_into_calendar
 
+create or replace function delete_shift_template(p_stid integer)
+    returns integer as $$
+begin
+    update shift_templates set deleted = TRUE where stid=p_stid;
+    return 1;
+end; $$
+LANGUAGE plpgsql;
+-- end delete_shift_template(p_stid integer)
+
 create or replace function get_cert(p_ct integer)
     returns table (ct integer,
                    title varchar(50),
@@ -1360,7 +1369,8 @@ begin
                         s.said,
                         s.number_needed
                  from shift_templates as s
-                 where s.stid=p_stid
+                 where s.stid=p_stid and
+                       s.deleted = FALSE
                  order by s.dow, s.shift_name;
 end $$
 LANGUAGE plpgsql;
@@ -1386,7 +1396,9 @@ begin
                         s.said,
                         s.number_needed
                  from shift_templates as s
-                 where s.said=p_said and s.dow=p_dow
+                 where s.said=p_said and
+                       s.dow=p_dow and
+                       s.deleted = FALSE
                  order by s.dow, s.shift_name;
 end $$
 LANGUAGE plpgsql;
@@ -1412,7 +1424,8 @@ begin
                         s.said,
                         s.number_needed
                  from shift_templates as s
-                 where s.said=(select * from get_current_season()) 
+                 where s.said=(select * from get_current_season()) and
+                       s.deleted = FALSE
                  order by s.dow, s.shift_name;
 end $$
 LANGUAGE plpgsql;
@@ -1440,7 +1453,8 @@ begin
                         s.number_needed
                  from shift_templates as s
                  where s.said=(select * from get_current_season()) and
-                       s.dow=p_dow
+                       s.dow=p_dow and
+                       s.deleted = FALSE
                  order by s.dow, s.shift_name;
 end $$
 LANGUAGE plpgsql;
