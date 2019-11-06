@@ -1718,3 +1718,40 @@ where
                    p.lesson_disapline ilike p_disapline and 
                    p.s_age is null and
 ---- end hold ------
+create or replace function get_avaliablity_count(p_start_time time,
+                                                 p_end_time time,
+                                                 p_dow varchar(25),
+                                                 p_ct integer)
+    returns integer as $$
+declare
+    p_count integer;
+begin
+    select into p_count count(*)
+    from employee_availability
+    where said=(select * from get_current_season()) and
+          eid in (select eid from certs where ct in (select ct_min_equal from cert_min where ct=p_ct)) and
+          dow=p_dow and
+          start_time <= p_start_time and
+          end_time >=p_end_time;
+    return p_count;
+end; $$
+LANGUAGE plpgsql;
+
+-- end get_avaliablity_count(time, time, varchar(25), integer)
+select (select * from get_avaliablity_count('17:00', '18:00', 'tuesday', 2)) as Snowboard,
+       (select * from get_avaliablity_count('17:00', '18:00', 'tuesday', 15)) as "SB Level 1",
+       (select * from get_avaliablity_count('17:00', '18:00', 'tuesday', 16)) as "SB Level 2",
+       (select * from get_avaliablity_count('17:00', '18:00', 'tuesday', 16)) as "SB Level 3",
+       (select * from get_avaliablity_count('17:00', '18:00', 'tuesday', 3)) as "Ski",
+       (select * from get_avaliablity_count('17:00', '18:00', 'tuesday', 18)) as "Ski level 1",
+       (select * from get_avaliablity_count('17:00', '18:00', 'tuesday', 19)) as "Ski level 2",
+       (select * from get_avaliablity_count('17:00', '18:00', 'tuesday', 20)) as "Ski level 3";
+
+select (select * from get_avaliablity_count('18:00', '19:00', 'tuesday', 2)) as Snowboard,
+       (select * from get_avaliablity_count('18:00', '19:00', 'tuesday', 15)) as "SB Level 1",
+       (select * from get_avaliablity_count('18:00', '19:00', 'tuesday', 16)) as "SB Level 2",
+       (select * from get_avaliablity_count('18:00', '19:00', 'tuesday', 16)) as "SB Level 3",
+       (select * from get_avaliablity_count('18:00', '19:00', 'tuesday', 3)) as "Ski",
+       (select * from get_avaliablity_count('18:00', '19:00', 'tuesday', 18)) as "Ski level 1",
+       (select * from get_avaliablity_count('18:00', '19:00', 'tuesday', 19)) as "Ski level 2",
+       (select * from get_avaliablity_count('18:00', '19:00', 'tuesday', 20)) as "Ski level 3";
