@@ -262,24 +262,28 @@ class shifts(object):
         
     def update_instructor(self, options):
         s = self.check_sid(options[1])
-        E = employees(db_handle=self.db_handle)
-        if options[2][0].lower() in ['available','availabl','availab','availa','avail','avai','ava','av', 'a']:
-            E.list_availability(s.sid)
-        else:
-            E.find_name(options)
-        s.print_self()
-        E.list(return_type=employee.index, shifts=False)
-        try:
-            i = int(raw_input('select instructor number: '))
-            print(i)
-            s.eid = E.elist[i].eid
-            print E.elist[i].eid
-            s.employee = E.elist[i]
-            self.db_handle.fetchdata('add_employee_shift', [s.eid, s.sid,])
-        except:
-            pass
-            print('Invalid select')
-            raw_input('ready?')
+        if s:
+            E = employees(db_handle=self.db_handle)
+            try:
+                if options[2][0].lower() in ['available','availabl','availab','availa','avail','avai','ava','av', 'a']:
+                    E.list_availability(s.sid)
+                else:
+                    E.find_name(options)
+            except:
+                E.list_availability(s.sid)
+            s.print_self()
+            E.list(return_type=employee.index, shifts=False)
+            try:
+                i = int(raw_input('select instructor number: '))
+                print(i)
+                s.eid = E.elist[i].eid
+                print E.elist[i].eid
+                s.employee = E.elist[i]
+                self.db_handle.fetchdata('add_employee_shift', [s.eid, s.sid,])
+            except:
+                pass
+                print('Invalid select')
+                raw_input('ready?')
         
     def update_student_count(self, options):
         s = self.check_sid(options[1])

@@ -155,7 +155,7 @@ class employees(object):
                 e._suffix = r[3]
                 e._nickname = r[4]
                 e.DOB.set_date(r[5])
-                e.sex = r[17]
+                e.sex = r[6]
                 self.append(e)
 
     def list(self, return_type=employee.no_index, shifts=True):
