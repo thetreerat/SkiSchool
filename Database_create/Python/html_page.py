@@ -47,7 +47,7 @@ class html(object):
   </body>""" % (body)
 
     def setdate(self, date):
-        self._date = datetime.strptime(date, "%m/%d/%y")
+        self._date = datetime.strptime(date, "%m/%d/%Y")
     
     def date(self):
         return self._date
@@ -105,7 +105,7 @@ class html(object):
             addcount-=1
             
         
-    def employee_table_row(self,e, cells=30, hour=7):
+    def employee_table_row(self,e, cells=34, hour=7):
         """create row for employee shift"""
         self.count = 0
         self.hour = hour
@@ -114,7 +114,6 @@ class html(object):
         cellclass=None
         while self.count < cells:
             self.hourcount(1)
-            #print("""%s - %s""" % (cshift.start_time.hour, self.hour))
             if self.count==1:
                 row = self.wrapcell(e.firstname())
             elif self.count==2:
@@ -122,17 +121,19 @@ class html(object):
 %s""" % (row, self.wrapcell(e.lastname()))
             else:
                 #print("""%s - %s""" % (self.hour,self.count))
-                if int(cshift.start_time.hour)==self.hour:
+                if int(cshift.start_time._time.hour)==self.hour:
                     #cshift.print_shift()
                     cell = cshift.shift_name
                     span = cshift.shift_length_segments()
                     self.hourcount(span-1)
+                    
                     if cshift.shift_name[0:7]=='Private':
                         cellclass = 'Private'
                     else:
                         cellclass = cshift.html_class
                     if len(e.shifts)!=0:
                         cshift = e.shifts.pop(0)
+                    
                 else:
                     span=1
                     cellclass = None
@@ -143,11 +144,9 @@ class html(object):
         row = self.wraprow(row)
         return row
     
-    def shift_table_header(self):
+    def shift_table_header(self, cells=34, hour=8):
         """create table header row"""        
-        cells = 30
         count = 0
-        hour = 8
         ampm = 'am'
         while count < cells:
             count+=1
@@ -156,7 +155,7 @@ class html(object):
             elif count==2:
                 row = """%s
 %s""" % (row, self.wrapcell('Last Name', 'Name'))
-            elif count in (3,7,11,15,19,23,27,30):
+            elif count in (3,7,11,15,19,23,27,31,35,39,43,47,51):
                 if hour == 12:
                     ampm = 'pm'
                 if hour == 13:

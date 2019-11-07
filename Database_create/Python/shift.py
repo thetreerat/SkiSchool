@@ -43,8 +43,7 @@ class shift(object):
         self._student_level = None
         self._student_count = 0
         self._worked_time = 0
-        self.cancelled = False
-        self.html_class = None   
+        self.cancelled = False   
 
     def add_employee_shift(self):
         """add eid to shift"""
@@ -135,7 +134,7 @@ class shift(object):
         self.db_handle.fetchdata('update_shifts_student_level', [self.sid, self._student_level, ])
             
     def shift_length_segments(self):
-        t = ((self.end_time.hour * 60 + self.end_time.minute) - (self.start_time.hour * 60 + self.start_time.minute)) /15
+        t = ((self.end_time.time().hour * 60 + self.end_time.time().minute) - (self.start_time.time().hour * 60 + self.start_time.time().minute)) /15
         return t
     
     def student_count(self, as_string=False):
@@ -171,6 +170,7 @@ class shift(object):
 class shifts(object):
     shift.object = 1
     def __init__(self, db_handle=None):
+        self.date = date()
         self.shifts = []
         self.set_db_handle(db_handle)
     
@@ -187,6 +187,8 @@ class shifts(object):
             i += 1
         return None
 
+    def clear(self):
+        self.shifts=[]
     def get_shifts_for_date(self, shift_date):
         result = self.db_handle.fetchdata('list_shifts_for_date', [shift_date, ])
         for r in result:
@@ -213,6 +215,7 @@ class shifts(object):
                             default_date=datetime.now().strftime('%m/%d/%Y'))
         display_date.question =question_text='Enter Shift Date (%s): ' % (display_date.default_date(True))
         display_date.get_date()
+        self.clear()
         self.get_shifts_for_date(shift_date=display_date.date(True))
         M = Menu(db_handle=self.db_handle, menu_title='Shfits for a Date')
         M.add_item('Count', 'COUNT <SID> - Add count to shift', self.update_student_count)
@@ -221,6 +224,8 @@ class shifts(object):
         M.add_item('Hours', 'HOURS <SID> <HOURS> - Edit hours by instructor for Lesson', self.update_worked_time)
         M.add_item('NoShow', 'NOSHOW <SID> - Mark an instructor as no show for shift', self.under_construction)
         M.add_item('Instructor', 'INSTRUCTOR <SID> <firstname> <lastname> - add instructor for shift', self.update_instructor)
+        M.add_item('New', 'NEW - create a new adhoc shift', M.print_new)
+        M.add_item('Publish', 'PUBLISH - Publish Shift', M.print_new)
         M.menu_display = self.print_list
         M.Menu()
                 
@@ -233,7 +238,9 @@ class shifts(object):
         print("""    -------------------------------------------------------------------------------------------------------------------------""")
         print("""    shift count: %s""" % (self.shift_count()))
         print("""    -------------------------------------------------------------------------------------------------------------------------""")
-        
+    
+    def publish(self):
+        print(self.)
     def set_db_handle(self, db_handle):
         if db_handle==None:
             db_handle = database(onwer='employee')
