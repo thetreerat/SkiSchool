@@ -170,10 +170,19 @@ class shift(object):
 class shifts(object):
     shift.object = 1
     def __init__(self, db_handle=None):
-        self.date = date()
-        self.shifts = []
         self.set_db_handle(db_handle)
-    
+        self.date = date(db_handle=self.db_handle)
+        self.shifts = []
+        
+    def __len__(self):
+        return len(self.shifts)
+        
+    def __str__(self):
+        return "Shifts: db: %s count: %s" % (self.db_handle.owner, len(self.shifts))
+        
+    def __repr__(self):
+        return "Shifts: db: %s, pythonID: %s count: %s" % (self.db_handle.owner, id(self), len(self.shifts))
+
     def append(self, shift):
         self.shifts.append(shift)
         self.sort()
@@ -189,6 +198,7 @@ class shifts(object):
 
     def clear(self):
         self.shifts=[]
+        
     def get_shifts_for_date(self, shift_date):
         result = self.db_handle.fetchdata('list_shifts_for_date', [shift_date, ])
         for r in result:
@@ -236,18 +246,16 @@ class shifts(object):
         for s in self.shifts:
             s.print_self()
         print("""    -------------------------------------------------------------------------------------------------------------------------""")
-        print("""    shift count: %s""" % (self.shift_count()))
+        print("""    shift count: %s""" % (len(self)))
         print("""    -------------------------------------------------------------------------------------------------------------------------""")
     
     def publish(self):
-        print(self.)
+        pass
+    
     def set_db_handle(self, db_handle):
         if db_handle==None:
-            db_handle = database(onwer='employee')
+            db_handle = database(onwer='shift.py - init shifts')
         self.db_handle = db_handle
-
-    def shift_count(self):
-        return len(self.shifts)
     
     def sort(self):
         end_time = sorted(self.shifts, key=self.sort_key_end)
@@ -274,6 +282,18 @@ class shifts(object):
             try:
                 if options[2][0].lower() in ['available','availabl','availab','availa','avail','avai','ava','av', 'a']:
                     E.list_availability(s.sid)
+                elif options[2][0].lower() in ['find', 'fin', 'fi', 'f']:
+                    E.find_name(options)
+                elif options[2][0].lower() in ['id']:
+                    try:
+                        eid = int(raw_input('Enter employee ID: '))
+                        #e = employee(eid=eid, db_handle=self.db_handle)
+                        #e.load_emp_db()
+                        s.eid = eid
+                        self.db_handle.fetchdata('add_employee_shift', [s.eid, s.sid,])
+                        return
+                    except:
+                        return
                 else:
                     E.find_name(options)
             except:

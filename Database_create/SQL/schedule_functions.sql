@@ -816,7 +816,7 @@ end; $$
 LANGUAGE plpgsql;
 
 
-create function copy_shift_template_day(p_shift_date date) returns varchar(130)  as $$
+create or replace function copy_shift_template_day(p_shift_date date) returns varchar(130)  as $$
 declare
     p_dow varchar(15);
     p_count integer := 0;
@@ -826,7 +826,14 @@ declare
     
 begin
     select into p_dow BTRIM(to_char(cast(p_shift_date as date), 'day'), ' ');
-    myquery := 'select shift_name, start_time,end_time,cert_required,number_needed from shift_templates where dow=$1';
+    myquery := 'select shift_name,
+                       start_time,
+                       end_time,
+                       cert_required,
+                       number_needed
+                from shift_templates
+                where dow=$1 and
+                      said=(select * from get_current_season())';
      for temprow in
             execute myquery using p_dow
         loop
@@ -1485,6 +1492,7 @@ inner join employee as e on a.eid=e.eid
 where a.start_time <= (p_start_time)
       and a.end_time >= (p_end_time)
       and a.dow = (p_dow)
+      and a.said = (select * from get_current_season())
       and a.eid not in (select eid from shifts
                    where start_time<=p_start_time
                    and end_time>=p_end_time
@@ -1542,17 +1550,17 @@ where s.shift_date=p_shift_date;
 end; $$
 LANGUAGE plpgsql;  
 
-create function list_shift(p_shift_date date)
-    returns table (firstname varchar(50),
+create or replace function list_shift(p_shift_date date)
+    returns table (eid integer,
+                   firstname varchar(50),
                    lastname varchar(50),
                    shift_name varchar(50),
                    start_time time,
                    end_time time,
                    html_class varchar(20)) as $$
-declare
-    p_result varchar(150);
 begin
-    return query select e.firstname,
+    return query select s.eid,
+                        e.firstname,
                         e.lastname,
                         s.shift_name,
                         s.start_time,

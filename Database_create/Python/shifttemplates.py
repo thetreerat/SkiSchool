@@ -79,10 +79,19 @@ Purpose        : This Class is a temlplete file
     def create_template(self, options=None):
         """Create shift for date from shift templates"""
         if options[2][0]:
-            print(options[2][0])
+            shift_date = options[2][0]            
         else:
-            print(options)
-        #raw_input(options)
+            shift_date = raw_input('Enter date to create shifts for: ')
+        try:
+            test = raw_input('create shifts for %s <YES>/<NO>' % (shift_date)).upper()
+            if test=='YES':
+                
+                results = self.db_handle.fetchdata('copy_shift_template_day', [shift_date, ])
+                raw_input(results)
+            else:
+                raw_input(test)
+        except:
+            return
         
     def delete_template(self, options=None):
         if options[1]:
@@ -130,7 +139,7 @@ Purpose        : This Class is a temlplete file
                 
     def manage_template(self, shifttemplate, options=None):
         #print(options)
-        T.menu(options)        
+        shifttemplate.menu(options)        
         self.clear()
         self.get_current_templates()
   
@@ -144,7 +153,7 @@ Purpose        : This Class is a temlplete file
         M.add_item('Edit', 'EDIT <stid> - edit a shift Template', self.edit_template)
         M.add_item('Copy', 'COPY <stid> - make a copy of template', self.copy_template)
         M.add_item('Delete', 'DELETE <stid> - Delete a template', self.delete_template)
-        M.add_item('Create', 'CREATE <date> - Create shifts from templates for date', M.print_new)
+        M.add_item('Create', 'CREATE <date> - Create shifts from templates for date', self.create_template)
         #M.menu_display()
         M.Menu()
         
