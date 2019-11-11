@@ -24,6 +24,7 @@ class instructor(person):
         """Init a instructor object"""
         person.__init__(self, firstname=firstname, lastname=lastname, db_handle=db_handle)
         self.eid = eid
+        
         self.cell_phone = phone(db_handle=self.db_handle)
         self.cell_publish = None
         self.phone_2_text = 'Home'
@@ -36,14 +37,16 @@ class instructor(person):
         self.aasi_id = None
         self.payroll_id = None
         self.start_date_New = True
-        self.start_date = date(None,
+        self.start_date = date(date=None,
                                db_handle=self.db_handle,
-                               default_date = '11/01/19')
+                               default_date = '11/01/2019')
+        
         self.start_date.question = 'Enter Start date (%s):' % (self.start_date.default_date)
-        self.end_date = date(None,
+        
+        self.end_date = date(date=None,
                              db_handle=self.db_handle,
-                             default_date = '03/24/19')
-        self.end_date.question = 'Enter End date (%s):' % (self.start_date.default_date)
+                             default_date = '03/24/2019')
+        self.end_date.question = 'Enter End date (%s):' % (self.start_date.default_date_str)
         self.employee_returning = None
         self.return_title = None
         self.instructor_update = False
@@ -51,7 +54,8 @@ class instructor(person):
         self.clist = None
         self.llist = None
         self.alist = None
-
+        
+        
     def add_cert(self, answer):
         os.system('clear')
         if len(answer)==1:
@@ -122,75 +126,6 @@ class instructor(person):
         m.add_item('Availabilitiy', 'Availability - manage instructors availability', self.alist.menu)
         m.add_item('Cert', 'CERT - Manage instructors certifications', self.clist.menu)
         m.Menu()
-        #run = True
-        #while run:
-        #    self.print_menu()
-                #elif answer[0] in ['CERT','CER','CE']:
-                 #   if len(answer)>2:
-                  #      if answer[1].upper() in ['ADD', 'AD', 'A']:
-                   #         self.alist.list_type='EditEmp'
-                    #        self.clist.add()
-                     #   elif answer[1].upper() in ['EDIT', 'EDI', 'ED', 'E']:
-                      #      c = self.alist.checkID(int(answer[2]))
-                       #     if c!=None:
-                        #        c.edit()
-                    #self.alist.menu()
-                    #self.add_cert(answer)
-                    #break
-
-                #elif answer[0] in ['CELL','CEL','CE']:
-                 #   self.cell_phone.set_phone()
-                  #  break
-
-                #elif answer[0] == 'C':
-                #    answer = raw_input('CEll or CERT').upper()
-                #    answer = list(answer.split())
-                    
-                #elif answer[0] in ['HELP', 'HEL', 'HE','H', '?']:
-                #    self.print_help()
-                #    answer = raw_input('Enter Selectioin: ').upper()
-                #    answer = list(answer.split())
-                #    break
-                
-                #elif answer[0] in ['JACKET','JACKE','JACK','JAC','JA','J' ]:
-                #    self.assign_jacket(answer)
-                #    if self.jlist==None:
-                #        self.jlist = jackets()
-                 #       self.jlist.get_employee_jackets_db(self.eid)
-                 #   else:
-                 #       self.jlist.clear()
-                 #       self.jlist.get_employee_jackets_db(self.eid)
-                 #   break
-                
-                #elif answer[0] in ['LOCATION','LOCATIO','LOCATI','LOCAT','LOCA','LOC','LO','L']:
-                #    self.assign_location_db()
-                #    if self.llist==None:
-                 #       self.llist = locations()
-                 #       self.llist.get_locations_employee_db(self.eid)
-                 #   else:
-                 #       self.llist.clear()
-                 #       self.llist.get_locations_employee_db(self.eid)
-                 #   break
-                    
-                #elif answer[0] in ['NAME','NAM','NA','N']:
-                #    self.set_name()
-                #    break
-                #elif answer[0] in ['START','S','ST','STA','STAR']:
-                #    self.set_start_date()
-                #    break
-                #elif answer[0] in ['END','EN']:
-                #    self.set_end_date()
-                #    break                
-                #elif answer[0] in ['UPDATE','UPDAT','UPDA','UPD','UP','U' ]:
-                #    self.update_instructor()
-                #    break
-                #elif answer[0] in ['EXIT', 'EXI','EX','E']:
-                #    sys.exit(1)
-                #else:
-                #    print("""Lost in space!!!""")
-                #    print(answer)
-               #     dump = raw_input('ready?')
-                #    break        
 
     def instructor_name(self):
         """return instructor name first name<sp> last name as string"""
@@ -201,6 +136,33 @@ class instructor(person):
         result = self.db_handle.fetchdata('get_employee_cell', [self.eid, ])
         self.cell_phone.set_phone(result[0][0])
         return True
+    
+    def get_emp_db(self):
+        results = self.db_handle.fetchdata('get_employee', [self.eid])
+        for r in results:
+            self.set_lastname(r[2])
+            self.set_firstname(r[1])
+            self.set_suffix(r[3])
+            self.set_nickname(r[4])
+            self.DOB.set_date(r[5])
+            self.cell_phone.set_phone(r[6])
+            self.cell_publish = r[7]
+            self.cell_phone.set_publish(r[7])
+            self.phone_2_text = r[8]
+            self.phone_2 = r[9]
+            self.phone_3_text = r[10]
+            self.phone_3 = r[11]
+            self.email = r[12]
+            self.email_sms = r[13]
+            self.psia_id = r[14]
+            self.aasi_id = r[16]
+            self.payroll_id = r[14]
+            self.sex = r[17]
+            #self.jlist = None
+            #self.clist = None
+            #self.llist = None
+            #self.alist = None
+            self.get_season_dates_db()
             
     def get_season_dates_db(self):
         """get current season dates and return status from database"""
@@ -212,7 +174,7 @@ class instructor(person):
                 self.employee_returning = result[0][3]
                 self.return_title = result[0][4]
                 self.start_date_New = False
-        
+    
     def print_instructor(self, form='short'):
         """Print instructor object"""
         if form=='short':
@@ -287,7 +249,22 @@ class instructors(object):
         """creates and instructor object, and updates instructor name from options passed """
         i = instructor(db_handle=self.db_handle)
         i.set_name(options[2])
+        result = self.db_handle.fetchdata('add_employee', [i.firstname(), i.lastname(), ])
+        result = self.db_handle.fetchdata('get_eid', [i.firstname(), i.lastname(), ])
+        i.eid = result[0][0]
         self.append(i)
+        return i
+        
+    def add_candidate(self, options=None):
+        i = self.add(options)
+        disapline = raw_input('Enter Disapline (ski, snowboard, tele): ')
+        if disapline=='ski':
+            disapline = 'Ski Instructor'
+        elif disapline=='snowboard':
+            disapline = 'SB Instructor'
+        else:
+            disapline = 'Tele Instructor'        
+        result = self.db_handle.fetchdata('add_candidate', [i.eid, disapline,])
         
     def append(self, i, sort=True):
         """Add instructor object to instructors list, and resort list """
@@ -299,6 +276,7 @@ class instructors(object):
         """write list of new instructors to db"""
         for i in self.ilist:
             result = self.db_handle.fetchdata('add_employee', [i.firstname(), i.lastname(), ])
+            raw_input(result)
             result = self.db_handle.fetchdata('get_eid', [i.firstname(), i.lastname(), ])
             i.eid = result[0][0]
         return True
@@ -375,12 +353,6 @@ class instructors(object):
                 p.set_name(options)
             except:
                 pass
-        clearlist = raw_input('Clear list first Y/N (N)?').upper()
-        try:
-            if clearlist[0]=='Y':
-                self.clear()
-        except:
-            pass
         self.find_name_db(p.firstname(), p.lastname())
                 
     def find_name_db(self, firstname, lastname):
@@ -432,7 +404,7 @@ class instructors(object):
             self.clear()
         result = self.db_handle.fetchdata('list_availble', [sid,])
         for r in result:
-            i = instructor()
+            i = instructor(db_handle=self.db_handle)
             i.eid = r[0]
             i.firstname = r[1]
             i.lastname = r[2]
@@ -441,12 +413,23 @@ class instructors(object):
             i.DOB = r[5]
             i.sex = r[6]
             self.append(i)
+            
+    def get_current_instructors(self, options=None):
+        """ """
+        self.clear()
+        result = self.db_handle.fetchdata('list_current_employees', [])
+        for r in result:
+            e = instructor(eid=r[0], db_handle=self.db_handle)
+            e.get_emp_db()
+            self.append(e)
         
     def list_instructors(self):
         """Print list of instructors"""
-        if len(self.ilist)>0:
+        if len(self)>0:
             for i in self.ilist:
                 i.print_instructor('short')
+            print("""    ------------------
+    count: %s """ % (len(self)))
         else:
             print("""No instructors in list!!""")
     
@@ -468,6 +451,16 @@ class instructors(object):
  
     def sort_person_key(self, person):
         return person.name
+    
+    def rehire_employee(self, options=None):
+        if len(options[2])!=0:
+            rehire_date = options[2][0]
+        else:
+            results = self.db_handle.fetchdata('get_employee_default_start', [])
+            rehire_date = results[0][0]
+        if options[1]:
+            results = self.db_handle.fetchdata('add_employee_start', [options[1],rehire_date])
+            #pass
         
 from location import location
 from location import locations
@@ -475,47 +468,20 @@ from location import locations
     
 if __name__ == '__main__':
     sid = 233
-
-    I = instructors()
-    I.get_available_instructors(sid=sid)
-    I.list_instructors()
-    #ski_db = database()
-    #ski_db.connect()
-   # I.db = ski_db
-   # while True:
-   #     I.print_menu()
-   #     answer = raw_input('Please enter a selection: ').upper()
-    #    answer = list(answer.split())
-     #   while answer:
-      #      if answer[0] in ['EXIT', 'EXI', 'EX', 'QUIT', 'QUI', 'QU', 'Q']:
-       #         sys.exit(1)
-        #    elif answer[0] in ['ADD', 'AD', 'A']:
-         #       #dump = raw_input('ready?')
-          #      i = instructor()
-           #     i.set_name()
-            #    I.add_instructor(i)
-             
-             #   break
-            #elif answer[0] in ['CLEAR','CLEA','CLE','CL', 'C']:
-             #   print("""Clearing emloyee!""")
-              #  dump = raw_input('ready?')
-               # I.ilist = []
-                #break
-#            elif answer[0]=='E':
- #               answer = raw_input('EXIT or EDIT #: ').upper()
-  #              answer = list(answer.split())
-   #         elif answer[0] in ['EDIT','EDI','ED']:
-    #            I.edit(answer)
-     #           break
-      #      elif answer[0] in ['FIND','FIN','FI','F']:
-       #         I.find_name(answer)
-        #        break
-#
-#            elif answer[0] in ['LOAD']:
-#                print("""Load Instructors to DB""" % ())
-#                I.add_instructor_db()
-#                break
-#            else:
-#                print("""Lost in space!!!""")
-#                dump = raw_input('ready?')
- #               break
+    db_handle = database(owner='Instructors.py - __main__')
+    I = instructors(db_handle=db_handle)
+    #
+    I.get_current_instructors()
+    #I.get_available_instructors(sid=sid)
+    #I.list_instructors()
+    M=Menu('Instructor Menu', db_handle=db_handle)
+    M.menu_display = I.list_instructors
+    M.add_item('rehire', 'HIRE <firstname> <lastname> - mark an exising employee for hire', I.rehire_employee)
+    M.add_item('New', 'NEW - Create a new instructor record', I.add)
+    M.add_item('Canidate', 'Canidate - create new record for new hire instructors', I.add_candidate)
+    M.add_item('FIND', 'FIND <firstname> <lastname> - find all instructor records matching name', I.find_name)
+    M.add_item('Edit', 'EDIT <#> - Edit instructor matching EID number entered', I.edit)
+    M.add_item('Clear', 'Clear - clears the list of instructors', I.clear)
+    M.add_item('Current', 'CURRENT - list current instructors', I.get_current_instructors)
+    M.Menu()
+    

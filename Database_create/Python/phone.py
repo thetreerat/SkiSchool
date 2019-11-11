@@ -45,7 +45,6 @@ class phone(object):
     def set_phone(self, options=None):
         if type(options) is list:
             try:
-                db_handle = options[3]
                 if options[1]:
                     phone = options[1]
                 elif options[2][0]:
@@ -60,6 +59,9 @@ class phone(object):
             return
         else:
             phone= options
+            self.convert_number_string(phone)
+        
+    def convert_number_string(self, phone):
         if phone==None:
             self._number = phone
         else:
@@ -81,7 +83,7 @@ class phone(object):
                         start= current +1
                             
             self._number = number
-    
+
     def set_publish(self, data):
         try:
             data.upper()

@@ -70,7 +70,19 @@ class  person(object):
         if db_handle==None:
             db_handle = database(owner='person.py - person object')
         self.db_handle = db_handle
-            
+
+    def set_firstname(self, firstname):
+        self._firstname = firstname
+    
+    def set_lastname(self, lastname):
+        self._lastname = lastname
+        
+    def set_nickname(self, nickname):
+        self._nickname = nickname
+    
+    def set_suffix(self, suffix):
+        self._suffix = suffix
+        
     def set_name(self, options=None, nickname=False):
         """Collect name and set"""
         try:

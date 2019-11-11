@@ -46,7 +46,13 @@ Purpose        : This Class for handleing dates in ski_school
                 return ''
             else:
                 return self._date.strftime('%m/%d/%Y')
-    
+
+    def default_date_str(self):
+        if self._default_date:
+            return self._default_date.strftime('%m/%d/%Y')
+        else:
+            return ''
+        
     def default_date(self, as_string=False):
         if as_string:
             if self._default_date ==None:

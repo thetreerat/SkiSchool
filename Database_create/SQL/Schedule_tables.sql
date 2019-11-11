@@ -30,6 +30,26 @@ WITH (
   OIDS=FALSE
 );
 
+create table candidate
+    (caid serial primary key,
+     eid integer,
+     said integer default get_current_season(),
+     passed boolean,
+     notes text,
+     hire boolean,
+     class_ranking integer,
+     instructor_day1 integer,
+     instructor_day2 integer,
+     instructor_day3 integer,
+     instructor_day4 integer,
+     discipline integer,
+     foreign key (eid) references employee (EID) on delete restrict,
+     foreign key (said) references seasons (said) on delete restrict,
+     foreign key (instructor_day1) references employee (EID) on delete restrict,
+     foreign key (instructor_day2) references employee (EID) on delete restrict,
+     foreign key (instructor_day3) references employee (EID) on delete restrict,
+     foreign key (instructor_day4) references employee (EID) on delete restrict);
+     
 create table certmin
     ( CMID serial primary key,
       CT integer not null,
@@ -92,7 +112,7 @@ create table employee_availability
         DOW character varying(10),
         Start_Time time,
         End_Time time,
-        SaID integer default 1,
+        SaID integer default get_current_season(),
         foreign key (eid) references employee (EID) on delete restrict,
         foreign key (said) references seasons (said) on delete restrict
     )
@@ -105,7 +125,7 @@ create table employee_returning_templates
     
 create table employee_seasons
     ( ESID serial primary key,
-      SaID integer,
+      SaID integer default get_current_season(),
       eid integer,
       season_start_date date,
       season_end_date date,
@@ -181,7 +201,7 @@ create table shifts
       ct integer default 1,
       cancelled boolean default False,
       publish integer default 0,
-      SaID integer default 1,
+      SaID integer default get_current_season(),
       html_class varchar(20) defalut 'standard'
       foreign key (said) REFERENCES seasons (said) on delete restrict,
     )
@@ -194,7 +214,7 @@ create table shift_templates
       End_Time time,
       DOW character varying(25),
       cert_required integer default 1,
-      SaID integer default 1,
+      SaID integer default get_current_season(),
       number_needed integer default 1,
       deleted boolean default FALSE
     )

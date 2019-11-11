@@ -1,4 +1,18 @@
 -- create functions
+create or replace function add_candidate(p_eid integer,
+                                         discipline_title varchar) returns integer as $$
+declare
+    p_caid integer;
+    p_ct integer;
+begin
+    select into p_ct ct from cert_template where title=discipline_title;
+    insert into candidate(eid, discipline) values (p_eid, p_ct);
+    select into p_caid max(caid) from candidate where eid=p_eid;
+    return p_caid;
+end; $$
+
+language plpgsql;
+-- end add_candidate
 
 create function add_employee(p_firstname varchar(50),
                              p_lastname varchar(50)) returns varchar(50) as $$
@@ -344,6 +358,7 @@ LANGUAGE plpgsql;
 
 -- end add_employee_start(p_eid, p_start_date)
 
+
 create or replace function add_employee_shift(p_firstname varchar(50),
                                    p_lastname varchar(50),
                                    p_sid integer) returns integer as $$
@@ -367,6 +382,36 @@ end; $$
 LANGUAGE plpgsql;
 
 -- end of add_employee_shfit(p_eid,p_sid)
+create or replace function add_employee_start(p_eid integer,
+                                              p_start_date date) returns integer as $$
+declare
+    p_said integer;
+begin
+    select into p_said said from get_current_season();
+    if p_said is not null then
+        insert into employee_seasons (eid, SaID, season_start_date)
+                    values (p_eid,p_SaID,p_start_date);
+    end if;
+    return p_said
+end; $$
+LANGUAGE plpgsql;
+-- end add_employee_start(eid)
+
+create or replace function get_employee_default_start()
+                  returns date as $$
+declare
+    best_date date;
+    cdate date;
+begin
+    select into best_date ss_date_default from seasons where said=(select * from get_current_season());
+    select into cdate current_date;
+    if best_date < cdate then
+        best_date = cdate;
+    end if;
+    return best_date;
+end; $$
+LANGUAGE plpgsql;
+
 
 create function add_employee_start(p_firstname varchar(50),
                                   p_lastname varchar(50),
@@ -377,7 +422,7 @@ declare
     p_SaID integer;
     p_result varchar(80);
 begin
-    select into p_Said said from seasons where ss_date = (select max(ss_date) from seasons);
+    select into p_Said said from get_current_seasons();
     select into p_eid eid from employee where firstname=p_firstname and lastname=p_lastname;
     if p_eid is not null then
         if p_SaID is not null then
@@ -394,7 +439,7 @@ begin
 end; $$
 LANGUAGE plpgsql;
 
-
+-- end add_employee_start(fname, lname, start)
 
 create function add_employee_start(p_firstname varchar(50),
                                    p_lastname varchar(50),
@@ -1508,6 +1553,17 @@ where a.start_time <= (p_start_time)
                    )
 order by e.lastname, e.firstname;
     
+end; $$
+LANGUAGE plpgsql;
+
+create or replace function list_current_employees()
+    returns table (eid integer,
+                  esid integer) as $$
+begin
+    return query select s.eid, s.esid
+                 from employee_seasons as s
+                 where s.said=(select * from get_current_season());
+                 
 end; $$
 LANGUAGE plpgsql;
 

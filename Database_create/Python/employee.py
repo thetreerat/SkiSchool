@@ -6,6 +6,7 @@ from person import person
 from operator import attrgetter
 import sys
 import os
+#from menu import Menu
 
 class  employee(person):
     """employee object subclassed from person"""
@@ -188,7 +189,9 @@ class employees(object):
     
 if __name__ == "__main__":
     db_handle = database(owner='employee.py - __main__')
-    E = employee(db_handle=db_handle)
+    E = employees(db_handle=db_handle)
+#   M = menu('Employee Menu', db_handle=db_handle)
+#    M.menu_display = self.print_menu
     E.set_name()
     E.DOB.get_date()
     print(E.DOB.age())
