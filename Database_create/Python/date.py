@@ -229,10 +229,10 @@ if __name__ == "__main__":
              db_proc='add_employee_start',
              default_date='11/01/19',
              db_proc_options=[eid,])
-    H = date(db_handle=db_handle,
-             db_proc='add_employee_start',
-             default_date='11/01/2019',
-             db_proc_options=[eid,])
+    #H = date(db_handle=db_handle,
+    #         db_proc='add_employee_start',
+    #         default_date='11/01/2019',
+    #         db_proc_options=[eid,])
     
     #print(N.default_date(True))
     N.question = 'Enter Start date (%s):' % (N.default_date(True))
