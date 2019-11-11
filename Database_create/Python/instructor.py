@@ -54,8 +54,7 @@ class instructor(person):
         self.clist = None
         self.llist = None
         self.alist = None
-        
-        
+                
     def add_cert(self, answer):
         os.system('clear')
         if len(answer)==1:
@@ -178,7 +177,7 @@ class instructor(person):
     def print_instructor(self, form='short'):
         """Print instructor object"""
         if form=='short':
-            print """%s - %s""" % (self.eid, self.name(nickname=True))
+            print """%s - %s""" % (str(self.eid).ljust(4), self.name(nickname=True))
         elif form=='Long':
             print("""    Emp ID:             %s
     Name:               %s
@@ -270,8 +269,8 @@ class instructors(object):
         """Add instructor object to instructors list, and resort list """
         if self.checkName(i.instructor_name)==None:
             self.ilist.append(i)
-            self.ilist.sort(key=self.sort_person_key)
-            
+            self.sort()
+                    
     def add_instructor_db(self, dump=None):
         """write list of new instructors to db"""
         for i in self.ilist:
@@ -433,6 +432,19 @@ class instructors(object):
         else:
             print("""No instructors in list!!""")
     
+    def menu(self, options=None):
+        self.get_current_instructors()
+        M=Menu('Instructor Menu', db_handle=self.db_handle)
+        M.menu_display = self.list_instructors
+        M.add_item('rehire', 'HIRE <firstname> <lastname> - mark an exising employee for hire', self.rehire_employee)
+        M.add_item('New', 'NEW - Create a new instructor record', self.add)
+        M.add_item('Canidate', 'Canidate - create new record for new hire instructors', self.add_candidate)
+        M.add_item('FIND', 'FIND <firstname> <lastname> - find all instructor records matching name', self.find_name)
+        M.add_item('Edit', 'EDIT <#> - Edit instructor matching EID number entered', self.edit)
+        M.add_item('Clear', 'Clear - clears the list of instructors', self.clear)
+        M.add_item('Current', 'CURRENT - list current instructors', self.get_current_instructors)
+        M.Menu()
+        
     def set_db_handle(self, db_handle):
         if db_handle==None:
             db_handle = database(owner='employee.py - init_employee')
@@ -448,9 +460,19 @@ class instructors(object):
      LOAD      - Load Entered Data into Table
      CLEAR     - Clear list of intructors
      EXIT      - Quit or Exit program """)
- 
+    
+    def sort(self):
+        first_sort = sorted(self.ilist, key=self.sort_first_key)
+        self.ilist = sorted(first_sort, key=self.sort_last_key)
+    
+    def sort_last_key(self, person):
+        return person.lastname()
+    
+    def sort_first_key(self, person):        
+        return person.firstname()
+
     def sort_person_key(self, person):
-        return person.name
+        return person.name()
     
     def rehire_employee(self, options=None):
         if len(options[2])!=0:

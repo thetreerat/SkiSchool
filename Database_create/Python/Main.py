@@ -50,14 +50,8 @@ def instructor_menu(answer=None):
     except:
         db_handle = database('main.py - instructor_menu')
     I = instructors(db_handle=db_handle)    
-    instructor = Menu('Instructor Menu', db_handle=db_handle)
-    instructor.menu_display = I.print_menu
-    instructor.add_item('Add', 'ADD <Firstname> <Lastname> <Suffix> - add a new instructor', I.add)
-    instructor.add_item('Clear', 'Clear - clears the list of found instructors', I.clear)
-    instructor.add_item('Edit', 'Edit # - Open instructor # for editing or veiwing. must be selected from a found list of instructors', I.edit)
-    instructor.add_item('Find', 'FIND <Fisrtname> <Lastname> - find matching instructor(s) and display list of them', I.find_name)
-    instructor.add_item('Load', 'LOAD - Save New Names to database', I.add_instructor_db)
-    instructor.Menu()
+    I.menu()
+    
   
     
 def private_menu(options=None):

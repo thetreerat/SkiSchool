@@ -125,7 +125,7 @@ class availablities(object):
     
     def append(self, availablity):
         self.alist.append(availablity)
-        #self.sort()
+        self.sort()
         
     def add(self, options=None):
         if self.eid.eid!=None:
@@ -172,8 +172,7 @@ class availablities(object):
                              said=r[5],
                              db_handle=self.db_handle)
             self.append(a)
-            
-            
+                        
     def get_employee_availablity(self):
         if self.eid.eid!=None:
             result = self.db_handle.fetchdata('get_employee_availability',[self.eid.eid,])
