@@ -14,6 +14,7 @@ class  date(object):
                  db_proc_options = None,
                  default_date=None):
         """Create New Instanace of New Class"""
+        self._default_date = None
         self.set_date(date) 
         self.question = question_text
         self.set_db_handle(db_handle)
@@ -102,8 +103,18 @@ Purpose        : This Class for handleing dates in ski_school
             try:
                 self._default_date = datetime.strptime(default_date, '%m/%d/%Y')
             except ValueError:
-                print('ValueError')
-                self._default_date = None
+                try:
+                    self._default_date = datetime.strptime(default_date, '%m/%d/%y')                    
+                except:
+                    print('set_default_date had a ValueError')
+            #try:
+            #    print(default_date)
+            #    self._default_date = datetime.strftime(default_date, '%m/%d/%y')
+            #except:
+            #    print('except: %s' % (ValueError))
+                #pass
+                #self._default_date = None
+                    
                 
 class DOB(date):
     """project Date of Birth date object, subclassed from date"""
@@ -216,9 +227,14 @@ if __name__ == "__main__":
     eid = 15
     N = date(db_handle=db_handle,
              db_proc='add_employee_start',
+             default_date='11/01/19',
+             db_proc_options=[eid,])
+    H = date(db_handle=db_handle,
+             db_proc='add_employee_start',
              default_date='11/01/2019',
              db_proc_options=[eid,])
-    print(N.default_date(True))
+    
+    #print(N.default_date(True))
     N.question = 'Enter Start date (%s):' % (N.default_date(True))
     #D = DOB(DOB='12/24/1969', db_handle=db_handle)
     #D.set_age(49)
@@ -227,6 +243,7 @@ if __name__ == "__main__":
     #print(P)
     #print(D)
     #N.get_date()
+    N.get_date()
     print(N.date())
     print(N)
     print(N.date())
