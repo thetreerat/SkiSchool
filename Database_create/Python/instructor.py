@@ -438,7 +438,7 @@ class instructors(object):
         M.menu_display = self.list_instructors
         M.add_item('rehire', 'HIRE <firstname> <lastname> - mark an exising employee for hire', self.rehire_employee)
         M.add_item('New', 'NEW - Create a new instructor record', self.add)
-        M.add_item('Canidate', 'Canidate - create new record for new hire instructors', self.add_candidate)
+        M.add_item('Candidate', 'Candidate - create new record for new hire instructors', self.add_candidate)
         M.add_item('FIND', 'FIND <firstname> <lastname> - find all instructor records matching name', self.find_name)
         M.add_item('Edit', 'EDIT <#> - Edit instructor matching EID number entered', self.edit)
         M.add_item('Clear', 'Clear - clears the list of instructors', self.clear)

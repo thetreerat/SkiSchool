@@ -106,15 +106,7 @@ Purpose        : This Class for handleing dates in ski_school
                 try:
                     self._default_date = datetime.strptime(default_date, '%m/%d/%y')                    
                 except:
-                    print('set_default_date had a ValueError')
-            #try:
-            #    print(default_date)
-            #    self._default_date = datetime.strftime(default_date, '%m/%d/%y')
-            #except:
-            #    print('except: %s' % (ValueError))
-                #pass
-                #self._default_date = None
-                    
+                    print('set_default_date had a ValueError')                    
                 
 class DOB(date):
     """project Date of Birth date object, subclassed from date"""

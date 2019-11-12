@@ -115,9 +115,29 @@ create table employee_availability
         SaID integer default get_current_season(),
         foreign key (eid) references employee (EID) on delete restrict,
         foreign key (said) references seasons (said) on delete restrict
-    )
-;
+    );
+        
+create table extra_days_templates
+    (  et serial primary key,
+       SaID integer default get_current_season(),
+       title varchar(40),
+       extra_date date,
+       points integer default 1,
+       ideal_max integer,
+       foreign key (said) references seasons (said) on delete restrict
+    );
 
+create table employee_extra_days
+    (  eeid serial primary key,
+       eid integer,
+       et integer,
+       priority integer,
+       SaID integer default get_current_season(),
+       foreign key (eid) references employee (EID) on delete restrict,
+       foreign key (said) references seasons (said) on delete restrict,
+       foreign key (et) references extra_days_templates on delete restrict       
+    );
+    
 create table employee_returning_templates
     (  rt serial primary key,
        return_title varchar(20)

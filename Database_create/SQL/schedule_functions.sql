@@ -1033,7 +1033,22 @@ end; $$
 LANGUAGE plpgsql;
 
 -- end get_cert(p_ct integer)
-                   
+create or replace function get_current_extra_days()
+    returns table (et integer,
+                   title varchar(40),
+                   extra_date date,
+                   points integer,
+                   ideal_max integer) as $$
+begin
+    return query select t.et, t.title, t.extra_date, t.points, t.ideal_max
+    from extra_days_templates as t
+    where said=(select * from get_current_season())
+    order by extra_date;
+    
+end; $$
+LANGUAGE plpgsql;
+
+-- end get_current_extra_days()                   
 create function get_current_season()
     returns integer as $$
 declare
