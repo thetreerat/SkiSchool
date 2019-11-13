@@ -80,7 +80,7 @@ declare
 begin
     select into p_eid eid from employee where firstname=p_firstname and lastname=p_lastname;
     if p_eid is not null then
-        p_start_result := add_employee_start(p_eid,p_start_date);
+        p_start_result := self._eeid()(p_eid,p_start_date);
         p_result:= p_firstname||' in database phone and email not update, start date added';        
     else
         insert into employee (firstname,
@@ -472,8 +472,26 @@ begin
     return p_result;
 end; $$
 LANGUAGE plpgsql;
-
 -- end of add_employee_start()
+
+create or replace function add_employee_extra_day(p_eid integer,
+                                                  p_et integer,
+                                                  p_priority integer)
+    returns integer as $$
+declare
+    r_eeid integer;
+begin
+    insert into employee_extra_days (eid, et, priority)
+        values (p_eid, p_et, p_priority);
+    select into r_eeid eeid
+        from employee-extra_days
+        where eid=p_eid and
+              et=p_et and
+              priority=p_priority;
+    return r_eeid;
+end; $$
+LANGUAGE plpgsql;
+-- end add_employee_extra_day()
 
 create or replace function add_emp_cert_title(p_firstname varchar(50),
                                    p_lastname varchar(50),
@@ -511,6 +529,24 @@ end; $$
 LANGUAGE plpgsql;
 
 -- end of add_emp_cert_title(p_firstname,p_lastname,p_season_name, p_start_date)
+create or replace function add_extra_days(p_title varchar(40),
+                                          p_extra_date date,
+                                          p_points integer,
+                                          p_ideal_max integer
+                                          ) returns integer as $$
+declare
+    r_et integer;
+begin 
+    insert into extra_days_templates (title, extra_date, points, ideal_max)
+           values (p_title, p_extra_date, p_points, p_ideal_max);
+    select into r_et max(et)
+           from extra_days_templates
+           where title=p_title and
+                 said=(select * from get_current_season());
+    return r_et;
+end; $$
+LANGUAGE plpgsql;
+-- end of add_extra_days()
 
 create or replace function add_season(p_season_name varchar(50),
                                       p_ss_date date,
@@ -1038,12 +1074,15 @@ create or replace function get_current_extra_days()
                    title varchar(40),
                    extra_date date,
                    points integer,
-                   ideal_max integer) as $$
+                   ideal_max integer,
+                   booked bigint) as $$
 begin
-    return query select t.et, t.title, t.extra_date, t.points, t.ideal_max
+    return query select t.et, t.title, t.extra_date, t.points, t.ideal_max, count(e.et)
     from extra_days_templates as t
-    where said=(select * from get_current_season())
-    order by extra_date;
+    left outer join employee_extra_days as e on e.et=t.et
+    where t.said=(select * from get_current_season())
+    group by t.et, t.title, t.extra_date, t.points, t.ideal_max
+    order by t.extra_date;
     
 end; $$
 LANGUAGE plpgsql;
@@ -1249,6 +1288,20 @@ LANGUAGE plpgsql;
 
 -- end of get_employee_certs()
 
+create or replace function get_employee_extra_points(p_eid integer)
+    returns bigint as $$
+declare
+    r_total bigint;
+begin
+    select into r_total sum(t.points) as total_points
+        from employee_extra_days as e
+        inner join extra_days_templates as t on t.et=e.et
+        where eid=p_eid;
+    return r_total;
+end; $$
+LANGUAGE plpgsql;
+-- end get_employee_extra_points()
+
 create function get_employee_season_dates(p_eid integer)
     returns table (eid integer,
                    start_date date,
@@ -1269,6 +1322,32 @@ LANGUAGE plpgsql;
 
 -- end of get_employee_season_dates
 
+create or replace function get_extra_day_booked(p_et integer)
+    returns bigint as $$
+declare
+    r_total bigint;
+begin
+    select into r_total count(et) from employee_extra_days where et=p_et;
+    return r_total;
+end; $$
+LANGUAGE plpgsql;
+-- end of get_extra_day_booked(p_et)
+
+create or replace function get_extra_days_template(p_et integer)
+    returns table (et integer,
+                   title varchar(40),
+                   extra_date date,
+                   points integer,
+                   ideal_max integer,
+                   booked bigint) as $$
+begin
+    return query select t.et, t.title, t.extra_date, t.points, t.ideal_max, get_extra_day_booked(p_et)
+    from extra_days_templates as t
+    where t.et=p_et;
+    
+end; $$
+LANGUAGE plpgsql;
+-- end get_extra_days_template(et integer)
 
 create or replace function get_private (p_student_firstname varchar(45),
                              p_student_lastname varchar(45),
@@ -1672,6 +1751,41 @@ begin
     return 1;
 end; $$
 LANGUAGE plpgsql;
+-- end update_employee_availablility_end()
+
+create or replace function update_employee_extra_day(p_eeid integer,
+                                                     p_eid integer,
+                                                     p_et integer,
+                                                     p_priority integer)
+    returns integer as $$
+begin
+    update employee_extra_days
+        set eid=p_eid,
+            et=p_et,
+            priority=p_priority
+        where eeid=p_eeid;
+    return 1;
+end; $$
+LANGUAGE plpgsql;
+-- end update_employee_extra_day()
+
+create or replace function update_extra_days_template(p_et integer,
+                                           p_title varchar(40),
+                                           p_extra_date date,
+                                           p_points integer,
+                                           p_ideal_max integer)
+    returns integer as $$
+begin
+    update extra_days_templates
+           set title=p_title,
+               extra_date=p_extra_date,
+               points=p_points,
+               ideal_max=p_ideal_max
+           where et=p_et;
+    return 1;
+end; $$
+LANGUAGE plpgsql;
+-- end update_extra_days_template()
 
 create function update_shifts_student_count(p_sid integer,
                                             p_student_count integer)
@@ -1682,6 +1796,7 @@ begin
 end; $$
 LANGUAGE plpgsql;
 
+-- end update_shifts_student_count()
 create function update_shifts_student_level(p_sid integer,
                                             p_student_level varchar(25))
     returns integer as $$
@@ -1690,6 +1805,7 @@ begin
     return 1;
 end; $$
 LANGUAGE plpgsql;
+-- end update_shifts_student_level()
 
 create function update_shifts_worked_time(p_sid integer,
                                            p_worked_time numeric(6,2))

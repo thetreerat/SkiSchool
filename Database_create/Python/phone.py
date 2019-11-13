@@ -43,23 +43,23 @@ class phone(object):
             db_handle = database(owner='phone.py - phone')
                           
     def set_phone(self, options=None):
+        
         if type(options) is list:
             try:
                 if options[1]:
-                    phone = options[1]
+                    phone = str(options[1])
                 elif options[2][0]:
                     phone = options[2][0]
             except:
-                if len(options)>0:
-                    phone = options[0]
-                else:
-                    phone = raw_input('Enter Phone number: ')
+                phone = raw_input('Enter Phone number: ')
+                #self.convert_number_string(phone)
         elif type(options) is int:
-            self._number = options
+            self._number = str(options)
             return
         else:
             phone= options
-            self.convert_number_string(phone)
+        self.convert_number_string(phone)
+        
         
     def convert_number_string(self, phone):
         if phone==None:
@@ -83,7 +83,8 @@ class phone(object):
                         start= current +1
                             
             self._number = number
-
+            print (self._number)
+            
     def set_publish(self, data):
         try:
             data.upper()

@@ -124,6 +124,11 @@ class instructor(person):
         m.menu_display = self.print_menu
         m.add_item('Availabilitiy', 'Availability - manage instructors availability', self.alist.menu)
         m.add_item('Cert', 'CERT - Manage instructors certifications', self.clist.menu)
+        m.add_item('Cell', 'Cell <phone> - Set Instructor Cell number', self.cell_phone.set_phone)
+        m.add_item('End', 'END <date> - set employee last day of season', m.print_new)
+        m.add_item('Start', 'START <date> - set employe start of season', m.print_new)
+        m.add_item('Jacket', 'JACKET - manage jackets for employee', m.print_new)
+        m.add_item('Location', 'LOCATION - manage Locker for emlployee', m.print_new)
         m.Menu()
 
     def instructor_name(self):
@@ -203,7 +208,7 @@ class instructor(person):
         """function to print menu """
         os.system('clear')
         self.print_instructor(form='Long')
-        print("""    AVAILABILITY, CELL, CERT, END, START, JACKET, LOCATION, HELP,  MAIN, EXIT """)
+        #print("""    AVAILABILITY, CELL, CERT, END, START, JACKET, LOCATION, HELP,  MAIN, EXIT """)
         
     def print_help(self):
         print("""    ------------------------------------------------

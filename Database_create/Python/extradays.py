@@ -7,7 +7,11 @@ from extradaystemplate import ExtraDaysTemplate
 
 
 class  ExtraDays(object):
-    """ExtraDays"""
+    
+    ExtraDaysTemplate.index = 1
+    ExtraDaysTemplate.object = 2
+    ExtraDaysTemplate.et = 3
+    ExtraDaysTemplate.title = 5
     def __init__(self, db_handle=None):
         """Create New Instanace of ExtraDays"""
         self.set_db_handle(db_handle)
@@ -21,10 +25,46 @@ class  ExtraDays(object):
     
     def __len__(self):
         return len(self.extradays)
-    
+
+    def add_extra_days(self, options=None):
+        e = ExtraDaysTemplate(db_handle=self.db_handle)
+        e.print_menu()
+        M = e.Menu
+        M.add_item('Save', 'SAVE - Save new extra day', e.add_db)
+        M.add_item('Title', 'TITLE <VALUE> - set title for extra day', e.get_title)
+        M.add_item('Date', 'DATE <DATE> - set date for extra day', e.get_extra_date)
+        M.add_item('Points', 'POINTS <VALUE> - Set Points value for extra day', e.get_points)
+        M.add_item('Max', 'MAX <VALUE> - Set the maximum ideal number of instructors', e.get_ideal_max)
+
+        M.menu_display = e.print_menu
+        M.Menu()
+        
     def append(self, newListObject):
         self.extradays.append(newListObject)
         self.sort()
+    
+    def checkID(self, v, return_type=ExtraDaysTemplate.object):
+        i = 0
+        for t in self.extradays:
+            if t.et==v:
+                if return_type==ExtraDaysTemplate.index:
+                    return i
+                elif return_type==ExtraDaysTemplate.title:
+                    return t.shift_name
+                elif return_type==ExtraDaysTemplate.object:
+                    return t
+            i += 1
+        return None
+        
+    def clear(self, options=None):
+        self.extradays = []
+        
+    def edit_extra_days(self, options=None):
+        v = options[1]
+        o = self.checkID(v=v)
+        if o:
+            o.menu(options)
+
     
     def get_current_extra_days(self):
         result = self.db_handle.fetchdata('get_current_extra_days', [])
@@ -34,23 +74,29 @@ class  ExtraDays(object):
                                   extra_date=r[2],
                                   points=r[3],
                                   ideal_max=r[4],
+                                  booked=r[5],
                                   db_handle=self.db_handle)
             self.append(d)
         
     def menu(self, options=None):
         M = Menu('Extra Days Menu', db_handle=self.db_handle)
         M.menu_display = self.print_menu
-        M.add_item('Add', 'ADD - Add a new extra day to the current season ', M.print_new)
+        M.add_item('Add', 'ADD - Add a new extra day to the current season ', self.add_extra_days)
         M.add_item('Copy', 'COPY <SAID> - Copy a seasons extra days', M.print_new)
-        M.add_item('Edit', 'EDIT <ET> - Edit an extra day', M.print_new)
+        M.add_item('Edit', 'EDIT <ET> - Edit an extra day', self.edit_extra_days)
         M.add_item('Delete', 'DELETE <ET> - remove an extra day', M.print_new)
         M.Menu()
         
     def print_list(self):
+        self.extradays[0].print_list_heading()
         for e in self.extradays:
             e.print_self()
+        print("""    -------------------------------------------------------------------------------------------
+    Count: %s""" % (len(self)))
     
     def print_menu(self):
+        self.clear()
+        self.get_current_extra_days()
         self.print_list()
     
     def set_db_handle(self, db_handle):
@@ -91,5 +137,6 @@ if __name__ == "__main__":
     N = ExtraDays(db_handle=db_handle)
     #d = ExtraDaysTemplate(db_handle=db_handle, title='Christmas Eve', extra_date='12/24/2019', et=1, points=2, ideal_max=5)
     #N.append(d)
-    N.get_current_extra_days()
+    #N.get_current_extra_days()
     N.menu()
+    #N.print_menu()

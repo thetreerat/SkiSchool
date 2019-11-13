@@ -154,7 +154,7 @@ Purpose        : This Class is a temlplete file
         M.add_item('Copy', 'COPY <stid> - make a copy of template', self.copy_template)
         M.add_item('Delete', 'DELETE <stid> - Delete a template', self.delete_template)
         M.add_item('Create', 'CREATE <date> - Create shifts from templates for date', self.create_template)
-        #M.menu_display()
+        #M.menu_display(), 
         M.Menu()
         
     def new_template(self, options=None):

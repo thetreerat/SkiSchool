@@ -19,6 +19,10 @@ class  Season(object):
         self.ss_date = date(ss_date, question_text='Enter Start of Season Date: ', db_handle=self.db_handle)
         self.se_date = date(se_date, question_text='Enter End of Season Date: ', db_handle=self.db_handle)
         self._season_name = season_name
+        self.update = False
+        self.set_new()
+        self.Menu = Menu('Season Menu', db_handle=self.db_handle)
+
     
     def __str__(self):
         return "Season: db: %s" % (self.db_handle.owner)
@@ -36,21 +40,22 @@ Purpose        : Season class
 
 """)
         
-    def add_season_db(self):
+    def add_db(self, options=None):
         """Add shift object to the shift table in database"""
-        result = self.db_handle.fetchdata('add_season', [self.season_name,
+        result = self.db_handle.fetchdata('add_season', [self.season_name(),
                                                         self.ss_date.date(True),
                                                         self.se_date.date(True),
                                                        ]
                                          )
         self.said = result[0][0]
-      
-    def menu(self):
-        SMenu = Menu('Season Menu', db_handle=self.db_handle)
+        self.set_update(False)
+        
+    def menu(self, options=None):
+        SMenu = self.Menu
         SMenu.menu_display = self.print_self
         SMenu.add_item('Season', 'set/update Season display name', self.set_season_name)
-        SMenu.add_item('Start', 'set season start date', self.ss_date.get_date)
-        SMenu.add_item('End', 'set season end date', self.se_date.get_date)
+        SMenu.add_item('Start', 'set season start date', self.set_ss_date)
+        SMenu.add_item('End', 'set season end date', self.set_se_date)
         SMenu.Menu()
         
     def season_name(self):
@@ -64,16 +69,50 @@ Purpose        : Season class
         if db_handle==None:
             db_handle = database(onwer='Season')
         self.db_handle = db_handle
-        
-    def set_season_name(self, season_name):
+
+    def set_new(self, value=None):
+        if value==None:
+            if self.said==None:
+                self.new = True
+            else:
+                self.new = False
+        else:
+            self.new = value
+    
+    def set_season_name(self, options=None):
         """Set the season name for season."""
         if self._season_name!=None:
             print(self._season_name)
             answer = raw_input('Change (yes/No)? ')
             if answer[0].upper()!='Y':
+                #self.set_update(True)
                 return
         self._season_name = raw_input("""Enter Season Display Name(%s): """ % self._season_name)
+        self.set_update(True)
+
+    def set_se_date(self, options=None):
+        self.se_date.get_date(options)
+        self.set_update(True)
     
+    def set_ss_date(self, options=None):
+        self.ss_date.get_date(options)
+        self.set_update(True)
+    
+        
+    def set_update(self, value):
+        if value:
+            if not self.update:
+                M = self.Menu
+                if not self.new:
+                    M.add_item('Update', 'UPDATE - Update database with changes', self.update_db)
+                else:
+                    M.add_item('Save', 'SAVE - Add record to the database', self.add_db)
+        else:
+            pass
+            #M.delete_item('Update')
+            #Need to update menu 
+        self.update = value
+
     def get_current_season_id(self):
         result = self.db_handle.fetchdata('get_current_season', [])
         for r in result:
@@ -93,7 +132,13 @@ Purpose        : Season class
         print('Season Name: %s' % self._season_name)
         print('Season Start: %s' % self.ss_date.date(True))
         print('Season End: %s' % self.se_date.date(True))
-
+    
+    def update_db(self, options=None):
+        self.db_handle.fetchdata('', [self.said,
+                                      self.season_name,
+                                      self.ss_date.date(True),
+                                      self.se_date.date(True),])
+        self.set_update(False)
 
 if __name__ == "__main__":
     db_handle = database(owner='season.py - __main__')

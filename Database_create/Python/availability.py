@@ -201,7 +201,7 @@ class availablities(object):
         M.menu_display = self.print_list
         M.add_item('Add', 'Add an availablity on a day for employee', self.add)
         M.add_item('Edit', 'Edit # - Edit availablity id for employee', self.edit)
-        M.add_item('Delete', 'Delete # - Delete availablity id for employee', self.print_list)
+        M.add_item('Delete', 'Delete # - Delete availablity id for employee', M.print_new)
         M.Menu()
     
     def print_dow(self):

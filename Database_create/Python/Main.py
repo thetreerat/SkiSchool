@@ -13,6 +13,9 @@ from private import privates
 from shift import shifts
 from shifttemplates import ShiftTemplates
 from availability import availablities
+from extradays import ExtraDays
+from extradaystemplate import ExtraDaysTemplate
+from season import Season
 
 #from jacket import jacket_histories
 #from jacket import jacket_history
@@ -23,12 +26,15 @@ def print_this(dump=None):
 
 def admin_menu(options=None):
     db_handle = options[3]
+    T = ExtraDays(db_handle=db_handle)
+    S = Season(db_handle=db_handle)
     Admin = Menu('Admin Main Menu', db_handle=db_handle)
     Admin.menu_display = Admin.print_help
-    Admin.add_item('New', 'Add new season', print_this)
-    Admin.Menu()
+    Admin.add_item('Season', 'Add new season', S.menu)
+    Admin.add_item('Extra', 'EXTRA - Manage current Season extra Days', T.menu)
     
-       
+    Admin.Menu()
+           
 def jackets_menu(options=None):    
     db_handle = options[3]
     Jackets = Menu('Jacket Main Menu', db_handle=db_handle)
@@ -37,12 +43,10 @@ def jackets_menu(options=None):
     Jackets.add_item('Find', 'FIND - advance find menu', print_this)
     Jackets.add_item('CheckIn', 'Check In a jacket', print_this)
     Jackets.Menu()
-    
-    
+        
 def jackets_new_menu(dump=None):
     new_jackets = jackets()
     new_jackets.new_jackets_menu()    
-
 
 def instructor_menu(answer=None):
     try:       
@@ -51,9 +55,7 @@ def instructor_menu(answer=None):
         db_handle = database('main.py - instructor_menu')
     I = instructors(db_handle=db_handle)    
     I.menu()
-    
-  
-    
+       
 def private_menu(options=None):
     print(options[3])
     try:
@@ -73,7 +75,6 @@ def private_menu(options=None):
     private.add_item('Publish', 'PUBLISH <DATE> - Create HTML Page for Date, and post on website', print_this)
     private.add_item('Edit', 'EDIT # - Edit a private lesson', print_this)
     private.Menu()
-
 
 def private_new_menu(options=None):
     print(options[3])
@@ -95,8 +96,7 @@ def private_new_menu(options=None):
     private_new.add_item('Find', 'FIND <firstname> <lastname> - find instrutors by name', P.find_instructor)
     private_new.add_item('Skill', 'SKILL <1-9> or SKILL <Yellow,Yellow+,green,blue> - Skill level of the student', P.set_skill)
     private_new.Menu()
-  
-    
+      
 def schedule_menu(options=None):
     S = shifts(db_handle=options[3])
     T = ShiftTemplates(db_handle=options[3])
