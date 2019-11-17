@@ -848,6 +848,23 @@ end; $$
 LANGUAGE plpgsql;
 -- end of add_shift_template()
 
+create or replace function is_location_available(p_eid integer, p_lid integer)
+    returns integer as $$
+declare
+    r_eid integer;
+begin
+    select into r_eid eid                                                                                                                                                             from employee_locations
+    where lid= 34 and
+          eid not in (select eid from employee where lastname='Location' and firstname<>'Damaged') and
+          eid in (select * from get_current_eid());
+    if  r_eid is null then
+        return 0;
+    else
+        return r_eid;
+    end if;
+end; $$
+LANGUAGE plpgsql;
+-- end function is_location_available(eid integer, p_lid integer)
 
 create function copy_shift_template(p_stid integer,
                                     p_date date,

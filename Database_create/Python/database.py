@@ -91,7 +91,8 @@ class database(object):
             return 0
         except Exception as e:
             print ("Unexpected error: %s" % e)
-            rasie
+            raw_input('Resume:')
+            
         self.cur = self.db.cursor()
             
     def fetchdata(self, proc, params):

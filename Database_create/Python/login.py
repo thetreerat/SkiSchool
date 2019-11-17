@@ -28,7 +28,7 @@ class  Login(object):
             if not self.password:
                 self.password = getpass.getpass('Password: ')
             self.set_db_handle()
-            print(self.db_handle.db)
+            #print(self.db_handle.db)
             if not self.db_handle.db:
                 print('here')
                 self.login = None
@@ -39,7 +39,7 @@ class  Login(object):
     def set_db_handle(self):
         owner = 'Login - %s' % (self.login)
         db_handle = database(owner=owner, user=self.login, password=self.password)
-        print(db_handle)
+        #print(db_handle)
         self.db_handle = db_handle
         self.db_handle.connect()
         
