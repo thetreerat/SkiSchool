@@ -5,6 +5,7 @@
 #from instructor import intructor
 from database import database
 from instructor import instructors
+from location import Location
 from jacket import jacket
 from jacket import jackets
 from menu import Menu
@@ -16,6 +17,7 @@ from availability import availablities
 from extradays import ExtraDays
 from extradaystemplate import ExtraDaysTemplate
 from season import Season
+from login import Login
 
 #from jacket import jacket_histories
 #from jacket import jacket_history
@@ -114,8 +116,9 @@ def schedule_menu(options=None):
 
 
 if __name__ == "__main__":
-    ski_db = database(owner='main.py - __main__')
-    Main = Menu('Main Menu', db_handle=ski_db)
+    L = Login()
+    #ski_db = database(owner='main.py - __main__')
+    Main = Menu('Main Menu', db_handle=L.db_handle)
     Main.menu_display = Main.print_help    
     Main.add_item('Instructors', 'Manage instructors', instructor_menu)
     Main.add_item('Jackets', 'Manage jackets', jackets_menu)

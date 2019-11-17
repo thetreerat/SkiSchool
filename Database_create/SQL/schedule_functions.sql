@@ -484,7 +484,7 @@ begin
     insert into employee_extra_days (eid, et, priority)
         values (p_eid, p_et, p_priority);
     select into r_eeid eeid
-        from employee-extra_days
+        from employee_extra_days
         where eid=p_eid and
               et=p_et and
               priority=p_priority;
@@ -1069,6 +1069,16 @@ end; $$
 LANGUAGE plpgsql;
 
 -- end get_cert(p_ct integer)
+create or replace function get_current_eid()
+    returns table(eid integer) as $$
+begin
+    return query select e.eid from employee as e
+                 left outer join employee_seasons as s on s.eid=e.eid
+                 where s.said=(select * from get_current_season());
+end; $$
+LANGUAGE plpgsql;
+
+    
 create or replace function get_current_extra_days()
     returns table (et integer,
                    title varchar(40),
@@ -1302,6 +1312,49 @@ end; $$
 LANGUAGE plpgsql;
 -- end get_employee_extra_points()
 
+create or replace function get_employee_hours_week(p_eid integer)
+    returns numeric(6,2) as $$
+declare
+    r_hours numeric;
+begin
+    select into r_hours sum(s.worked_time)
+        from shifts as s
+        left outer join employee as e on s.eid=e.eid
+        where s.said=(select * from get_current_season()) and
+              s.eid=p_eid and 
+              s.shift_date between to_date(to_char(now(), 'iyyyiw'), 'iyyyiw') and
+                                   to_date(to_char(now(), 'iyyyiw'), 'iyyyiw') + 6;
+            return r_hours;
+end; $$
+LANGUAGE plpgsql;
+--end get_week_hours
+
+create or replace function get_employee_hours_season(p_eid integer)
+    returns numeric(6,2) as $$
+declare
+    r_hours numeric(6,2);
+begin
+    select into r_hours sum(worked_time) from shifts
+        where eid=p_eid and
+              said=(select * from get_current_season());
+    return r_hours;
+end; $$
+LANGUAGE plpgsql;
+-- end get_employee_hours_season()
+
+create or replace function get_employee_extra_days(p_eid integer)
+    returns table(eeid integer,
+                  eid integer,
+                  et integer,
+                  priority integer) as $$
+begin
+    return query select e.eeid, e.eid, e.et, e.priority from employee_extra_days as e
+    where e.said=(select * from get_current_season()) and
+    e.eid=p_eid;
+end; $$
+LANGUAGE plpgsql;
+-- end function get_employee_extra_days()
+
 create function get_employee_season_dates(p_eid integer)
     returns table (eid integer,
                    start_date date,
@@ -1348,7 +1401,25 @@ begin
 end; $$
 LANGUAGE plpgsql;
 -- end get_extra_days_template(et integer)
-
+create or replace function get_location (p_lid integer)
+    returns table(location_name varchar(30),
+                  assigend_eid integer,
+                  location_size varchar(30),
+                  notes varchar(300),
+                  lock_sn varchar(10),
+                  lock_cobination varchar(10)) as $$
+begin
+    return query select l.location_name,
+           l.assigend_eid,
+           l.location_size,
+           l.notes,
+           l.lock_sn,
+           l.lock_combination
+    from location as l
+    where lid=p_lid;
+end; $$
+LANGUAGE plpgsql;
+--end get_location(lid)
 create or replace function get_private (p_student_firstname varchar(45),
                              p_student_lastname varchar(45),
                              p_student_skill varchar(6),
@@ -1605,7 +1676,23 @@ begin
 end $$
 LANGUAGE plpgsql;
 -- end get_current_shift_templates(dow varchar(25))
-
+create or replace function get_week_hours(p_startdate date, p_enddate date)
+    returns table (eid integer,
+                   firstname varchar(20),
+                   lastname varchar(20),
+                   hours numeric(6,2))
+    as $$
+begin
+    return query select s.eid, e.firstname, e.lastname, sum(s.worked_time)
+        from shifts as s
+        left outer join employee as e on s.eid=e.eid
+        where s.said=(select * from get_current_season()) and
+              s.shift_date between p_startdate and p_enddate
+        group by s.eid, e.firstname, e.lastname
+        order by e.firstname, e.lastname;
+end; $$
+LANGUAGE plpgsql;
+--end get_week_hours
 create or replace function list_available(p_sid integer)
     returns table (empID integer,
                    first_name varchar(50),

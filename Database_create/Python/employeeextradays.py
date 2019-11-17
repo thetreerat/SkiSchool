@@ -92,7 +92,10 @@ class  EmployeeExtraDays(ExtraDaysTemplate):
                         self.priority))
         
     def print_self(self):
-        print("""    %s """ % (self.eeid()))
+        print("""    %s %s %s %s""" % (self.eeid(),
+                                       self.day_title(),
+                                       self.extra_date.date(True),
+                                       self.points))
     
     def set_et(self, options=None):
         if options[1]:
@@ -107,7 +110,6 @@ class  EmployeeExtraDays(ExtraDaysTemplate):
         self.set_update(True)
     
     def set_new(self, value=None):
-        print('Pass value: %s' % (value))
         if value==None:
             
             try:                
@@ -119,7 +121,6 @@ class  EmployeeExtraDays(ExtraDaysTemplate):
                 return
         else:
             self.new = value
-        print('final new: %s' % (self.new))
 
     def set_priority(self, options=None):
         if options[1]:

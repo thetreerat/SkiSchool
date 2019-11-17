@@ -8,7 +8,7 @@ class phone(object):
     SHORT = 2
     def __init__(self, number=None, display='Cell', publish=True, db_handle=None):
         self.db_handle = None
-        self.display = display
+        self._display = display
         self.display_pad = 10
         self._number = None
         self.number_pad = 20
@@ -16,7 +16,13 @@ class phone(object):
         self.set_phone(number)
         self.set_publish(publish)
         self.set_db_handle(db_handle)
-            
+    
+    def display(self, pad=10, divider=':'):
+        if self._display==None:
+            return ('Phone' + divider).ljust(pad)
+        else:
+            return (self._display + divider).ljust(pad)
+        
     def number(self, number_only=True):
         """convert phone number to display value and return"""
         try: 
@@ -48,6 +54,14 @@ class phone(object):
             try:
                 if options[1]:
                     phone = str(options[1])
+                    if len(options[2]) > 0:
+                        D = ''
+                        for d in options[2]:
+                            if D=='':
+                                D = d
+                            else:
+                                D = D + chr(34) + d
+                        self._display = D
                 elif options[2][0]:
                     phone = options[2][0]
             except:
@@ -83,7 +97,6 @@ class phone(object):
                         start= current +1
                             
             self._number = number
-            print (self._number)
             
     def set_publish(self, data):
         try:

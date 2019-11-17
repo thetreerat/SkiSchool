@@ -74,17 +74,24 @@ class database(object):
             
     def connect(self):
         """ """
-        if self._password==None:
-            self.db = psycopg2.connect(user=self.user,
-                                       port=self.port,
-                                       host=self.host,
-                                       database=self.database)
-        else:
-            self.db = psycopg2.connect(user=self.user,
-                                       port=self.port,
-                                       host=self.host,
-                                       database=self.database,
-                                       password=self._password)
+        try:
+            if self._password==None:
+                self.db = psycopg2.connect(user=self.user,
+                                           port=self.port,
+                                           host=self.host,
+                                           database=self.database)
+            else:
+                self.db = psycopg2.connect(user=self.user,
+                                           port=self.port,
+                                           host=self.host,
+                                           database=self.database,
+                                           password=self._password)
+        except psycopg2.OperationalError as e:
+            print("""database errror: %s """ % (e))
+            return 0
+        except Exception as e:
+            print ("Unexpected error: %s" % e)
+            rasie
         self.cur = self.db.cursor()
             
     def fetchdata(self, proc, params):

@@ -112,7 +112,7 @@ class  ExtraDaysTemplate(object):
 
     def set_db_handle(self, db_handle):
         if db_handle==None:
-            db_handle = database(onwer='extradaystemplate')
+            db_handle = database(owner='extradaystemplate')
         self.db_handle = db_handle    
     
     def set_new(self, value=None):

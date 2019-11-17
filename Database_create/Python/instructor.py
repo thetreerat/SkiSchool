@@ -16,6 +16,7 @@ from phone import phone
 from person import person
 from date import date
 from menu import Menu
+from extradays import ExtraDays
 
             
 class instructor(person):
@@ -27,8 +28,10 @@ class instructor(person):
         
         self.cell_phone = phone(db_handle=self.db_handle)
         self.cell_publish = None
+        self.phone2 = phone(db_handle=self.db_handle)
         self.phone_2_text = 'Home'
         self.phone_2 = None
+        self.phone3 = phone(db_handle=self.db_handle)
         self.phone_3_text = 'Work'
         self.phone_3 = None
         self.email = None
@@ -54,6 +57,8 @@ class instructor(person):
         self.clist = None
         self.llist = None
         self.alist = None
+        self._hours = 0
+        self._hoursweek = 0
                 
     def add_cert(self, answer):
         os.system('clear')
@@ -124,7 +129,9 @@ class instructor(person):
         m.menu_display = self.print_menu
         m.add_item('Availabilitiy', 'Availability - manage instructors availability', self.alist.menu)
         m.add_item('Cert', 'CERT - Manage instructors certifications', self.clist.menu)
-        m.add_item('Cell', 'Cell <phone> - Set Instructor Cell number', self.cell_phone.set_phone)
+        m.add_item('Phone', 'Cell <number> <display text> - Set Instructor Cell number', self.cell_phone.set_phone)
+        m.add_item('Phone2', 'Phone <number> <display text> - Set Instructor Cell number', self.phone2.set_phone)
+        m.add_item('Phone3', 'Phone <number> - Set Instructor Cell number', self.phone3.set_phone)
         m.add_item('End', 'END <date> - set employee last day of season', m.print_new)
         m.add_item('Start', 'START <date> - set employe start of season', m.print_new)
         m.add_item('Jacket', 'JACKET - manage jackets for employee', m.print_new)
@@ -152,8 +159,12 @@ class instructor(person):
             self.cell_phone.set_phone(r[6])
             self.cell_publish = r[7]
             self.cell_phone.set_publish(r[7])
+            self.phone2._display = r[8]
+            self.phone2.set_phone(r[9])
             self.phone_2_text = r[8]
             self.phone_2 = r[9]
+            self.phone3.set_phone(r[11])
+            self.phone3._display = r[10]
             self.phone_3_text = r[10]
             self.phone_3 = r[11]
             self.email = r[12]
@@ -167,6 +178,8 @@ class instructor(person):
             #self.llist = None
             #self.alist = None
             self.get_season_dates_db()
+            self.get_hours_season()
+            self.get_hours_week()
             
     def get_season_dates_db(self):
         """get current season dates and return status from database"""
@@ -179,21 +192,43 @@ class instructor(person):
                 self.return_title = result[0][4]
                 self.start_date_New = False
     
+    def get_hours_season(self):
+        if self.eid:
+            r = self.db_handle.fetchdata('get_employee_hours_season', [self.eid])
+            self._hours = r[0][0]
+            
+    def get_hours_week(self):
+        if self.eid:
+            r = self.db_handle.fetchdata('get_employee_hours_week', [self.eid])
+            self._hoursweek = r[0][0]
+    
+    def hours(self, pad=6):
+        return str(self._hours).ljust(pad)
+    
+    def hoursweek(self, pad=6):
+        return str(self._hoursweek).ljust(pad)
+    
     def print_instructor(self, form='short'):
         """Print instructor object"""
         if form=='short':
             print """%s - %s""" % (str(self.eid).ljust(4), self.name(nickname=True))
         elif form=='Long':
-            print("""    Emp ID:             %s
-    Name:               %s
-    Cell Phone:         %s
-    Cell Phone Publish: 
-    Current Start Date: %s
-    Current End Date:   %s""" % (self.eid,
-                                 self.name(),
-                                 self.cell_phone.number(),
-                                 self.start_date.date(),
-                                 self.end_date.date()
+            phone2 = self.phone2.display
+            print("""
+    Name:               %s Emp ID:               %s
+    Cell Phone:         %s Publish:
+    %s %s Publish:
+    Current Start Date: %s Current End Date:   %s
+    Hours Worked:       %s Hours work week:    %s""" % (
+                                 self.name().ljust(20),
+                                 str(self.eid).ljust(20),
+                                 self.cell_phone.number().ljust(20),
+                                 self.phone2.display(pad=19),
+                                 self.phone2.number().ljust(20),
+                                 self.start_date.date(True).ljust(20),
+                                 self.end_date.date(True),
+                                 self.hours(20),
+                                 self.hoursweek(20)
                                 ))
             if self.jlist!=None:
                 self.jlist.print_list('Short')
@@ -322,7 +357,10 @@ class instructors(object):
                 
                 
             i.edit_instructor()
-                      
+    
+    def extradaystemplate(self, options):
+        E = ExtraDays(db_handle=self.db_handle)
+        
     def checkID(self, eid):
         for i in self.ilist:
             if i.eid==eid:
@@ -448,6 +486,7 @@ class instructors(object):
         M.add_item('Edit', 'EDIT <#> - Edit instructor matching EID number entered', self.edit)
         M.add_item('Clear', 'Clear - clears the list of instructors', self.clear)
         M.add_item('Current', 'CURRENT - list current instructors', self.get_current_instructors)
+        M.add_item('Extra', 'EXTRA - manage extra days', M.print_new)
         M.Menu()
         
     def set_db_handle(self, db_handle):
@@ -489,26 +528,29 @@ class instructors(object):
             results = self.db_handle.fetchdata('add_employee_start', [options[1],rehire_date])
             #pass
         
-from location import location
-from location import locations
+#from location import location
+#from location import locations
 
     
 if __name__ == '__main__':
     sid = 233
     db_handle = database(owner='Instructors.py - __main__')
-    I = instructors(db_handle=db_handle)
+    I = instructor(eid=8, db_handle=db_handle)
+    I.get_emp_db()
+    I.print_instructor('Long')
+    #I.edit_instructor()
     #
-    I.get_current_instructors()
+    #I.get_current_instructors()
     #I.get_available_instructors(sid=sid)
     #I.list_instructors()
-    M=Menu('Instructor Menu', db_handle=db_handle)
-    M.menu_display = I.list_instructors
-    M.add_item('rehire', 'HIRE <firstname> <lastname> - mark an exising employee for hire', I.rehire_employee)
-    M.add_item('New', 'NEW - Create a new instructor record', I.add)
-    M.add_item('Canidate', 'Canidate - create new record for new hire instructors', I.add_candidate)
-    M.add_item('FIND', 'FIND <firstname> <lastname> - find all instructor records matching name', I.find_name)
-    M.add_item('Edit', 'EDIT <#> - Edit instructor matching EID number entered', I.edit)
-    M.add_item('Clear', 'Clear - clears the list of instructors', I.clear)
-    M.add_item('Current', 'CURRENT - list current instructors', I.get_current_instructors)
-    M.Menu()
+    #M=Menu('Instructor Menu', db_handle=db_handle)
+    #M.menu_display = I.list_instructors
+    #M.add_item('rehire', 'HIRE <firstname> <lastname> - mark an exising employee for hire', I.rehire_employee)
+    #M.add_item('New', 'NEW - Create a new instructor record', I.add)
+    #M.add_item('Canidate', 'Canidate - create new record for new hire instructors', I.add_candidate)
+    #M.add_item('FIND', 'FIND <firstname> <lastname> - find all instructor records matching name', I.find_name)
+    #M.add_item('Edit', 'EDIT <#> - Edit instructor matching EID number entered', I.edit)
+    #M.add_item('Clear', 'Clear - clears the list of instructors', I.clear)
+    #M.add_item('Current', 'CURRENT - list current instructors', I.get_current_instructors)
+    #M.Menu()
     
