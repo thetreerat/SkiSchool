@@ -31,10 +31,7 @@ class  NewLocation(location):
         return "NewLocation: db: %s, pythonID: %s" % (self.db_handle.owner, id(self))
 
     def add_group(self):
-        self.location_size = raw_input('Enter location Size: ')
-        prefix = raw_input("""Enter Prefix (%s): """ % (self.prefix))
-        if prefix!=None:
-            self.prefix = prefix
+
         startrange = raw_input("""Eneter Start Range (%s): """ % (self.startrange))
         if startrange!='':
             self.startrange = startrange
@@ -57,7 +54,7 @@ class  NewLocation(location):
         M = self.Menu
         M.title = 'New Location Menu'
         M.add_item('Name', 'Name <string> - Edit location name.', self.Edit_NewLocation)
-        M.add_item('Size', 'SIZE <string> - Edit location size description.', M.print_new)
+        M.add_item('Size', 'SIZE <string> - Edit location size description.', self.set_size)
         M.add_item('Prefix', 'PREFIX <string> - Edit Prefix for creating a range of New Locations', M.print_new)
         M.add_item('Start', 'Start <#> - Edit the starting point for the new locations range', M.print_new)
         M.add_item('End', 'End <#> - Edit the ending point for the new locations range', M.print_new)
@@ -117,12 +114,40 @@ class  NewLocation(location):
                                             self.prefix.ljust(7),
                                             str(self.startrange).ljust(12),
                                             str(self.endrange).ljust(7))
+
+    def set_end(self, options=None):
+        if options[1]:
+            end = options[1]
+        else:
+            end = raw_input("""Enter End Range (%s)""" % (self.endrange))
+        if end!=self.endrange and end!='':
+            self.endrange = end
         
     def set_db_handle(self, db_handle):
         if db_handle==None:
             db_handle = database(onwer='NewLocation')
         self.db_handle = db_handle
+
+    def set_prefix(self, options=None):
+        if len(options[2])>0:
+            prefix = " ".join(options[2])
+        else:    
+            prefix = raw_input("""Enter Prefix (%s): """ % (self.prefix))
+        if prefix!=None:
+            self.prefix = prefix
         
+    def set_size(self, options=None):
+        if len(options[2])>0:
+            size = " ".join(options[2])
+        else:
+            size = raw_input('Enter location Size: ')
+        self.location_size = size
+
+    def set_start(self, options=None):
+        d = raw_input("""Enter Start Range (%s)""" % (self.startrange))
+        if d!=self.startrange and d!='':
+            self.startrange = d
+         
     def About(self):
         print("""Author         : Harold Clark  email address thetreerat@gmail.com
 Class          : NewLocation

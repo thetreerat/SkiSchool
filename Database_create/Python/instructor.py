@@ -113,7 +113,7 @@ class instructor(person):
     
     def assign_location_db(self):
         """assign location to an Instructor """
-        L = locations()
+        L = Locations()
         size = raw_input('Enter Locker size(ALL,Standard,Big, Full Size): ')
         L.get_locations_free(size=size)
         L.print_list(call_from='short')
@@ -235,7 +235,7 @@ class instructor(person):
             if self.clist!=None:
                 self.clist.print_certs()
             if self.llist!=None:
-                self.llist.print_list('Employee')
+                self.llist.print_list()
             if self.alist!=None:
                 self.alist.print_list()
     
@@ -324,13 +324,13 @@ class instructors(object):
         self.ilist = []
         
     def edit(self, answer):
+        #print('In edit')
         if len(answer)>1:
-            print("""Edit Instructor %s """ % (answer[1]))
+            #print("""Edit Instructor %s """ % (answer[1]))
             eid = answer[1]
         else:
             eid(raw_input('enter ID: '))
         i = self.checkID(int(eid))
-        #print('here')
         if i!=None:
             if i.cell_phone==None:
                 i.get_cell_db()
@@ -348,8 +348,9 @@ class instructors(object):
                 i.clist.clear()
                 i.clist.get_employee_certs_db()
             if i.llist==None and i.eid!=None:
-                i.llist = locations(db_handle=self.db_handle)
-                i.llist.get_locations_employee_db(i.eid)
+                i.llist = Locations(db_handle=self.db_handle, eid=i.eid)
+                raw_input(i.llist.eid.eid)
+                i.llist.get_locations_employee_db()
             if i.alist==None and i.eid!=None:
                 i.alist = availablities(eid=i.eid,
                                         db_handle=self.db_handle)
@@ -528,8 +529,8 @@ class instructors(object):
             results = self.db_handle.fetchdata('add_employee_start', [options[1],rehire_date])
             #pass
         
-#from location import location
-#from location import locations
+from location import Location
+from locations import Locations
 
     
 if __name__ == '__main__':
@@ -537,7 +538,12 @@ if __name__ == '__main__':
     db_handle = database(owner='Instructors.py - __main__')
     I = instructor(eid=8, db_handle=db_handle)
     I.get_emp_db()
-    I.print_instructor('Long')
+    list = instructors(db_handle)
+    list.append(i)
+    
+    options = ['EDIT', 8, [], db_handle]
+    list.edit(options)
+    I.print_menu()
     #I.edit_instructor()
     #
     #I.get_current_instructors()

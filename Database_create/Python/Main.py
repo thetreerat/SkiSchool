@@ -5,8 +5,8 @@
 #from instructor import intructor
 from database import database
 from instructor import instructors
-from location import location
-from location import locations
+from location import Location
+from locations import Locations
 from jacket import jacket
 from jacket import jackets
 from menu import Menu
@@ -51,6 +51,12 @@ def jackets_new_menu(dump=None):
     new_jackets = jackets()
     new_jackets.new_jackets_menu()    
 
+def location_menu(options=None):
+    L = Locations(db_handle=options[3])
+    L.get_locaitons_available_db()
+    L.menu()
+    
+    
 def instructor_menu(answer=None):
     try:       
         db_handle=answer[3]
@@ -117,13 +123,15 @@ def schedule_menu(options=None):
 
 
 if __name__ == "__main__":
-    L = Login()
+    L = Login(login='halc')
+    L.Login()
     #ski_db = database(owner='main.py - __main__')
+    
     Main = Menu('Main Menu', db_handle=L.db_handle)
     Main.menu_display = Main.print_help    
     Main.add_item('Instructors', 'Manage instructors', instructor_menu)
     Main.add_item('Jackets', 'Manage jackets', jackets_menu)
-    Main.add_item('Lockers', 'Manage lockers and offices', print_this)
+    Main.add_item('Lockers', 'Manage lockers and offices', location_menu)
     Main.add_item('Certs', 'Manage Certifications', print_this)
     Main.add_item('Schedule', 'Manage Schedules', schedule_menu)
     Main.add_item('Private', 'Manage Private Schedule', private_menu)

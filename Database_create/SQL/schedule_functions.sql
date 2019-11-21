@@ -848,7 +848,7 @@ end; $$
 LANGUAGE plpgsql;
 -- end of add_shift_template()
 
-create or replace function is_location_available(p_eid integer, p_lid integer)
+create or replace function is_location_available(p_lid integer)
     returns integer as $$
 declare
     r_eid integer;
@@ -1437,6 +1437,49 @@ begin
 end; $$
 LANGUAGE plpgsql;
 --end get_location(lid)
+
+create or replace function get_location_lid(p_lhid integer)
+    returns integer as $$
+declare
+    r_lid integer;
+begin
+    select into r_lid lid
+    from location_history
+    where lhid=p_lhid;
+    return r_lid;
+end; $$
+LANGUAGE plpgsql;
+--end get_location_lid(hlid integer)
+
+create or replace function get_location_histroy(p_lhid integer)
+    returns table(lhid integer,
+                  lid integer,
+                  assigned_eid integer,
+                  assigned_name varchar(90),
+                  previous_eid integer,
+                  previous_name varchar(90),
+                  tracking_user varchar(20),
+                  history_date timestamp,
+                  in_out varchar(20)) as $$
+    begin
+        return query select h.lhid,
+               h.lid,
+               h.assigned_eid,
+               cast(concat(a.firstname, ' ', a.lastname)as varchar(90)),
+               h.previous_eid,
+               cast(concat(p.firstname, ' ', p.lastname) as varchar(90)),
+               h.tracking_user,
+               h.history_datetime,
+               h.in_out
+               
+        from location_history as h
+        left outer join employee as a on a.eid=h.assigned_eid
+        left outer join employee as p on p.eid=h.previous_eid
+        where h.lhid=p_lhid;
+end; $$
+LANGUAGE plpgsql;
+--end get_location_history(lhid integer)
+
 create or replace function get_private (p_student_firstname varchar(45),
                              p_student_lastname varchar(45),
                              p_student_skill varchar(6),
@@ -1753,6 +1796,7 @@ order by e.lastname, e.firstname;
     
 end; $$
 LANGUAGE plpgsql;
+-- end list_available(sid integer)
 
 create or replace function list_current_employees()
     returns table (eid integer,
@@ -1764,6 +1808,37 @@ begin
                  
 end; $$
 LANGUAGE plpgsql;
+--end function list_current_employees()
+
+create or replace function list_location_history(p_lid integer)
+    returns table(lhid integer,
+                  lid integer,
+                  assigned_eid integer,
+                  assigned_name varchar(90),
+                  previous_eid integer,
+                  previous_name varchar(90),
+                  tracking_user varchar(20),
+                  history_date timestamp,
+                  in_out varchar(20)) as $$
+    begin
+        return query select h.lhid,
+               h.lid,
+               h.assigned_eid,
+               cast(concat(a.firstname, ' ', a.lastname)as varchar(90)),
+               h.previous_eid,
+               cast(concat(p.firstname, ' ', p.lastname) as varchar(90)),
+               h.tracking_user,
+               h.history_datetime,
+               h.in_out
+               
+        from location_history as h
+        left outer join employee as a on a.eid=h.assigned_eid
+        left outer join employee as p on p.eid=h.previous_eid
+        where h.lid=p_lid
+        order by h.history_datetime;
+    end; $$
+    LANGUAGE plpgsql;
+--end list_lication_history(lid)
 
 create function list_shifts_for_date(p_shift_date date)
     returns table (sid integer,
