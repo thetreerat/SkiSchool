@@ -73,6 +73,7 @@ class employees(object):
     employee.eid = 3
     employee.full_name = 4
     employee.no_index = 5
+    
     def __init__(self, db_handle=None):
         self.elist = []
         self.set_db_handle(db_handle)
@@ -120,7 +121,7 @@ class employees(object):
     def find_name(self, options=None):
         os.system('clear')
         p = person(db_handle=self.db_handle)
-        if not options[2]:
+        if len(options[2])==0:
             print("""
     Find employees ....
     

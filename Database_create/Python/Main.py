@@ -19,6 +19,7 @@ from extradays import ExtraDays
 from extradaystemplate import ExtraDaysTemplate
 from season import Season
 from login import Login
+from trainings import Trainings
 
 #from jacket import jacket_histories
 #from jacket import jacket_history
@@ -121,7 +122,10 @@ def schedule_menu(options=None):
     schedule.add_item('availability', 'list availability for a day of the week', A.menu_dow)
     schedule.Menu()
 
-
+def training_menu(options=None):
+    T = Trainings(db_handle=options[3])
+    T.menu()
+    
 if __name__ == "__main__":
     L = Login(login='halc')
     L.Login()
@@ -136,4 +140,5 @@ if __name__ == "__main__":
     Main.add_item('Schedule', 'Manage Schedules', schedule_menu)
     Main.add_item('Private', 'Manage Private Schedule', private_menu)
     Main.add_item('Setup', 'Setup functions', admin_menu)
+    Main.add_item('Training', 'Manage Training Logs', training_menu)
     Main.Menu()

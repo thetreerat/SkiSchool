@@ -360,7 +360,7 @@ LANGUAGE plpgsql;
 -- end of assing_locatoin()
 
 
-create function list_available_location()
+create or replace function list_available_location()
     returns table (elid integer,
                    lid integer,
                    eid integer,
@@ -379,10 +379,12 @@ begin
                 from location as l
                 full join employee_locations as e on e.lid=l.lid
                 full join employee as n on e.eid=n.eid
-                where e.eid in ((select get_location_eid()))
+                where e.eid in ((select get_location_eid())) or
+                      e.eid not in ((select get_current_eid()))
                 order by l.location_size, l.location_name;
 end; $$
 LANGUAGE plpgsql;
+-- end list_avlailable_location()
 
 create function list_available_location(p_location_size varchar(30))
     returns table (elid integer,
