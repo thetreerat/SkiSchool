@@ -37,9 +37,13 @@ class  Roster(object):
         else:
             while not eid:
                 try:
-                    eid = int(raw_input('Enter Employee ID: '))
+                    eid = (raw_input('Enter Employee ID: '))
+                    eid = int(eid)
                 except:
-                    pass
+                    if eid=='':
+                        return
+                    else:
+                        eid = None
         e = employee(eid=options[1], db_handle=self.db_handle)
         e.load_emp_db()
         self.append(e)

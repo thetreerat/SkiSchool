@@ -20,6 +20,7 @@ from extradaystemplate import ExtraDaysTemplate
 from season import Season
 from login import Login
 from trainings import Trainings
+from cert import certs
 
 #from jacket import jacket_histories
 #from jacket import jacket_history
@@ -38,7 +39,11 @@ def admin_menu(options=None):
     Admin.add_item('Extra', 'EXTRA - Manage current Season extra Days', T.menu)
     
     Admin.Menu()
-           
+
+def certifcation_menu(options=None):
+    C = certs(db_handle=options[3], list_type='Cert')
+    C.menu()    
+    
 def jackets_menu(options=None):    
     db_handle = options[3]
     Jackets = Menu('Jacket Main Menu', db_handle=db_handle)
@@ -136,7 +141,7 @@ if __name__ == "__main__":
     Main.add_item('Instructors', 'Manage instructors', instructor_menu)
     Main.add_item('Jackets', 'Manage jackets', jackets_menu)
     Main.add_item('Lockers', 'Manage lockers and offices', location_menu)
-    Main.add_item('Certs', 'Manage Certifications', print_this)
+    Main.add_item('Certs', 'Manage Certifications', certifcation_menu)
     Main.add_item('Schedule', 'Manage Schedules', schedule_menu)
     Main.add_item('Private', 'Manage Private Schedule', private_menu)
     Main.add_item('Setup', 'Setup functions', admin_menu)

@@ -22,9 +22,22 @@ create table employee_training_roster
      insert_date timestamp default now(),
      insert_user varchar(30) default current_user,
      said integer default get_current_season(),
+     score integer,
      foreign key (eid) references employee (eid) on delete restrict,
      foreign key (tlid) references training_log_header on delete restrict,
      foreign key (said) references seasons on delete restrict);
+
+create table candidate
+    (caid serial primary key,
+     eid integer,
+     said integer default get_current_season(),
+     passed boolean,
+     notes text,
+     hire boolean,
+     class_ranking integer,
+     discipline integer,
+     foreign key (eid) references employee (EID) on delete restrict,
+     foreign key (said) references seasons (said) on delete restrict)
 
 create or replace function add_training_header(p_training_date date,
                                                p_lead_instructor integer,
@@ -104,6 +117,7 @@ begin
 end; $$
 LANGUAGE plpgsql;
 -- end get_season_tlid(p_said integer)
+
 create or replace function get_season_open_tlid(p_said integer)
     returns table(r_tlid integer) as $$
 begin
@@ -114,6 +128,48 @@ begin
 end; $$
 LANGUAGE plpgsql;
 -- end get_season_tlid(said integer)
+
+create or replace function add_cadidate(p_firstname varchar(45),
+                                        p_lastname varchar(45),
+                                        p_suffix varchar(5),
+                                        p_nickname varchar(45),
+                                        p_sex varchar(6),
+                                        p_dob date,
+                                        p_phone_cell varchar(11),
+                                        p_disapline integer)
+    returns integer as $$
+declare
+    r_eid integer;
+    r_caid integer;
+begin
+    select into r_eid eid
+        from employee
+        where firstname=p_firstname and
+              lastname=p_lastname and
+              suffix=p_suffix;
+    if r_eid is null then
+        insert into employee (lastname, firstname, nickname, suffix, dob, sex, phone_cell)
+            values (p_lastname, p_firstname, p_nickname, p_suffix, p_dob, p_sex, p_phone_cell);
+        select into r_eid eid
+            from employee
+            where firstname=p_firstname and
+                  lastname=p_lastname and
+                  suffix=p_suffix;             
+        
+        insert into candidate (eid, discipline)
+        values (r_eid, p_disapline);
+        
+        select into r_caid caid
+            from candidate
+            where eid=r_eid and
+                  said= get_current_season();
+        return r_caid;
+        
+    end if;
+    return 0; 
+end; $$
+LANGUAGE plpgsql;
+-- end add_candidate()
 
 create or replace function get_training_log_header(p_tlid integer)
     returns table(tlid integer,

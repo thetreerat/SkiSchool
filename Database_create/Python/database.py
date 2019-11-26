@@ -98,11 +98,22 @@ class database(object):
     def fetchdata(self, proc, params):
         if self.cur==None:
             self.connect()
-        self.cur.callproc(proc, params)
-        results = self.cur.fetchall()
-        self.db.commit()
-        return results
-    
+        try:
+            self.db.rollback()
+            self.cur.callproc(proc, params)
+            results = self.cur.fetchall()
+            self.db.commit()
+            return results
+        
+        except psycopg2.ProgrammingError as e:
+            raw_input(e)
+            return []
+
+        except Exception as e:
+            print ("Unexpected error: %s" % e)
+            raw_input('Resume:')
+            return []
+        
     def password(self):
         if self._password==None:
             return ''
