@@ -136,6 +136,9 @@ class instructor(person):
         m.add_item('Start', 'START <date> - set employe start of season', m.print_new)
         m.add_item('Jacket', 'JACKET - manage jackets for employee', m.print_new)
         m.add_item('Location', 'LOCATION - manage Locker for emlployee', m.print_new)
+        m.add_item('Last', 'LAST <Lastname> - Change Last Name ', self.get_lastname)
+        m.add_item('First', 'FIRST <Firstname> - Change First Name ', self.get_firstname)
+        m.add_item('Nick', 'NICK <Nickname> - Change Nick Name ', m.print_new)
         m.Menu()
 
     def instructor_name(self):
@@ -222,9 +225,9 @@ class instructor(person):
     Hours Worked:       %s Hours work week:    %s""" % (
                                  self.name().ljust(20),
                                  str(self.eid).ljust(20),
-                                 self.cell_phone.number().ljust(20),
+                                 self.cell_phone.number(False, 20),
                                  self.phone2.display(pad=19),
-                                 self.phone2.number().ljust(20),
+                                 self.phone2.number(False, 20),
                                  self.start_date.date(True).ljust(20),
                                  self.end_date.date(True),
                                  self.hours(20),
@@ -349,7 +352,7 @@ class instructors(object):
                 i.clist.get_employee_certs_db()
             if i.llist==None and i.eid!=None:
                 i.llist = Locations(db_handle=self.db_handle, eid=i.eid)
-                raw_input(i.llist.eid.eid)
+                #raw_input(i.llist.eid.eid)
                 i.llist.get_locations_employee_db()
             if i.alist==None and i.eid!=None:
                 i.alist = availablities(eid=i.eid,
@@ -536,12 +539,12 @@ from locations import Locations
 if __name__ == '__main__':
     sid = 233
     db_handle = database(owner='Instructors.py - __main__')
-    I = instructor(eid=8, db_handle=db_handle)
+    I = instructor(eid=110, db_handle=db_handle)
     I.get_emp_db()
-    list = instructors(db_handle)
-    list.append(i)
+    list = instructors(db_handle=db_handle)
+    list.append(I)
     
-    options = ['EDIT', 8, [], db_handle]
+    options = ['EDIT', 110, [], db_handle]
     list.edit(options)
     I.print_menu()
     #I.edit_instructor()

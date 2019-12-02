@@ -36,6 +36,34 @@ class  person(object):
     def firstname(self):
         return self._firstname
     
+    def get_firstname(self, options=None):
+        pass
+        if len(options[2]):
+            first = " ".join(options[2])
+        else:
+            first = raw_input("Enter First Name: ")
+        if first==None:
+            return 0
+        self.set_firstname(first)
+        
+    def get_lastname(self, options=None):
+        if len(options[2])>2:
+            last = " ".join(options[2])
+        else:
+            last = raw_input("Enter lastname: ")
+        if last==None:
+            return 0
+        self.set_lastname(last)
+    
+    def get_nickname(self, options=None):
+        if len(options[2]):
+            nick = " ".join(options[2])
+        else:
+            nick = raw_input('Enter Nick Name: ')
+        if nick==None:
+            return 0
+        self.set_nickname(nick)
+    
     def lastname(self):
         return self._lastname
 
@@ -80,6 +108,13 @@ class  person(object):
     def set_nickname(self, nickname):
         self._nickname = nickname
     
+    def set_sex(self, options=None):
+        if len(options[2])>0:
+            v = options[2].pop()
+        else:
+            v = raw_input('Enter sex (male/female): ')
+        self.sex = v.capitalize()
+        
     def set_suffix(self, suffix):
         self._suffix = suffix
         

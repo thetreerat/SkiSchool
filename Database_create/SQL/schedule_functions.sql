@@ -1150,6 +1150,49 @@ LANGUAGE plpgsql;
 
 -- end of get_dow_avalibility()
 
+create or replace function get_eid(p_firstname varchar(45),
+                        p_lastname varchar(45),
+                        p_nickname varchar(45),
+                        p_suffix varchar(5)
+                        )
+    returns integer as $$
+declare
+    r_eid integer;
+begin
+    if p_nickname is null and p_suffix is null then
+        select into r_eid eid
+        from employee
+        where firstname=p_firstname and
+              lastname=p_lastname and
+              suffix is null and
+              nickname is null;
+    elsif p_nickname is null then
+        select into r_eid eid
+        from employee
+        where firstname=p_firstname and
+              lastname=p_lastname and
+              suffix=p_suffix and
+              nickname is null;
+    elseif p_suffix is null then
+        select into r_eid eid
+        from employee
+        where firstname=p_firstname and
+              lastname=p_lastname and
+              suffix is null and
+              nickname=p_nickname;
+    else
+        select into r_eid eid
+        from employee
+        where firstname=p_firstname and
+              lastname=p_lastname and
+              suffix=p_suffix and 
+              nickname=p_nickname;
+    end if;
+    return r_eid;
+end; $$
+LANGUAGE plpgsql;
+
+-- end of get_eid()
 create function get_eid(p_firstname varchar(30),
                         p_lastname varchar(30)
                         )
@@ -1161,8 +1204,7 @@ begin
     return p_eid;
 end; $$
 LANGUAGE plpgsql;
-
--- end of get_eid()
+-- end get_eid(firstname, lastname, nickname, suffix)
 
 create function get_employee(p_eid integer)
     returns table (eid integer,

@@ -76,7 +76,7 @@ class  Roster(object):
                 rid = int(raw_input('Enter RID to delete:'))
             except:
                 return
-        R = self.db_handle.fetchdata('delete_rid_training_roster',[rid,])
+        R = self.db_handle.fetchdata('delete_rid_training_roster',[rid, self.tlid])
         
     def edit_rid(self, options=None):
         if options[1]:

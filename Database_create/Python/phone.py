@@ -23,8 +23,10 @@ class phone(object):
         else:
             return (self._display + divider).ljust(pad)
         
-    def number(self, number_only=True):
+    def number(self, number_only=True, pad=15):
         """convert phone number to display value and return"""
+        if number_only:
+            return self._number
         try: 
             l = len(self._number)
         except:
@@ -36,7 +38,7 @@ class phone(object):
         else:
             phone = self._number
             
-        return phone
+        return phone.ljust(pad)
 
     def publish(self):
         if self._publish==1:
