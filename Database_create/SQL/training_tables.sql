@@ -115,7 +115,7 @@ end; $$
 LANGUAGE plpgsql;
 -- end add_candidate()
 
-create or replace function delete_rid_training_roster(p_rid integer)
+create or replace function delete_rid_training_roster(p_rid integer,p_tlid integer)
     returns integer as $$
 declare
     locked boolean;
@@ -265,6 +265,28 @@ begin
                         c.class_ranking, c.discipline
     from candidate as c
     where c.said=p_said;
+    
+end; $$
+LANGUAGE plpgsql;
+-- end of function list_candidates(integer)
+
+create or replace function list_candidates(p_said integer,
+                                           p_discipline integer)
+    returns table(caid integer,
+                 eid integer,
+                 said integer,
+                 passed boolean,
+                 notes text,
+                 hire boolean,
+                 class_ranking integer,
+                 discipline integer) as $$
+begin
+    return query select c.caid, c.eid, c.said,
+                        c.passed, c.notes, c.hire,
+                        c.class_ranking, c.discipline
+    from candidate as c
+    where c.said=p_said and
+          c.discipline=p_discipline;
     
 end; $$
 LANGUAGE plpgsql;

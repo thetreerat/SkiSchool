@@ -87,6 +87,7 @@ class cert(object):
             for r in result:
                 self.cert_org = r[2]
                 self.cert_name = r[1]
+                self.html_class = r[3]
                 
     def pad(self, item, length):
         

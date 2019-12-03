@@ -80,9 +80,11 @@ class  Locations(object):
         for r in R:
             l = Location(lid=r[1],
                          location_name=r[3],
-                         location_size=r[4])
-            l.eid = employee(eid=r[2])
-            l.eid._firstname = [5]
+                         location_size=r[4],
+                         db_handle=self.db_handle)
+            l.eid = employee(eid=r[2],
+                             db_handle=self.db_handle)
+            l.eid._firstname = r[5]
             l.eid._lastname = r[6]
             self.append(l)
     

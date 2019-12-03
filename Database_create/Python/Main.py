@@ -21,6 +21,7 @@ from season import Season
 from login import Login
 from trainings import Trainings
 from cert import certs
+from candidates import Candidates
 
 #from jacket import jacket_histories
 #from jacket import jacket_history
@@ -39,6 +40,10 @@ def admin_menu(options=None):
     Admin.add_item('Extra', 'EXTRA - Manage current Season extra Days', T.menu)
     
     Admin.Menu()
+
+def candidate_menu(options=None):
+    C = Candidates(db_handle=options[3])
+    C.menu()
 
 def certifcation_menu(options=None):
     C = certs(db_handle=options[3], list_type='Cert')
@@ -146,4 +151,5 @@ if __name__ == "__main__":
     Main.add_item('Private', 'Manage Private Schedule', private_menu)
     Main.add_item('Setup', 'Setup functions', admin_menu)
     Main.add_item('Training', 'Manage Training Logs', training_menu)
+    Main.add_item('Candidates', 'Manage Candidates', candidate_menu)
     Main.Menu()

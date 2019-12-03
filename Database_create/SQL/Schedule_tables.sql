@@ -29,26 +29,6 @@ END)
 WITH (
   OIDS=FALSE
 );
-
-create table candidate
-    (caid serial primary key,
-     eid integer,
-     said integer default get_current_season(),
-     passed boolean,
-     notes text,
-     hire boolean,
-     class_ranking integer,
-     instructor_day1 integer,
-     instructor_day2 integer,
-     instructor_day3 integer,
-     instructor_day4 integer,
-     discipline integer,
-     foreign key (eid) references employee (EID) on delete restrict,
-     foreign key (said) references seasons (said) on delete restrict,
-     foreign key (instructor_day1) references employee (EID) on delete restrict,
-     foreign key (instructor_day2) references employee (EID) on delete restrict,
-     foreign key (instructor_day3) references employee (EID) on delete restrict,
-     foreign key (instructor_day4) references employee (EID) on delete restrict);
      
 create table certmin
     ( CMID serial primary key,
@@ -62,7 +42,11 @@ Create table certs
       EID integer not null,
       CT integer not null,
       cert_date date,
-      cert_current integer default 1
+      cert_current integer default 1,
+      inserting_user varchar(20),
+      insert_date timestamp default now()
+      foreign key (eid) references employee (EID) on delete restrict,
+      foreign key (ct) references cert_template (ct) on delete restrict
     )
 ;
 
@@ -70,8 +54,9 @@ Create table Cert_Template
     (  CT serial primary key,
        Title character varying(50),
        Org character varying(30),
-       html_class varchar(20)
-       
+       html_class varchar(20),
+       inserting_user varchar(20),
+       insert_date timestamp default now(),
     )
 ;
 
@@ -80,9 +65,15 @@ create table DayOff
       EID integer not null,
       DayOffStart timestamp,
       DayoffEnd timestamp,
-      approved integer default 0,
-      SaID integer default 1
-    )
+      SaID integer default get_current_season(),
+      approved boolean default false,
+      approved_date timestamp,
+      approving_user varchar(20),      
+      inserting_user varchar(20),
+      inserting_date timestamp default now(),
+      foreign key (eid) references employee (EID) on delete restrict,
+      foreign key (said) references seasons (said) on delete restrict
+     )
 ;    
 
 create table employee
@@ -124,7 +115,9 @@ create table extra_days_templates
        extra_date date,
        points integer default 1,
        ideal_max integer,
-       foreign key (said) references seasons (said) on delete restrict
+       ct integer,
+       foreign key (said) references seasons (said) on delete restrict,
+       foreign key (ct) references cert_template (ct) on delete restrict
     );
 
 create table employee_extra_days
@@ -269,10 +262,9 @@ create view dayoff_requests_approved as
            dt.dayoffstart,
            dt.dayoffend,
            dt.approved,
-           e2.firstname||' '||e2.lastname as approver
+           dt.approving_user
     from dayoff as dt
-    inner join employee as e on e.EID=dt.eid
-    inner join employee as e2 on dt.approved=e2.eid;
+    inner join employee as e on e.EID=dt.eid;
 
 create view employee_certs as
     select c.eid,e.firstname||' '||e.lastname as Name, c.ct, ct.title from certs as c

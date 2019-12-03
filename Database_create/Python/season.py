@@ -49,7 +49,30 @@ Purpose        : Season class
                                          )
         self.said = result[0][0]
         self.set_update(False)
+    
+    def get_said(self, options=None):
+        said = None
+        if options[1]:
+            said = options[1]
+        else:
+            while not said:
+                try:
+                    said = int(raw_input('Enter season ID: '))
+                except:
+                    said = None
+                if said=='':
+                    return 0
+        self.said = said
+        self.get_season_db()
         
+    def get_season_db(self):
+        if self.said:
+            result = self.db_handle.fetchdata('get_seasons', [self.said, ])
+            for r in result:
+                #self.said = r[0]
+                self._season_name = r[3]
+                self.ss_date.set_date(r[1])
+                self.se_date.set_date(r[2])
     def menu(self, options=None):
         SMenu = self.Menu
         SMenu.menu_display = self.print_self
@@ -97,8 +120,7 @@ Purpose        : Season class
     def set_ss_date(self, options=None):
         self.ss_date.get_date(options)
         self.set_update(True)
-    
-        
+            
     def set_update(self, value):
         if value:
             if not self.update:
@@ -118,15 +140,6 @@ Purpose        : Season class
         for r in result:
             self.said = r[0]
         return self.said
-        
-    def get_season_db(self):
-        if self.said:
-            result = self.db_handle.fetchdata('get_seasons', [self.said, ])
-            for r in result:
-                #self.said = r[0]
-                self._season_name = r[3]
-                self.ss_date.set_date(r[1])
-                self.se_date.set_date(r[2])
                 
     def print_self(self):
         print('Season Name: %s' % self._season_name)

@@ -39,6 +39,12 @@ Purpose        : This Class for handleing dates in ski_school
 
 """)
     
+    def db_date(self):
+        if self._date ==None:
+            return self._date
+        else:
+            return self._date.strftime('%m/%d/%Y')
+        
     def date(self, as_string=False):
         if as_string==False:
             return self._date
@@ -127,7 +133,7 @@ class DOB(date):
                                                                                        self.db_handle.owner,
                                                                                        id(self))
     
-    def age(self, adult=False, use_date=None):
+    def age(self, adult=False, use_date=None, pad=10):
         """method that returns age calculated on DOB,"""
         try:
             if use_date==None:
@@ -135,11 +141,11 @@ class DOB(date):
             #raw_input("""use: %s dob: %s """ % (use_date, self.date))
             age = int(int((use_date - self.date()).days) / 365.2425)
             if adult:
-                if age>18:
-                    age = 'Adult'
+                if age>17:
+                    age = 'Adult'.ljust(pad)
         except:
             age = 0
-        return age
+        return str(age).ljust(pad)
 
     def DOB(self, as_string=False):
         if as_string==False:

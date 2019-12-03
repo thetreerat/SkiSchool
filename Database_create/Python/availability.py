@@ -44,7 +44,11 @@ class availability(object):
         self.start_time.set_time()
         self.end_time.set_time()
         result = self.db_handle.fetchdata('add_employee_availabilty', [self.eid.eid, self.dow.DOW(), self.start_time.time(True), self.end_time.time(True)])
-        self.eaid = result[0][0]
+        try:
+            self.eaid = result[0][0]
+        except Exception as e:
+            print(e)
+            raw_input('resume <enter>')
 
     def edit(self):
         """function for editing an availablility object"""
@@ -74,9 +78,8 @@ class availability(object):
     def edit_start(self, options=None):
         start = raw_input("""Enter Start Time (%s): """ % (self.start_time.time(True, True)))
         if start!='' and start!=self.start_time:
-            # need to fix following line to use db_handle.bahbah()
             self.db_handle.fetchdata('update_employee_availability_start', [self.eaid, start])
-            self.start_time = start
+            self.start_time.set_time(start)
                
     def print_all(self, options=None):
         print("""    %s %s %s %s %s %s""" % (str(self.eaid).ljust(7),
@@ -240,8 +243,10 @@ class availablities(object):
         return i.start_time.time(True)
         
 if __name__ == '__main__':
-    ski_db = database(owner='availablity.py -__main__')
-    A = availablities(db_handle=ski_db)
+    from login import Login
+    L = Login(login='halc')
+    L.Login()
+    A = availablities(db_handle=L.db_handle)
     A.dow.set_dow('tuesday')
     A.get_dow_availablity()
     #print(A.alist[0].eid)

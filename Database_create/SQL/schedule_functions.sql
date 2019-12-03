@@ -202,6 +202,25 @@ begin
 end; $$
 LANGUAGE plpgsql;
 
+create or replace function add_cert_template(p_title varchar(),
+                                             p_org varchar(),
+                                             p_html varchar())
+    returns integer as $$
+declare
+    r_ct integer;
+begin
+    insert into cert_template (title, org, html_class)
+        values (p_title, p_org, p_html);
+    select into r_ct ct
+        from cert_template as t
+        where t.title=p_title and
+              t.org=p_org and
+              t.html_class=p_html;
+    return r_ct
+end; $$
+LANGUAGE plpgsql;
+--end add_cert_template(varchar, varchar, varchar)
+
 create or replace function add_employee_cert(p_eid integer,
                                              p_ct integer) returns varchar(150) as $$
 declare
@@ -306,6 +325,24 @@ end; $$
 language plpgsql;
 
 -- end of add_employee_dateoff
+create or replace function add_employee_dayoff(p_eid integer,
+                                               p_start timestamp,
+                                               p_end timestamp)
+    returns integer as $$
+declare
+    r_doid integer;
+begin
+    insert into dayoff (eid, dayoffstart, dayoffend)
+        values (p_eid, p_start, p_end);
+    select into r_doid doid
+        from dayoff
+        where eid=p_eid and
+              dayoffstart=p_start and
+              dayoffend=p_end;
+    return r_doid;
+end; $$
+language plpgsql;
+--end add-employee_dayoff(integer)
 
 create function add_employee_end(p_eid integer,
                                 p_end_date date) returns varchar(80) as $$

@@ -78,6 +78,7 @@ class  Candidate(employee):
         else:
             v = self._discipline
         return v
+ 
     def get_age(self, options=None):
         if options[1]:
             age = options[1]
@@ -246,13 +247,14 @@ class  Candidate(employee):
                             ))
         
     def print_self(self):
-        print("""    %s %s %s %s %s %s %s""" % (self.classranking(True),
+        print("""    %s %s %s %s %s %s %s %s""" % (self.classranking(True,5),
                                                 str(self.caid).ljust(5),
                                                 str(self.eid).ljust(5),
                                                 str(self.name(nickname=True)).ljust(40), 
                                                 self.passed(True, 5),
                                                 self.hire(True, 5),
-                                                self.age(True)))
+                                                self.age(True),
+                                                self.discipline(True)))
     
     def save_candidate_db(self, options=None):
         print(self.caid)
@@ -289,8 +291,6 @@ Purpose        : This Class is a temlplete file
 
 """)
         
-
-
 if __name__ == "__main__":
     from login import Login
     L = Login(login='halc')

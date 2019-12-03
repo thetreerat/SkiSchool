@@ -174,13 +174,18 @@ class  Training(object):
     
     def save_training_db(self, options=None):
         if self.tlid==None:
-            R = self.db_handle.fetchdata('add_training_header', [self.training_date.date(True),
+            R = self.db_handle.fetchdata('add_training_header', [self.training_date.db_date(),
                                                                  self._lead_instructor.eid,
                                                                  self.location(0),
                                                                  self.training_title(0),
                                                                  self.description(0),
                                                                  self.notes(0),])
-            self.tlid = R[0][0]
+            try:
+                self.tlid = R[0][0]
+            except Exception as e:
+                print ("Unexpected error: %s" % e)
+                raw_input('Resume:')
+                
         else:
             R = self.db_handle.fetchdata('update_training_header', [self.tlid,
                                                                     self.training_date.date(True),
