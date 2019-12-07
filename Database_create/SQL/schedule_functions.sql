@@ -131,7 +131,7 @@ end; $$
 LANGUAGE plpgsql;
 -- end of add_emplye_aval
 
-create function add_employee_availabilty(p_eid integer,
+create or replace function add_employee_availabilty(p_eid integer,
                                          p_dow varchar(25),
                                          p_start_time time,
                                          p_end_time time) returns integer as $$
@@ -145,8 +145,8 @@ begin
           end_time=p_end_time and
           dow=p_dow;
     if p_eaid is null then
-        insert into employee_availability (eid,dow,start_time,end_time, dow_sort) values
-            (P_EID,p_dow,cast(p_start_time as time),cast(p_end_time as time), (select get_DOW_sort(p_dow)));
+        insert into employee_availability (eid,dow,start_time,end_time, dow_sort, inserting_user) values
+            (P_EID,p_dow,cast(p_start_time as time),cast(p_end_time as time), (select get_DOW_sort(p_dow)), current_user);
         select into p_eaid eaid
         from employee_availability
         where eid=p_eid and
@@ -1877,6 +1877,21 @@ end; $$
 LANGUAGE plpgsql;
 -- end list_available(sid integer)
 
+create or replace function list_cert_templates()
+    returns table (ct integer,
+                   title varchar(50),
+                   org varchar(30),
+                   html_class varchar(20)) as $$
+begin
+    return query
+        select t.ct, t.title, t.org, t.html_class
+            from cert_template as t
+            where t.ct<>1
+            order by t.html_class, t.title;
+end; $$
+language plpgsql;
+--end list_cert_templates()
+
 create or replace function list_current_employees()
     returns table (eid integer,
                   esid integer) as $$
@@ -2138,7 +2153,23 @@ begin
 end; $$
 LANGUAGE plpgsql;
 
-    
+create or replace function update_cert_template (p_ct integer,
+                                                 name varchar(50),
+                                                 cert_org varchar(30),
+                                                 html varchar(20))
+    returns integer as $$
+begin
+    update cert_template
+        set title=name,
+            org=cert_org,
+            html_class=html,
+            inserting_user=current_user
+        where ct=p_ct;
+    return 1;
+end; $$
+language plpgsql;
+--end update_cert_template(integer, varchar, varchar, varchar)
+
 create or replace function private_eid_null() returns trigger as $$
 declare
     unassigned_eid integer;

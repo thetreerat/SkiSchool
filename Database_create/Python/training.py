@@ -165,8 +165,8 @@ class  Training(object):
         
     def print_self(self):
         print("""    %s %s %s %s %s %s""" % (str(self.tlid).ljust(4),
-                                 self.training_date.date(True).ljust(15),
-                                 self.training_title(30),
+                                 self.training_date.date(True).ljust(12),
+                                 self.training_title(33),
                                  self.location(26),
                                  str(len(self.Roster)).ljust(10),
                                  self._lead_instructor.name().ljust(20)

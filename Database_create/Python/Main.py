@@ -22,6 +22,7 @@ from login import Login
 from trainings import Trainings
 from cert import certs
 from candidates import Candidates
+from certtemplates import CertTemplates
 
 #from jacket import jacket_histories
 #from jacket import jacket_history
@@ -34,10 +35,13 @@ def admin_menu(options=None):
     db_handle = options[3]
     T = ExtraDays(db_handle=db_handle)
     S = Season(db_handle=db_handle)
+    C = CertTemplates(db_handle=db_handle)
     Admin = Menu('Admin Main Menu', db_handle=db_handle)
     Admin.menu_display = Admin.print_help
     Admin.add_item('Season', 'Add new season', S.menu)
     Admin.add_item('Extra', 'EXTRA - Manage current Season extra Days', T.menu)
+    Admin.add_item('Certification', 'CERTIFICATION - Manage Certifcation templates', C.menu)
+    
     
     Admin.Menu()
 

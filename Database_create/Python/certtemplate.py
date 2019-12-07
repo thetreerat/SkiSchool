@@ -20,6 +20,7 @@ class  Cert(object):
         self._cert_org = cert_org
         self._html_class = html_class
         self.Menu = Menu('Cert Template Menu', db_handle=self.db_handle)
+        self._updated = False
     
     def __str__(self):
         return "Cert: db: %s" % (self.db_handle.owner)
@@ -57,6 +58,7 @@ class  Cert(object):
             if org=='':
                 return 0
         self.set_cert_org(org)
+        self.set_update(True)
     
     def get_html_class(self, options=None):
         h = None
@@ -70,6 +72,7 @@ class  Cert(object):
             if h=='':
                 return 0
         self.set_html_class(h)
+        self.set_update(True)
         
     def get_cert_name(self, options=None):
         cert_name = None
@@ -83,6 +86,7 @@ class  Cert(object):
             if cert_name=="":
                 return 0
         self.set_cert_name(cert_name)
+        self.set_update(True)
     
     def load_Cert_db(self, options=None):
         R = self.db_handle.fetchdata('get_Cert', [self.ct,])
@@ -96,6 +100,7 @@ class  Cert(object):
         M.add_item('Title', 'TITLE <string> - Set certification title.', self.get_cert_name)
         M.add_item('Org', 'ORG <string> - Enter Issuing organization.', self.get_cert_org)
         M.add_item('HTML', 'HTML <string> - Enter html class for Certification, change with care.', self.get_html_class)
+        M.add_item('Save', 'SAVE - add or update cert template to the database', self.save_db)
         M.menu_display = self.print_menu
         M.Menu()
         
@@ -111,20 +116,35 @@ class  Cert(object):
         
     def print_self(self, i=None):
         if i:
-            print("""    %s %s %s """ % (str(i).ljust(6),
+            print("""    %s %s %s %s""" % (str(i).ljust(6),
                                          self.cert_name(40),
                                  self.cert_org()))
         else:
-            print("""%s %s %s """ % (str(self.ct).ljust(6),
-                                     self.cert_name(40),
-                                     self.cert_org()))
+            print("""    %s %s %s %s""" % (str(self.ct).ljust(5),
+                                     self.cert_name(36),
+                                     self.cert_org(13),
+                                     self.html_class()))
     
     def save_db(self, options=None):
-        if self.ct:
-            r = self.db_handle.fetchdata('add_cert_template', [self.cert_name,
-                                                               self.cert_org,
-                                                               self.html_class,])
-        pass
+        if not self.ct:
+            
+            r = self.db_handle.fetchdata('add_cert_template', [self.cert_name(),
+                                                               self.cert_org(),
+                                                               self.html_class(),])
+            try:
+                self.ct = r[0][0]
+            except Exception as e:
+                print (e)
+                raw_input('resume <enter> ')
+        elif self.update():
+            r = self.db_handle.fetchdata('update_cert_template', [self.ct,
+                                                                  self.cert_name(),
+                                                                  self.cert_org(),
+                                                                  self.html_class(),])
+            if r:
+                self.set_update(False)
+        else:
+            print(self.update())
         
     def set_cert_name(self, cert_name=None):
         if cert_name:
@@ -144,6 +164,13 @@ class  Cert(object):
             db_handle = database(onwer='Cert')
         self.db_handle = db_handle
         
+    def set_update(self, value):
+        if value==True or value==False:
+            self._updated = value
+    
+    def update(self):
+        return self._updated
+    
     def About(self):
         print("""Author         : Harold Clark  email address thetreerat@gmail.com
 Class          : Cert
