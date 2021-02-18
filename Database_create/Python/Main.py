@@ -70,8 +70,7 @@ def location_menu(options=None):
     L = Locations(db_handle=options[3])
     L.get_locaitons_available_db()
     L.menu()
-    
-    
+        
 def instructor_menu(answer=None):
     try:       
         db_handle=answer[3]

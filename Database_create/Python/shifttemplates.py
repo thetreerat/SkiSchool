@@ -78,7 +78,7 @@ Purpose        : This Class is a temlplete file
     
     def create_template(self, options=None):
         """Create shift for date from shift templates"""
-        if options[2][0]:
+        if len(options[2])>0:
             shift_date = options[2][0]            
         else:
             shift_date = raw_input('Enter date to create shifts for: ')

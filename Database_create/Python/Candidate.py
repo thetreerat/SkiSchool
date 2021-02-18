@@ -6,6 +6,7 @@ from menu import Menu
 from employee import employee
 from season import Season
 from phone import phone
+from datetime import date
 
 class  Candidate(employee):
     """Candidate"""
@@ -25,6 +26,7 @@ class  Candidate(employee):
                  discipline=None,
                  phone_cell=None,
                  said=None,
+                 cat=None,
                  db_handle=None):
         """Create New Instanace of Candidate"""
         employee.__init__(self,
@@ -44,6 +46,7 @@ class  Candidate(employee):
         self._discipline=discipline
         self.said = Season(db_handle=self.db_handle, said=said)
         self.phone = phone(db_handle=self.db_handle, number=phone_cell)
+        self.cat = Candidate_Type(cat, db_handle=self.db_handle)
         self.Menu = Menu('Candidate Menu', db_handle=self.db_handle)
               
     def __str__(self):
@@ -79,6 +82,12 @@ class  Candidate(employee):
             v = self._discipline
         return v
  
+    def det_cat(self, options=None):
+        if options[1]:
+            cat = options[1]
+        elif len(options[2])>0:
+            type = " ".join(options[2])
+            
     def get_age(self, options=None):
         if options[1]:
             age = options[1]
@@ -144,7 +153,11 @@ class  Candidate(employee):
                     hire=None
             except:
                 hire = None
+            
         self._hire = hire
+        if self._hire:
+            hire_date = date.today()
+            results = self.db_handle.fetchdata('add_employee_start', [self.eid ,hire_date])
     
     def get_passed(self, options=None):
         passed = None
@@ -165,8 +178,15 @@ class  Candidate(employee):
                 else:
                     passed=None
             except:
-                passed = None                
+                passed = None
+        
         self._passed = passed
+        if self._passed:
+            if self.discipline()==1:
+                ct = 2
+            elif self.discipline()==2:
+                ct = 3
+            results = self.db_handle.fetchdata('add_employee_cert', [self.eid ,ct,])
     
     def hire(self, display=False, pad=10):
         V = self._hire
@@ -181,19 +201,20 @@ class  Candidate(employee):
         return V
         
     def load_candidate_db(self, options=None):
-        R = self.db_handle.fetchdata('get_candidate', [self.eid,])
-        for r in R:
-            self.caid = r[0]
-            self.eid = r[1]
-            self._passed = r[3]
-            self._hire = r[5]
-            self._classranking = r[6]
-            self._discipline = r[7]
-            self.notes = r[4]
-            self.said.said = r[2]
+        if self.eid:
+            R = self.db_handle.fetchdata('get_candidate', [self.eid,])
+            for r in R:
+                self.caid = r[0]
+                self.eid = r[1]
+                self._passed = r[3]
+                self._hire = r[5]
+                self._classranking = r[6]
+                self._discipline = r[7]
+                self.notes = r[4]
+                self.said.said = r[2]
             
-            if self.said.said:
-                self.said.get_season_db()
+                if self.said.said:
+                    self.said.get_season_db()
                 
     def menu(self, options=None):
         M = self.Menu
@@ -257,7 +278,6 @@ class  Candidate(employee):
                                                 self.discipline(True)))
     
     def save_candidate_db(self, options=None):
-        print(self.caid)
         if self.caid:
             self.db_handle.fetchdata('update_candidate', [])
         else:
@@ -271,11 +291,7 @@ class  Candidate(employee):
                                                            self.discipline(),
                                                            ])
             if R[0][0]==0:
-                raw_input('Candidate not added')
-            else:
-                self.caid = R[0][0]
-                raw_input('Value returned from db: %s' % (R[0]))
-    
+                raw_input('Candidate not added')    
     
     def set_passed(self, passed=None):
         if passed:
@@ -290,6 +306,24 @@ Output         : None
 Purpose        : This Class is a temlplete file
 
 """)
+  
+class Candidate_Type(object):
+    def __init__(self,
+                 cat=None,
+                 candidate_type=None,
+                 db_handle=None):
+        self.set_db_handle(db_handle)
+        self.cat = cat
+        self.cadidate_type = candidate_type
+        
+    def load_candidate_type_db(self):
+        pass
+    
+    def set_db_handle(self, db_handle):
+        if db_handle==None:
+            db_handle = database(onwer='Candidate_type')
+        self.db_handle = db_handle
+     
         
 if __name__ == "__main__":
     from login import Login

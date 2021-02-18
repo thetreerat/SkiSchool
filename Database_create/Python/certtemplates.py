@@ -79,7 +79,7 @@ class  CertTemplates(object):
                      html_class=r[3])
             self.append(C)
     
-    def menu(self):
+    def menu(self, options=None):
         M = self.Menu
         M.menu_display = self.print_menu
         M.add_item('Add', 'ADD - Add a new Certification Templpate', self.add_template)

@@ -130,6 +130,20 @@ create table employee_extra_days
        foreign key (said) references seasons (said) on delete restrict,
        foreign key (et) references extra_days_templates on delete restrict       
     );
+
+create table employee_languages
+    (elid serial primary key,
+     eid integer,
+     laid integer,
+     proficiency integer,
+     insert_date timestamp default now(),
+     inserting_user varchar(30) default current_user,
+     foreign key (eid) references employee (eid) on delete restrict,
+     foreign key (laid) references language (laid) on delete restrict);
+
+create table language
+    (laid serial primary key,
+     language varchar(25));
     
 create table employee_returning_templates
     (  rt serial primary key,

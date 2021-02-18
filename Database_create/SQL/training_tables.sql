@@ -36,8 +36,43 @@ create table candidate
      hire boolean,
      class_ranking integer,
      discipline integer,
+     cat integer default 1,
      foreign key (eid) references employee (EID) on delete restrict,
-     foreign key (said) references seasons (said) on delete restrict)
+     foreign key (said) references seasons (said) on delete restrict,
+     foreign key (cat) references candidate_type (cat) on delete restrict);
+
+create table candidate_type
+    (cat serial primary key,
+     candidate_type varchar(30)
+     );
+
+create table new_season_checkoff
+    (nsid serial primary key,
+     said integer default get_current_season(),
+     cat integer,
+     tlid integer,
+     notes text,
+     inserting_user varchar(30) default current_user,
+     insert_date timestamp default now(),
+     foreign key (said) references seasons (said) on delete restrict,
+     foreign key (cat) references candidate_type (cat) on delete restrict,
+     foreign key (tlid) references training_log_header (tlid) on delete restrict);
+     
+create table mentors
+    (eid integer primary key,
+     insert_date timestamp default now(),
+     inserting_user varchar(30) default current_user,
+     foreign key (eid) references employee (eid) on delete restrict
+    );
+    
+create table Mentees
+    (eid integer primary key,
+     mentor integer,
+     insert_date timestamp default now(),
+     inserting_user varchar(30) default current_user,
+     foreign key (eid) references employee (eid) on delete restrict,
+     foreign key (mentor) references employee (eid) on delete restrict);
+     
 
 create or replace function add_training_header(p_training_date date,
                                                p_lead_instructor integer,
@@ -57,7 +92,7 @@ begin
                                      training_title,
                                      training_description,
                                      header_notes,
-                                     insert_user,)
+                                     insert_user)
     values (p_training_date,
             p_lead_instructor,
             p_location,
@@ -73,6 +108,34 @@ begin
 end; $$
 LANGUAGE plpgsql;
 -- end list_avlailable_location()
+
+create or replace function update_candidate(p_caid integer,
+                                            p_firstname varchar(45),
+                                            p_lastname varchar(45),
+                                            p_suffix varchar(5),
+                                            p_nickname varchar(45),
+                                            p_sex varchar(6),
+                                            p_dob date,
+                                            p_phone_cell varchar(11),
+                                            p_discipline integer )
+    returns integer as $$
+declare
+    r_eid integer;
+begin
+    select into r_eid eid from candidate where caid=p_caid;
+    if r_eid is not null then
+        update employee set firstname=p_firstname,
+                            lastname=p_lastname,
+                            suffix=p_suffix,
+                            nickname=p_nickname,
+                            sex=p_sex,
+                            dob=p_dob,
+                            phone_cell=phone_cell;
+    end if;                         
+                             
+end; $$
+language plpgsql;
+--end update_candidate(integer, varchar, varchar, varchar, varchar, varchar, date, varchar, integer)
 
 create or replace function add_candidate(p_firstname varchar(45),
                                         p_lastname varchar(45),
@@ -309,6 +372,24 @@ begin
 end; $$
 LANGUAGE plpgsql;
 -- end list_training_roster(tlid)
+
+create or replace function list_missing_eid_from_training(p_tlid integer)
+    returns table (eid integer,
+                   firstname varchar(45),
+                   lastname varchar(45),
+                   suffix varchar(5),
+                   nickname varchar(45)) as $$
+begin
+    return query select e.eid, e.firstname, e.lastname, e.suffix, e.nickname
+    from employee as e
+        where e.eid in (select get_current_eid()) and
+        e.eid not in (select r.eid
+                      from employee_training_roster as r
+                      where tlid=p_tlid)
+        order by e.lastname, e.firstname;
+end; $$
+language plpgsql;
+-- end list_missing_eid_from_training(integer)
 
 create or replace function update_training_header(p_tlid integer,
                                                   p_training_date date,

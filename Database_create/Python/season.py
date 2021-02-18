@@ -47,8 +47,9 @@ Purpose        : Season class
                                                         self.se_date.date(True),
                                                        ]
                                          )
-        self.said = result[0][0]
-        self.set_update(False)
+        if len(options[0])>0:
+            self.said = result[0][0]
+            self.set_update(False)
     
     def get_said(self, options=None):
         said = None
@@ -73,6 +74,7 @@ Purpose        : Season class
                 self._season_name = r[3]
                 self.ss_date.set_date(r[1])
                 self.se_date.set_date(r[2])
+                
     def menu(self, options=None):
         SMenu = self.Menu
         SMenu.menu_display = self.print_self

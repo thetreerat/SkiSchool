@@ -90,8 +90,7 @@ class  Candidates(object):
         if options[1]:
             O = self.checkID(options[1], Candidate.object)
             O.menu()
-
-    
+   
     def load_current_candidates(self):
         self.clear()
         R = self.db_handle.fetchdata('list_candidates', [self.said.said])
@@ -127,8 +126,7 @@ class  Candidates(object):
         self.print_list()
         print("    %s" % ("".ljust(80, '-')))
         print("    Count: %s" % (len(self)))
-        
-    
+            
     def print_list(self):
         for c in self.Candidate:
             c.print_self()

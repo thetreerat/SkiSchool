@@ -18,6 +18,7 @@ class  employee(person):
                  nickname=None,
                  sex=None,
                  dob=None,
+                 payroll_id=None,
                  db_handle=None):
         """Create new instanace of employee"""
         person.__init__(self,
@@ -29,6 +30,7 @@ class  employee(person):
                         dob=dob,
                         db_handle=db_handle)
         self.eid = eid
+        self.payroll_id=payroll_id
         self.shifts = []
     
     def __repr__(self):
@@ -62,6 +64,25 @@ Purpose        : This Class is a temlplete file
                 self._suffix = r[3]
                 self.DOB.set_date(r[5])
 
+    def save_emp_db(self, options=None):
+        if eid:    
+            R = self.db_handle.fetchdata('update_employee',[self.eid,
+                                                            self.firstname(),
+                                                            self.lastname(),
+                                                            self.suffix(),
+                                                            self.nickname(),
+                                                            self.dob.date(),
+                                                            self.phone_cell.number(),
+                                                            self.sex])
+        else:
+            R = self.db_handle.fetchdata('Add_employee', [self.firstname(),
+                                                          self.lastname(),
+                                                          self.suffix(),
+                                                          self.nickname(),
+                                                          self.dob.date(),
+                                                          self.phone_cell.number(),
+                                                          self.sex])
+        
     def sort(self):
         end_time = sorted(self.shifts, key=attrgetter('end_time'))
         start_time = sorted(end_time, key=attrgetter('start_time'))

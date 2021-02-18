@@ -80,7 +80,7 @@ declare
 begin
     select into p_eid eid from employee where firstname=p_firstname and lastname=p_lastname;
     if p_eid is not null then
-        p_start_result := self._eeid()(p_eid,p_start_date);
+        p_start_result := (p_eid,p_start_date);
         p_result:= p_firstname||' in database phone and email not update, start date added';        
     else
         insert into employee (firstname,
@@ -202,9 +202,9 @@ begin
 end; $$
 LANGUAGE plpgsql;
 
-create or replace function add_cert_template(p_title varchar(),
-                                             p_org varchar(),
-                                             p_html varchar())
+create or replace function add_cert_template(p_title varchar(50),
+                                             p_org varchar(30),
+                                             p_html varchar(20))
     returns integer as $$
 declare
     r_ct integer;
@@ -216,10 +216,34 @@ begin
         where t.title=p_title and
               t.org=p_org and
               t.html_class=p_html;
-    return r_ct
+    return r_ct;
 end; $$
 LANGUAGE plpgsql;
 --end add_cert_template(varchar, varchar, varchar)
+
+create or replace function add_employee(p_firstname varchar(45),
+                                        p_lastname varchar(45),
+                                        p_suffix varchar(5),
+                                        p_nickname varchar(45),
+                                        p_dob date,
+                                        p_phone_cell varchar(11),
+                                        p_sex varchar(6))
+    returns integer as $$
+declare
+    r_eid integer;
+begin
+    select into r_eid get_eid from get_eid(p_firstname, p_lastname, p_nickname, p_suffix);
+    if r_eid is null then
+        insert into employee (firstname, lastname, suffix, nickname, dob, phone_cell, sex)
+            values (p_firstname, p_lastname, p_suffix, p_nickname, p_dob, p_phone_cell, p_sex);
+            
+        select into r_eid get_eid from get_eid(p_firstname, p_lastname, p_nickname, p_suffix);
+    end if;
+    return r_eid;
+    
+end; $$
+language plpgsql;
+--end add_employee(varcahr, varchar, varchar, varchar, date, varchar, varchar)
 
 create or replace function add_employee_cert(p_eid integer,
                                              p_ct integer) returns varchar(150) as $$
@@ -1096,7 +1120,13 @@ $BODY$
 LANGUAGE plpgsql VOLATILE
 COST 100;
 -- end insert_into_calendar
-
+create or replace delete_cert_template(ct integer)
+    return integer as $$
+begin
+    delete from 
+end;$$
+language plpgsql;
+--end delete_cert_template(integer)
 create or replace function delete_shift_template(p_stid integer)
     returns integer as $$
 begin
@@ -1998,6 +2028,31 @@ begin
 end; $$
 LANGUAGE plpgsql;
 
+create or replace function update_employee(p_eid integer,
+                                           p_firstname varchar(45),
+                                           p_lastname varchar(45),
+                                           p_suffix varchar(5),
+                                           p_nickname varchar(45),
+                                           p_dob date,
+                                           p_phone_cell varchar(11),
+                                           p_sex varchar(6)
+                                           )
+    returns integer as $$
+begin
+    update employee
+        set firstname=p_firstname,
+            lastname=p_lastname,
+            suffix=p_suffix,
+            nickname=p_nickname,
+            phone_cell=p_phone_cell,
+            dob=p_dob,
+            sex=p_sex
+        where eid=p_eid;
+        
+    return 1;
+end; $$
+language plpgsql;
+--end update_employee(integer, varchar, varchar, varchar, varchar, date, varchar, varchar)
 create function update_employee_availability_dow(p_eaid integer,
                                                  p_dow varchar(15))
     returns integer as $$
