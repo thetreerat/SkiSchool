@@ -30,6 +30,13 @@ WITH (
   OIDS=FALSE
 );
 
+create table seasons
+    ( SaID serial primary key,
+      ss_date date,
+      se_date date,
+      season_name character varying(25)
+    );
+     
 create table certmin
     ( CMID serial primary key,
       CT integer not null,
@@ -37,32 +44,16 @@ create table certmin
     )
 ;
 
-Create table certs
-    ( CID serial primary key,
-      EID integer not null,
-      CT integer not null,
-      cert_date date,
-      cert_current integer default 1
-    )
-;
 
 Create table Cert_Template
     (  CT serial primary key,
        Title character varying(50),
-       Org character varying(30)
-       
+       Org character varying(30),
+       html_class varchar(20),
+       inserting_user varchar(20),
+       insert_date timestamp default now()
     )
 ;
-
-create table DayOff
-    ( DOID serial primary key,
-      EID integer not null,
-      DayOffStart timestamp,
-      DayoffEnd timestamp,
-      approved integer default 0,
-      SaID integer default 1
-    )
-;    
 
 create table employee
      (  EID serial primary key,
@@ -81,9 +72,51 @@ create table employee
         Email_SMS character varying(50),
         payroll_id character varying(15) unique,
         PSIA_ID character varying(15),
-        AASI_ID character varying(15)
+        AASI_ID character varying(15),
+        sex varchar(1)
     )
 ;
+
+Create table certs
+    ( CID serial primary key,
+      EID integer not null,
+      CT integer not null,
+      cert_date date,
+      cert_current integer default 1,
+      inserting_user varchar(20),
+      insert_date timestamp default now(),
+      foreign key (eid) references employee (EID) on delete restrict,
+      foreign key (ct) references cert_template (ct) on delete restrict
+    )
+;
+
+create function get_current_season()
+    returns integer as $$
+declare
+    p_said integer;
+begin
+    select into p_said said from seasons where ss_date = (select max(ss_date) from seasons);
+    return p_said;
+end;  $$
+LANGUAGE plpgsql;
+
+-- end of get_current_season()
+create table DayOff
+    ( DOID serial primary key,
+      EID integer not null,
+      DayOffStart timestamp,
+      DayoffEnd timestamp,
+      SaID integer default get_current_season(),
+      approved boolean default false,
+      approved_date timestamp,
+      approving_user varchar(20),      
+      inserting_user varchar(20),
+      inserting_date timestamp default now(),
+      foreign key (eid) references employee (EID) on delete restrict,
+      foreign key (said) references seasons (said) on delete restrict
+     )
+;    
+
 
 create table employee_availability 
     (   EAID serial primary key,
@@ -91,12 +124,55 @@ create table employee_availability
         DOW character varying(10),
         Start_Time time,
         End_Time time,
-        SaID integer default 1,
+        dow_sort integer,
+        SaID integer default get_current_season(),
+        inserting_user character varying(20),
         foreign key (eid) references employee (EID) on delete restrict,
         foreign key (said) references seasons (said) on delete restrict
-    )
-;
+    );
+        
+create table extra_days_templates
+    (  et serial primary key,
+       SaID integer default get_current_season(),
+       title varchar(40),
+       extra_date date,
+       points integer default 1,
+       ideal_max integer,
+       ct integer,
+       inserting_user varchar(30) default current_user,
+       insert_date timestamp default now(),
+       foreign key (said) references seasons (said) on delete restrict,
+       foreign key (ct) references cert_template (ct) on delete restrict
+    );
 
+create table employee_extra_days
+    (  eeid serial primary key,
+       eid integer,
+       et integer,
+       priority integer,
+       SaID integer default get_current_season(),
+       inserting_user varchar(30) default current_user,
+       insert_date timestamp default now(),
+       foreign key (eid) references employee (EID) on delete restrict,
+       foreign key (said) references seasons (said) on delete restrict,
+       foreign key (et) references extra_days_templates on delete restrict       
+    );
+
+
+create table language
+    (laid serial primary key,
+     language varchar(25) UNIQUE);
+     
+create table employee_languages
+    (elid serial primary key,
+     eid integer,
+     laid integer,
+     proficiency integer,
+     insert_date timestamp default now(),
+     inserting_user varchar(30) default current_user,
+     foreign key (eid) references employee (eid) on delete restrict,
+     foreign key (laid) references language (laid) on delete restrict);
+    
 create table employee_returning_templates
     (  rt serial primary key,
        return_title varchar(20)
@@ -104,16 +180,50 @@ create table employee_returning_templates
     
 create table employee_seasons
     ( ESID serial primary key,
-      SaID integer,
+      SaID integer default get_current_season(),
       eid integer,
       season_start_date date,
       season_end_date date,
       employee_returning integer,
       foreign key (SaID) references seasons (SaID) on delete restrict,
       foreign key (eid) references employee (EID) on delete restrict,
-      foreign key (returning) references employee_returning_templates (rt) on delete restrict
+      foreign key (employee_returning) references employee_returning_templates (rt) on delete restrict
     );
     
+create table menu_roles
+    (MRID serial primary Key,
+     Role varchar(30)
+    );
+
+create table menu_items
+    (MIID serial primary key,
+     MRID integer,
+     display_text varchar(20),
+     help_text varchar(150),
+     menu_command varchar(150),
+     foreign key (MRID) REFERENCES menu_roles (MRID) on delete restrict
+    );
+
+create table shifts 
+	( SID serial primary key,
+	  shift_name varchar(50),
+      start_time time,
+      end_time time,
+      Shift_Date date,
+      EID integer,
+      no_show boolean default False,
+      student_level varchar(25),
+      student_count integer,
+      worked_time NUMERIC(6, 2),
+      ct integer default 1,
+      cancelled boolean default False,
+      publish integer default 0,
+      SaID integer default get_current_season(),
+      html_class varchar(20) default 'standard',
+      foreign key (said) REFERENCES seasons (said) on delete restrict
+    )
+;
+     
 create table private_lesson
     (PID serial primary key,
      sid integer,
@@ -132,8 +242,7 @@ create table private_lesson
      checked_in boolean,
      payed boolean,
      Notes text,
-     foreign key (sid) REFERENCES shifts (sid) on delete restrict,
-     foreign key (assigned_eid) references employee (eid) on delete restrict
+     foreign key (sid) REFERENCES shifts (sid) on delete restrict
     );
 
 create table publish
@@ -142,34 +251,11 @@ create table publish
      publish_date date,
      publish_rev integer default 0,
      update_date date,
-     page_gen_date date,
+     page_gen_date date
     );
     
-create table seasons
-    ( SaID serial primary key,
-      ss_date date,
-      se_date date,
-      season_name character varying(25)
-    );
     
-create table shifts 
-	( SID serial primary key,
-	  shift_name varchar(50),
-      start_time time,
-      end_time time,
-      Shift_Date date,
-      EID integer,
-      no_show boolean default False,
-      student_level varchar(25),
-      student_count integer,
-      worked_time NUMERIC(6, 2),
-      ct integer default 1,
-      cancelled boolean default False,
-      publish integer default 0,
-      SaID integer default 1,
-      html_class varchar(20) defalut 'standard'
-    )
-;
+
         
 create table shift_templates
 	( StID serial primary key,
@@ -178,8 +264,9 @@ create table shift_templates
       End_Time time,
       DOW character varying(25),
       cert_required integer default 1,
-      SaID integer default 1,
-      number_needed integer
+      SaID integer default get_current_season(),
+      number_needed integer default 1,
+      deleted boolean default FALSE
     )
 ;
 
@@ -212,10 +299,9 @@ create view dayoff_requests_approved as
            dt.dayoffstart,
            dt.dayoffend,
            dt.approved,
-           e2.firstname||' '||e2.lastname as approver
+           dt.approving_user
     from dayoff as dt
-    inner join employee as e on e.EID=dt.eid
-    inner join employee as e2 on dt.approved=e2.eid;
+    inner join employee as e on e.EID=dt.eid;
 
 create view employee_certs as
     select c.eid,e.firstname||' '||e.lastname as Name, c.ct, ct.title from certs as c
