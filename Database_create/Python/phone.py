@@ -8,17 +8,28 @@ class phone(object):
     SHORT = 2
     def __init__(self, number=None, display='Cell', publish=True, db_handle=None):
         self.db_handle = None
-        self.display = display
+        self._display = display
         self.display_pad = 10
-        self._number = None
+        if number=='' or number==None:
+            self._number = None
+        else:
+			self._number = number
         self.number_pad = 20
         self._publish = None
         self.set_phone(number)
         self.set_publish(publish)
         self.set_db_handle(db_handle)
-            
-    def number(self, number_only=True):
+    
+    def display(self, pad=10, divider=':'):
+        if self._display==None:
+            return ('Phone' + divider).ljust(pad)
+        else:
+            return (self._display + divider).ljust(pad)
+        
+    def number(self, number_only=True, pad=15):
         """convert phone number to display value and return"""
+        if number_only:
+            return self._number
         try: 
             l = len(self._number)
         except:
@@ -30,7 +41,7 @@ class phone(object):
         else:
             phone = self._number
             
-        return phone
+        return phone.ljust(pad)
 
     def publish(self):
         if self._publish==1:
@@ -43,23 +54,33 @@ class phone(object):
             db_handle = database(owner='phone.py - phone')
                           
     def set_phone(self, options=None):
+        
         if type(options) is list:
             try:
-                db_handle = options[3]
                 if options[1]:
-                    phone = options[1]
+                    phone = str(options[1])
+                    if len(options[2]) > 0:
+                        D = ''
+                        for d in options[2]:
+                            if D=='':
+                                D = d
+                            else:
+                                D = D + chr(34) + d
+                        self._display = D
                 elif options[2][0]:
                     phone = options[2][0]
             except:
-                if len(options)>0:
-                    phone = options[0]
-                else:
-                    phone = raw_input('Enter Phone number: ')
+                phone = raw_input('Enter Phone number: ')
+                #self.convert_number_string(phone)
         elif type(options) is int:
-            self._number = options
+            self._number = str(options)
             return
         else:
             phone= options
+        self.convert_number_string(phone)
+        
+        
+    def convert_number_string(self, phone):
         if phone==None:
             self._number = phone
         else:
@@ -81,7 +102,7 @@ class phone(object):
                         start= current +1
                             
             self._number = number
-    
+            
     def set_publish(self, data):
         try:
             data.upper()

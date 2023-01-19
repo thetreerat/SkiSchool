@@ -5,12 +5,24 @@
 #from instructor import intructor
 from database import database
 from instructor import instructors
+from location import Location
+from locations import Locations
 from jacket import jacket
 from jacket import jackets
 from menu import Menu
 from private import private
 from private import privates
 from shift import shifts
+from shifttemplates import ShiftTemplates
+from availability import availablities
+from extradays import ExtraDays
+from extradaystemplate import ExtraDaysTemplate
+from season import Season
+from login import Login
+from trainings import Trainings
+from cert import certs
+from candidates import Candidates
+from certtemplates import CertTemplates
 
 #from jacket import jacket_histories
 #from jacket import jacket_history
@@ -21,12 +33,26 @@ def print_this(dump=None):
 
 def admin_menu(options=None):
     db_handle = options[3]
+    T = ExtraDays(db_handle=db_handle)
+    S = Season(db_handle=db_handle)
+    C = CertTemplates(db_handle=db_handle)
     Admin = Menu('Admin Main Menu', db_handle=db_handle)
     Admin.menu_display = Admin.print_help
-    Admin.add_item('New', 'Add new season', print_this)
-    Admin.Menu()
+    Admin.add_item('Season', 'Add new season', S.menu)
+    Admin.add_item('Extra', 'EXTRA - Manage current Season extra Days', T.menu)
+    Admin.add_item('Certification', 'CERTIFICATION - Manage Certifcation templates', C.menu)
     
-       
+    
+    Admin.Menu()
+
+def candidate_menu(options=None):
+    C = Candidates(db_handle=options[3])
+    C.menu()
+
+def certifcation_menu(options=None):
+    C = certs(db_handle=options[3], list_type='Cert')
+    C.menu()    
+    
 def jackets_menu(options=None):    
     db_handle = options[3]
     Jackets = Menu('Jacket Main Menu', db_handle=db_handle)
@@ -35,31 +61,26 @@ def jackets_menu(options=None):
     Jackets.add_item('Find', 'FIND - advance find menu', print_this)
     Jackets.add_item('CheckIn', 'Check In a jacket', print_this)
     Jackets.Menu()
-    
-    
+        
 def jackets_new_menu(dump=None):
     new_jackets = jackets()
     new_jackets.new_jackets_menu()    
 
-
+def location_menu(options=None):
+    L = Locations(db_handle=options[3])
+    L.get_locaitons_available_db()
+    L.menu()
+        
 def instructor_menu(answer=None):
     try:       
         db_handle=answer[3]
     except:
         db_handle = database('main.py - instructor_menu')
     I = instructors(db_handle=db_handle)    
-    instructor = Menu('Instructor Menu', db_handle=db_handle)
-    instructor.menu_display = I.print_menu
-    instructor.add_item('Add', 'ADD <Firstname> <Lastname> <Suffix> - add a new instructor', I.add)
-    instructor.add_item('Clear', 'Clear - clears the list of found instructors', I.clear)
-    instructor.add_item('Edit', 'Edit # - Open instructor # for editing or veiwing. must be selected from a found list of instructors', I.edit)
-    instructor.add_item('Find', 'FIND <Fisrtname> <Lastname> - find matching instructor(s) and display list of them', I.find_name)
-    instructor.add_item('Load', 'LOAD - Save New Names to database', I.add_instructor_db)
-    instructor.Menu()
-  
-    
+    I.menu()
+       
 def private_menu(options=None):
-    print(options[3])
+    #print(options[3])
     try:
         db_handle = options[3]
     except:
@@ -77,7 +98,6 @@ def private_menu(options=None):
     private.add_item('Publish', 'PUBLISH <DATE> - Create HTML Page for Date, and post on website', print_this)
     private.add_item('Edit', 'EDIT # - Edit a private lesson', print_this)
     private.Menu()
-
 
 def private_new_menu(options=None):
     print(options[3])
@@ -99,29 +119,40 @@ def private_new_menu(options=None):
     private_new.add_item('Find', 'FIND <firstname> <lastname> - find instrutors by name', P.find_instructor)
     private_new.add_item('Skill', 'SKILL <1-9> or SKILL <Yellow,Yellow+,green,blue> - Skill level of the student', P.set_skill)
     private_new.Menu()
-  
-    
+      
 def schedule_menu(options=None):
     S = shifts(db_handle=options[3])
+    T = ShiftTemplates(db_handle=options[3])
+    A = availablities(db_handle=options[3])
+    
+    
     schedule = Menu('Schedule Menu')
     schedule.menu_display = schedule.print_help
-    schedule.add_item('Templates', 'View/mange Templates for a day', print_this)
+    schedule.add_item('Templates', 'View/mange Templates for a day', T.menu)
     schedule.add_item('Day', 'View all shfits for a date', S.menu_date)
     schedule.add_item('Off', 'View Doys off requests', print_this)
     schedule.add_item('Privates', 'view privates for the Week', print_this)
-    schedule.add_item('availability', 'list availability for a day of the week', print_this)
+    schedule.add_item('availability', 'list availability for a day of the week', A.menu_dow)
     schedule.Menu()
 
-
+def training_menu(options=None):
+    T = Trainings(db_handle=options[3])
+    T.menu()
+    
 if __name__ == "__main__":
-    ski_db = database(owner='main.py - __main__')
-    Main = Menu('Main Menu', db_handle=ski_db)
+    L = Login(login='halc')
+    L.Login()
+    #ski_db = database(owner='main.py - __main__')
+    
+    Main = Menu('Main Menu', db_handle=L.db_handle)
     Main.menu_display = Main.print_help    
     Main.add_item('Instructors', 'Manage instructors', instructor_menu)
     Main.add_item('Jackets', 'Manage jackets', jackets_menu)
-    Main.add_item('Lockers', 'Manage lockers and offices', print_this)
-    Main.add_item('Certs', 'Manage Certifications', print_this)
+    Main.add_item('Lockers', 'Manage lockers and offices', location_menu)
+    Main.add_item('Certs', 'Manage Certifications', certifcation_menu)
     Main.add_item('Schedule', 'Manage Schedules', schedule_menu)
     Main.add_item('Private', 'Manage Private Schedule', private_menu)
     Main.add_item('Setup', 'Setup functions', admin_menu)
+    Main.add_item('Training', 'Manage Training Logs', training_menu)
+    Main.add_item('Candidates', 'Manage Candidates', candidate_menu)
     Main.Menu()

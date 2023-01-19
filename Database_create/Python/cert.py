@@ -4,8 +4,45 @@
 import sys
 import os
 from database import database
+from skitime import SkiTime
+from date import date
+from menu import Menu
 from datetime import datetime
 
+class cert_search(object):
+    def __init__(self,
+                 ct=None,
+                 cid=None,
+                 title=None,
+                 org=None,
+                 cmid=None,
+                 db_handle=None):
+        """init a serach object for certs"""
+        self.ct = ct
+        self.cid = cid
+        self.title=title
+        self.org = org
+        self.cmid = cmid
+        if db_handle==None:
+            print('New database handle created at __init__ cert_search')
+            db_handle = database()
+        self.db_handle = db_handle
+  
+    def clear(self):
+		self.ct = None
+		self.cid = None
+		self.title = None
+		self.org = None
+		self.cmid = None
+
+    def set_search(self):
+        os.system("clear")  
+        print(" ")
+        print("""     Enter search paramaters """)
+        #self.ct = raw_input("""  Cert Template :(%s)""" % (self.ct)).int()
+        self.title = raw_input("""  Title (%s)        : """  % (self.title))   
+        self.org = raw_input("""  organization (%s) : """  % (self.org))    
+        
 class cert(object):
     """Cert Object """
     def __init__(self, ct=None, cert_name=None, cert_org=None, db_handle=None):
@@ -79,11 +116,12 @@ class cert(object):
         result = self.db_handle.fetchdata('add_employee_cert', [eid, self.ct, self.cert_current, self.cert_date.strftime('%m/%d/%y')])
     
     def load_cert_db(self):
-        if ct!=None:
+        if self.ct!=None:
             result = self.db_handle.fetchdata('get_cert', [self.ct])
             for r in result:
-                self.cert_org = r[1]
-                self.cert_name = r[2]
+                self.cert_org = r[2]
+                self.cert_name = r[1]
+                self.html_class = r[3]
                 
     def pad(self, item, length):
         
@@ -113,7 +151,7 @@ class cert(object):
             if self.cert_date==None:
                 cert_date = ''
             else:
-                cert_date = self.cert_date.strftime("%m/%d/%y")
+                cert_date = self.cert_date.strftime("%mm/%dd/%yyyy")
             status = self.Bool_test(self.cert_current, print_return)
             cert = """    %s %s     %s """ % (self.cert_name.ljust(24), cert_date.ljust(9), status)
             if print_return=='Print':
@@ -135,40 +173,72 @@ class cert(object):
     REVERT - Revert to Database Values
     -----------------------------------------------""" % (save, save))
                 
+    def set_CT(self, options=None):
+        if options[1]:
+            ct = options[1]
+        else:
+            try:
+                ct = int(raw_input('Enter (CT) Certificate Template id: '))
+            except:
+                raw_input('Value not an integer nothing updated!')
+                return ct
+        self.ct = ct
+        self.load_cert_db()
+            
     def update_cert_db(self):
         pass
     
 class certs(object):
+    cert.index = 1
+    cert.object = 2
+    cert.cid = 3
+    cert.title = 4
+
     """Cert List Object"""
     def __init__(self, eid=None, list_type=None, db_handle=None):        
         """init Cert List Object"""
-        self.clist = []
+        self.set_db_handle(db_handle)
+        self.clist = [] #users certs
+        self.alist = [] #avalible certs
+        self.cert_search = cert_search()
         self.eid = eid
         self.list_type = list_type
-        if db_handle==None:
-            print('New database handle created at __init__ certs')
-            db_handle = database()
-        self.db_handle = db_handle
-
-    def add(self, item_index=False, options=None):
+        
+    def add(self, options=None):
         """add new cert to list"""
+        item_index = False
+        print(item_index)
         if self.list_type in ['Employee','EditEmp']:
             if self.eid!=None:
+                if len(self.clist)==0:
+                    self.find_cert_db()
                 if not item_index:
                     item_index = self.get_item_index()
-                cdate = now.strftime('%d/%m%Y')
+                cdate = datetime.now().strftime('%d/%m/%Y')
                 adate = raw_input('Enter Date of Certification (%s)' % (cdate))
                 if adate=='':
                     adate = cdate
-                self.alist[item_index].cert_date = adate
+                self.clist[item_index].cert_date = adate
                 acurrent = raw_input('Is Certification current (YES/NO)?').upper()
                 if acurrent[0]=='Y':
-                    self.alist[item_index].cert_current = True
+                    self.clist[item_index].cert_current = True
                 else:
-                    self.alist[item_index].cert_current = False
+                    self.clist[item_index].cert_current = False
             
-                self.alist[item_index].assign_cert(self.eid)
-                
+                self.clist[item_index].assign_cert(self.eid)
+
+    def add_emp_cert(self, options=None):
+        """Function for adding cert to employee """
+        if len(self.alist)==0:
+			self.find_certs_db()
+        if options[1]!=False:
+            result = self.db_handle.fetchdata('add_employee_cert', [self.eid, self.alist[options[1]].ct])
+            print("""VALUE TYPED: %s, TITLE: %s, CT: %s""" % (options[1], self.alist[options[1]].cert_name, self.alist[options[1]].ct))
+        else:
+            print(options)
+        # end add_emp_cert()	
+        
+        	                
     def checkID(self, ID):
         """check to list for ID"""
         for i in self.slist:
@@ -176,43 +246,12 @@ class certs(object):
                 return i
         return None
 
-    def answer_split(self, answer):
-        count = 0
-        item_index=False
-        main = False
-        action = True
-        options = []
-        answer = list(answer.split())
-        while len(answer)!=0:
-            a = answer.pop(0)
-            test = a.upper()
-            if test in ['ADD', 'AD', 'A']:
-                action = 'ADD'
-            elif test in ['CERT', 'CER', 'CE', 'C']:
-                main = 'CERT'
-            elif test in ['DELETE', 'DELET', 'DELE', 'DEL', 'DE','D']:
-                action = 'DELETE'            
-            elif test in ['EDIT', 'EDI', 'ED']:
-                action = 'EDIT'
-            elif test in ['EXIT','EXI','EX']:
-                action = 'EXIT'
-            elif test=='E':
-                if main=='CERT':
-                    action='EDIT'
-                elif count<1:
-                    action = 'E'
-                else:
-                    options.append(a)
-            elif test in ['RETURN','RETUR','RETU','RET','RE','R']:
-                action = 'RETURN'
-            else:
-                try:
-                    item_index = int(a)
-                except:
-                    options.append(a)
-            count += 1
-        return (main, action, item_index, options)
-    
+    def edit_cert(options=None):
+        """edit a cert"""
+        print(options)
+        #self.clist[Item_index].edit()
+
+
     def get_item_index(self):
         run = True
         while run: 
@@ -224,52 +263,19 @@ class certs(object):
                 run = True
         return Item_index
     
-    def menu(self):
+    def menu(self, options=None):
         """Menu for editing certs"""
-        run = True
-        while run:
-            os.system('clear')
-            self.print_certs()
-            self.print_menu()
-            (main,action, item_index, options) = self.answer_split(raw_input('Enter selection: '))
-            while action:
-                raw_input('ready?')
-                if action=='EXIT':
-                    sys.exit(1)
-                elif action=='EDIT':
-                    if self.list_type=='CERT':
-                        if not item_index:
-                            item_index = self.get_item_index()
-                        self.clist[Item_index].edit()
-                    break
-                
-                elif action=='E':
-                    (main,action, item_index, options) = self.answer_split(raw_input('EXIT or EDIT #'))
-
-                elif action=='ADD':
-                    self.add(item_index=item_index)
-                    break
-                                
-                elif action=='RETURN':
-                    run=False
-                    break
-                else:
-                    print("""Lost in space!!!""")
-                    print("""    Main: %s, Action: %s, item_index: %s, options: %s""" % (main, action, item_index, options))
-                    dump = raw_input('ready?')
-                    break
- 
-    def print_menu(self):
+        m = Menu('Manage employee Certification Menu', db_handle=self.db_handle)
+        m.menu_display = self.print_certs
         if self.list_type=='Cert':
-            print("""    ADD, EDIT, RETURN, EXIT, HELP""")
-    
+            m.add_item('Add', 'ADD - Add a new cert to the availabile list of certs', m.print_new) # self.add_cert(options=None)
+            m.add_item('EDIT', '', m.print_new) # self.edit_item(options=None)
         elif self.list_type in ['Employee', 'EditEmp']:
-            print("""    ADD #, RETURN, EXIT, HELP""")
-        else:
-            print('    RETURN, EXIT')
-        print("""    --------------------------------------------------------
-              """)        
-    
+            m.add_item('ADD', 'ADD <#> or ADD <title> - add a cert by ct(cert template id) or add a cert by title.', self.add_emp_cert) #m.print_new)
+            m.add_item('Delete', 'DELETE <#> or DELETE <title> - delete cert by index(0-X) or title.', m.print_new)
+            m.add_item('Find', 'Find a cert in database', self.find_certs)
+        m.Menu()
+        
     def print_title(self):
         if self.list_type=='Employee':
             title = ''
@@ -299,7 +305,22 @@ class certs(object):
             for c in self.clist:
                 c.print_cert(print_return='find', count=str(count))
                 count += 1
-
+                
+    def print_available(self):
+        """print available certs"""
+        count = 0
+        print("""        Available certs meeting Find query
+            line Cert Title               Organization
+    ---- ------------------------ -------------------""")
+        for a in self.alist:
+            a.print_cert(print_return='find', count=str(count))
+            count += 1
+        
+    def set_db_handle(self, db_handle):
+        if db_handle==None:
+            db_handle = database(owner='cert.py - set_db_handle')
+        self.db_handle = db_handle
+        
     def get_employee_certs_db(self):
         if self.eid!=None:
             result = self.db_handle.fetchdata('get_employee_certs', [self.eid,])
@@ -312,18 +333,25 @@ class certs(object):
                 c.cert_name = r[2]
                 c.cert_org = r[3]
                 self.clist.append(c)
-    
-    def find_certs_db(self, organization=None, title=None):
-        self.clear()
-        result = self.db_handle.fetchdata('find_certs', [organization, title,])
+
+    def find_certs(self, options=None):
+        self.cert_search.set_search()
+        self.find_certs_db()
+        self.print_available()		
+
+    def find_certs_db(self):
+        self.clist = []
+        result = self.db_handle.fetchdata('get_cert', [self.cert_search.org, self.cert_search.title,])
         for r in result:
             c = cert(ct=r[0], cert_name=r[1], cert_org=r[2], db_handle=self.db_handle)
-            self.clist.append(c)
+            self.alist.append(c)
+
         
     def clear(self):
         self.clist = []
-
-
+        self.cert_search.Clear()
+		
+    
 class cert_min(object):
     """class object for cert equivalents"""
     def __init__(self, cmid=None,ct=None, ct_min_equal=None, title=None, min_equal_title=None):
@@ -359,11 +387,10 @@ class cert_mins(object):
         """Print list of min certs """
         for m in self.mlist:
             m.print_min_cert()
-            
+    """ """
+
+        
 if __name__ == '__main__':
-    certs = certs()
-    #certs.get_employee_certs_db(15)
-    certs.find_certs_db(organization='Bristol', title='%')
-    certs.list_type='EditEmp'
+    certs = certs(list_type='Employee', eid=15)
+    certs.get_employee_certs_db()
     certs.menu()
-    #certs.print_certs('find')
