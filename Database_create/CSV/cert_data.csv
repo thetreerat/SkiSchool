@@ -1,5 +1,7 @@
 Title, org
 None,Bristol
+Instructor in Training,Bristol
+Apprentice Instructor,Bristol 
 SB Instructor,Bristol
 Ski Instructor,Bristol
 Race Worker,Bristol
@@ -10,9 +12,23 @@ AASI Level 3,AASI
 PSIA Level 1,PSIA
 PSIA Level 2,PSIA
 PSIA Level 3,PSIA
+Telemark Level 1,PSIA
+Telemark Level 2,PSIA
+Telemark Level 3,PSIA
+Adaptive Level 1,PSIA
+Adaptive Level 2,PSIA
+Adaptive Level 3,PSIA
+Adaptive Level 1,AASI
+Adaptive Level 2,AASI
+Adaptive Level 3,AASI
 Frestyle Level 1,AASI
 Frestyle Level 2,AASI
+Frestyle Level 3,AASI
+Frestyle Level 1,PSIA
+Frestyle Level 2,PSIA
+Frestyle Level 3,PSIA
 Childern 1,PSIA
+Childern 2,PSIA
 Level 1 SB,Bristol
 Level 2 SB,Bristol
 Level 3 SB,Bristol
@@ -29,7 +45,13 @@ Level 1 Park SB,Bristol
 Level 2 Park SB,Bristol
 Level 1 Park SKI,Bristol
 Level 2 Park SKI,Bristol
-PSIA Level 1 Adaptive,PSIA
+Level 1 Aerials,USAA
+Level 2 Aerials,USAA
+Level 3 Aerials,USAA
+Level 100 Moguls,USAA
+Level 200 Moguls,USAA 
+level 100 Apline, USAA
+level 200 Apline, USAA 
 Ski Tech,Bristol
 CLC Sup,Bristol
 CLC Manager,Bristol
