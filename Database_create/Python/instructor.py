@@ -483,7 +483,7 @@ class instructors(object):
         self.get_current_instructors()
         M=Menu('Instructor Menu', db_handle=self.db_handle)
         M.menu_display = self.list_instructors
-        M.add_item('rehire', 'HIRE <firstname> <lastname> - mark an exising employee for hire', self.rehire_employee)
+        M.add_item('rehire', 'REHIRE <firstname> <lastname> - mark an exising employee for hire', self.rehire_employee)
         M.add_item('New', 'NEW - Create a new instructor record', self.add)
         M.add_item('Candidate', 'Candidate - create new record for new hire instructors', self.add_candidate)
         M.add_item('FIND', 'FIND <firstname> <lastname> - find all instructor records matching name', self.find_name)
@@ -523,15 +523,25 @@ class instructors(object):
         return person.name()
     
     def rehire_employee(self, options=None):
-        if len(options[2])!=0:
-            rehire_date = options[2][0]
-        else:
-            results = self.db_handle.fetchdata('get_employee_default_start', [])
-            rehire_date = results[0][0]
-        if options[1]:
-            results = self.db_handle.fetchdata('add_employee_start', [options[1],rehire_date])
-            #pass
+        if options[1] == False and len(options[2]) >= 1:
+            if len(options[2])==3:
+                 rehire_date = options[2][2]
+            else:
+                results = self.db_handle.fetchdata('get_employee_default_start', [])
+                rehire_date = results[0][0]
+            results = self.db_handle.fetchdata('add_employee_start', [options[2][0], options[2][1], rehire_date])
+        elif options[1]!=  False:
+            if len(options[2])==0:
+                results = self.db_handle.fetchdata('get_employee_default_start', [])
+                rehire_date = results[0][0]
+            
+        #print """%s, %s, %s """ % (options[0], options[1],options[2])
+        #print(options)
+
         
+            #pass
+        #print(rehire_date)
+        #print(results) 
 from location import Location
 from locations import Locations
 

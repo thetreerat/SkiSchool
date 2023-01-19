@@ -80,7 +80,7 @@ def instructor_menu(answer=None):
     I.menu()
        
 def private_menu(options=None):
-    print(options[3])
+    #print(options[3])
     try:
         db_handle = options[3]
     except:

@@ -10,7 +10,10 @@ class phone(object):
         self.db_handle = None
         self._display = display
         self.display_pad = 10
-        self._number = None
+        if number=='' or number==None:
+            self._number = None
+        else:
+			self._number = number
         self.number_pad = 20
         self._publish = None
         self.set_phone(number)
