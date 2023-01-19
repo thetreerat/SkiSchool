@@ -706,17 +706,38 @@ LANGUAGE plpgsql;
 
 create or replace function add_emp_cert_title(p_firstname varchar(50),
                                    p_lastname varchar(50),
-                                   p_cert_title varchar(50)) returns varchar(25) as $$
+                                   p_cert_title varchar(50)) returns varchar(60) as $$
 declare
     P_EID integer;
     P_CT integer;
+    r_CID integer;
+    r_result varchar(60);
 begin
-  select into P_EID EID from employee where firstname=p_firstname and lastname=p_lastname;
-  select into P_CT ct from cert_template where title=p_cert_title;
-  if P_EID is not null and P_CT is not null then
-    insert into certs (eid,ct,inserting_user) values (P_EID,(P_CT),current_user);
+  select into P_EID EID 
+     from employee 
+     where firstname=p_firstname 
+       and lastname=p_lastname;
+  select into P_CT ct 
+     from cert_template 
+     where title=p_cert_title;
+  select into r_CID cid 
+     from certs 
+     where eid=P_EID and ct=P_CT;
+  if P_EID is not null and P_CT is not null and r_CID is null then
+    insert into certs (eid,ct,inserting_user) 
+      values (P_EID,(P_CT),current_user);
+    select into r_CID cid 
+        from certs 
+        where eid=P_EID and ct=P_CT;
+    r_result = p_lastname||', '||p_firstname||'('||P_EID||') added '||p_cert_title||'('||r_CID||')';
+  elseif P_EID is null then
+    r_result = p_lastname||', '||p_firstname||' is not an employee';
+  elseif P_CT is null then 
+    r_result = p_cert_title||' is not in the database';
+  elseif r_CID is not null then 
+    r_result = 'All ready exists';
   end if;
-  return P_EID||', '||P_CT;
+  return r_result;
 end; $$
 LANGUAGE plpgsql;
 

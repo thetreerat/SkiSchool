@@ -2,6 +2,7 @@ import psycopg2
 import sys
 import csv
 
+print(' ')
 print('loading Seasons ...')
 filename=sys.argv[1]
 
