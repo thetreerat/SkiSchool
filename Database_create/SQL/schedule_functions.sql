@@ -278,18 +278,46 @@ LANGUAGE plpgsql;
 create or replace function add_cert_template(p_title varchar(50),
                                              p_org varchar(30),
                                              p_html varchar(20))
-    returns integer as $$
+    returns varchar(60) as $$
 declare
     r_ct integer;
+    r_result varchar(60);
+    r_html varchar(20);
 begin
-    insert into cert_template (title, org, html_class, inserting_user)
-        values (p_title, p_org, p_html, current_user);
-    select into r_ct ct
+    --if p_html = '' then
+    --    p_html = Null;
+    --end if;
+    select into r_ct ct 
+        from cert_template as t
+        where t.title=p_title and 
+              t.org=p_org;
+    if r_ct is null then  
+        insert into cert_template (title, org, html_class, inserting_user)
+            values (p_title, p_org, p_html, current_user);
+        select into r_ct ct
         from cert_template as t
         where t.title=p_title and
               t.org=p_org and
               t.html_class=p_html;
-    return r_ct;
+        r_result = p_title||' from '||p_org||' added with id: '||r_ct;
+    elseif r_ct is not null then
+        select into r_html html_class 
+        from cert_template
+        where  title=p_title and 
+               org=p_org;
+        if r_html is null or r_html!=p_html then
+            update cert_template 
+            set html_class=p_html 
+            where title=p_title and 
+                  org=p_org;
+            r_result = p_title||' with org '||p_org||' updated html_class to '||p_html;
+        else
+            --r_result = 'passed: '||p_html||'= reuslt: '||r_html;
+            r_result = p_title||' with org '||p_org||' in the database';
+        end if;
+    end if;
+    
+    return r_result;
 end; $$
 LANGUAGE plpgsql;
 --end add_cert_template(varchar, varchar, varchar)
