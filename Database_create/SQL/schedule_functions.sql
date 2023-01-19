@@ -1,4 +1,59 @@
 -- create functions
+create or replace function add_language(p_language varchar) returns integer as $$
+declare
+    q_language varchar(25);
+    r_laid integer;
+begin
+    select into r_laid laid from language where language=p_language;
+    if r_laid is null then 
+        insert into language(language) values (p_language);
+        select into r_laid max(laid) from language;
+    end if;
+    return r_laid;
+end; $$
+language plpgsql;
+-- end add_language
+
+create or replace function add_employee_language (p_firstname varchar(50),
+                                                  p_lastname varchar(50),
+                                                  p_language varchar(30)) returns varchar(60) as $$
+declare 
+    q_laid integer;
+    q_elid integer;
+    q_eid integer;
+    q_result varchar;
+begin
+    select into q_eid eid from employee where firstname=p_firstname and lastname=p_lastname;
+    select into q_laid laid from language where language=p_language;
+    if q_eid is not null then 
+        if q_laid is not null then 
+            select into q_elid elid from employee_languages where eid=q_eid and laid=q_laid;
+            if q_elid is null then 
+                insert into employee_languages(eid, 
+                                               laid, 
+                                               insert_date, 
+                                               inserting_user) 
+                 values (q_eid, 
+                         q_laid, 
+                         now(),
+                         current_user);
+            select into q_elid elid from employee_languages where eid=q_eid and laid=q_laid; 
+            q_result = p_language||'('||q_laid||') for '||p_firstname||' added!'; 
+            else 
+                q_result = p_firstname||' with '||p_language||' already in!';
+            end if;
+        else
+            q_result = p_language||' is not in the database!.';
+        end if; 
+        
+    else
+        q_result = p_firstname|| ' ' || p_lastname ||' is not an employee';
+    end if;
+    return q_result;
+end; $$
+language plpgsql;
+-- end add_employee_language
+                                                  
 create or replace function add_candidate(p_eid integer,
                                          discipline_title varchar) returns integer as $$
 declare
@@ -32,6 +87,7 @@ begin
     return p_result;
 end; $$
 language plpgsql;
+----- end add_employee()
 
 create function add_employee(p_firstname varchar(50),
                              p_lastname varchar(50),
@@ -66,7 +122,7 @@ end; $$
 language plpgsql;
 
 
-create function add_employee(p_firstname varchar(50),
+create or replace function add_employee(p_firstname varchar(50),
                              p_lastname varchar(50),
                              p_phone_cell varchar(11),
                              p_phone_cell_publish Boolean,
@@ -77,11 +133,27 @@ declare
     p_eid integer;
     p_result varchar(80);
     p_start_result varchar(80);
+    d_phone_cell varchar(11);
+    d_dob date;
 begin
     select into p_eid eid from employee where firstname=p_firstname and lastname=p_lastname;
     if p_eid is not null then
         p_start_result := (p_eid,p_start_date);
-        p_result:= p_firstname||' in database phone and email not update, start date added';        
+        p_result:= p_firstname||' found, start added, Phone ';        
+        select into d_phone_cell phone_cell from employee where eid=p_eid;
+        if p_phone_cell != d_phone_cell then
+           update employee set phone_cell=p_phone_cell where eid=p_eid;
+           p_result:= p_result||'updated,';
+        else
+           p_result:= p_result||'not updated,';	
+        end if;
+        select into d_dob dob from employee where eid=p_eid;
+        if d_dob is null then 
+            update employee set dob=p_dob where eid=p_eid;
+            p_result:= p_result||' DOB updated '; --||p_dob;
+        else
+            p_result:= p_result||' DOB not updated!';
+        end if;
     else
         insert into employee (firstname,
                               lastname,
@@ -95,9 +167,10 @@ begin
                               p_phone_cell_publish,
                               p_email,
                               p_dob);
-        p_start_result := add_emloyee_start(p_firstname,p_lastname, p_start_date);
+        select into p_eid eid from employee where firstname=p_firstname and lastname=p_lastname;
         p_result:= p_firstname||' added!';
     end if;
+    select into p_start_result add_employee_start(p_eid, p_start_date);
     return p_result;
 end; $$
 language plpgsql;
@@ -147,15 +220,15 @@ begin
     if p_eaid is null then
         insert into employee_availability (eid,dow,start_time,end_time, dow_sort, inserting_user) values
             (P_EID,p_dow,cast(p_start_time as time),cast(p_end_time as time), (select get_DOW_sort(p_dow)), current_user);
+        
         select into p_eaid eaid
         from employee_availability
         where eid=p_eid and
             start_time=p_start_time and
             end_time=p_end_time and
             dow=p_dow;
-
     end if;  
-    return P_EAID;
+    return p_eaid;
 end; $$
 LANGUAGE plpgsql;
 -- end of add_employee_availability()
@@ -167,17 +240,17 @@ declare
 begin
     if dow='monday' then
         p_sort := 1;
-    elsif dow = 'tuesday' then
+    elseif dow = 'tuesday' then
         p_sort := 2;
-    elsif dow = 'wednesday' then
+    elseif dow = 'wednesday' then
         p_sort := 3;
-    elsif dow = 'thursday' then
+    elseif dow = 'thursday' then
         p_sort := 4;
-    elsif dow = 'friday' then
+    elseif dow = 'friday' then
         p_sort := 5;
-    elsif dow = 'saturday' then
+    elseif dow = 'saturday' then
         p_sort := 6; 
-    elsif dow = 'sunday' then
+    elseif dow = 'sunday' then
         p_sort :=7;
     end if;
     return p_sort;
@@ -209,8 +282,8 @@ create or replace function add_cert_template(p_title varchar(50),
 declare
     r_ct integer;
 begin
-    insert into cert_template (title, org, html_class)
-        values (p_title, p_org, p_html);
+    insert into cert_template (title, org, html_class, inserting_user)
+        values (p_title, p_org, p_html, current_user);
     select into r_ct ct
         from cert_template as t
         where t.title=p_title and
@@ -257,14 +330,14 @@ begin
     select into p_title title from cert_template where ct=p_ct;
     select into p_CID CID from certs where eid=p_eid and ct=p_ct;
     if P_Name is not null and p_title is not null and p_CID is null then
-        insert into certs (eid, ct) values (p_eid, p_ct);
+        insert into certs (eid, ct, inserting_user) values (p_eid, p_ct, current_user);
         p_result := P_Name||', '||p_title;
     elsif p_CID is not null then
         p_result := 'Error: '||P_Name||' has '||p_title||' in the database alreay';
     elsif P_Name is null then
         p_result := 'Error: EID: '||p_eid||' not in the database!';
     elsif p_title is null then
-        p_result := 'Error: CT:'||p_ct||' in not in the database!'
+        p_result := 'Error: CT:'||p_ct||' in not in the database!';
     else
         p_result := P_Name||', '||p_title;
     end if;
@@ -280,7 +353,7 @@ create or replace function add_employee_cert(p_firstname varchar(50),
 declare
     P_EID integer;
     t_ct integer;
-    p_result varchar(30);
+    p_result varchar(60);
 begin
     select into P_EID EID from employee where firstname=p_firstname and lastname=p_lastname;
     if P_EID is not null then
@@ -299,6 +372,34 @@ end; $$
 LANGUAGE plpgsql;
 
 -- end of add_employee_cert(p_firstname, p_lastname, p_ct)
+create or replace function add_employee_cert(p_firstname varchar(50),
+                                             p_lastname varchar(50),
+                                             p_title varchar(50)) returns varchar(60) as $$
+declare
+    P_EID integer;
+    p_ct integer;
+    t_ct integer;
+    p_result varchar(60);
+begin
+    select into P_EID EID from employee where firstname=p_firstname and lastname=p_lastname;
+    select into p_ct ct from cert_template where title=p_title;
+    if P_EID is not null and p_ct is not null then
+        select into t_ct ct from certs where eid=P_EID  and ct=p_ct;
+        if t_ct is null then
+            insert into certs (eid,ct) values (P_EID,p_ct);
+            p_result:=P_EID;
+        else
+            p_result:=P_EID||', '||p_title||' All ready in!';
+        end if;
+    else
+        p_result:=p_firstname||' '||p_lastname||' not an employee!';
+    end if;
+    return p_result;
+end; $$
+LANGUAGE plpgsql;
+
+-- end of add_employee_cert(p_firstname, p_lastname, p_title)
+
 create or replace function add_employee_cert(p_eid integer,
                                              p_ct integer,
                                              p_cert_current integer,
@@ -328,27 +429,28 @@ begin
 end; $$
 LANGUAGE plpgsql;
 
-create function add_employee_dayoff(p_eid integer,
-                                    p_start timestamp,
-                                    p_end timestamp) returns varchar(150) as $$
-declare
-    p_result varchar(150);
-    p_doid integer;
-    p_name varchar(51);
-begin
-    select into p_name firstname||' '||lastname from employee where eid=p_eid;
-    if p_name is not null then 
-        insert into dayoff (eid,dayoffstart,dayoffend) values (p_eid,p_start,p_end);
-        select into p_doid doid from dayoff where eid=p_eid and dayoffstart=p_start and dayoffend=p_end;
-        p_result := 'doid: '||p_doid||' inserted for '||p_name;
-    else
-        p_result := 'Error: employee ID: '||p_eid||' not valid!';
-    end if; 
-    return p_result;
-end; $$
-language plpgsql;
+-- create function add_employee_dayoff(p_eid integer,
+--                                    p_start timestamp,
+--                                    p_end timestamp) returns varchar(150) as $$
+--declare
+--    p_result varchar(150);
+--    p_doid integer;
+--    p_name varchar(51);
+--begin
+--    select into p_name firstname||' '||lastname from employee where eid=p_eid;
+--    if p_name is not null then 
+--        insert into dayoff (eid,dayoffstart,dayoffend) values (p_eid,p_start,p_end);
+--        select into p_doid doid from dayoff where eid=p_eid and dayoffstart=p_start and dayoffend=p_end;
+--        p_result := 'doid: '||p_doid||' inserted for '||p_name;
+--    else
+--        p_result := 'Error: employee ID: '||p_eid||' not valid!';
+--    end if; 
+--    return p_result;
+--end; $$
+--language plpgsql;
 
 -- end of add_employee_dateoff
+
 create or replace function add_employee_dayoff(p_eid integer,
                                                p_start timestamp,
                                                p_end timestamp)
@@ -443,20 +545,40 @@ end; $$
 LANGUAGE plpgsql;
 
 -- end of add_employee_shfit(p_eid,p_sid)
-create or replace function add_employee_start(p_eid integer,
-                                              p_start_date date) returns integer as $$
+--create or replace function add_employee_start(p_eid integer,
+--                                              p_start_date date) returns integer as $$
+--declare
+--    p_said integer;
+--begin
+--    select into p_said said from get_current_season();
+--    if p_said is not null then
+--        insert into employee_seasons (eid, SaID, season_start_date)
+--                    values (p_eid,p_SaID,p_start_date);
+--    end if;
+--    return p_said
+--end; $$
+--LANGUAGE plpgsql;
+-- end add_employee_start(eid)
+create or replace function get_Apprentice()
+
+returns table (r_firstname varchar(30),
+                   r_lastname varchar(30),
+                   r_DOB date,
+                   r_age interval
+                   ) as $$
 declare
-    p_said integer;
+
 begin
-    select into p_said said from get_current_season();
-    if p_said is not null then
-        insert into employee_seasons (eid, SaID, season_start_date)
-                    values (p_eid,p_SaID,p_start_date);
-    end if;
-    return p_said
+return query select e.firstname as first_name,
+       e.lastname as last_name,
+       e.DOB as dob,
+       age(e.DOB) as age
+       from employee as e
+       where eid in (select eid from employee_seasons where said=59)
+       and age(e.DOB) < '16 years'
+       order by e.DOB;
 end; $$
 LANGUAGE plpgsql;
--- end add_employee_start(eid)
 
 create or replace function get_employee_default_start()
                   returns date as $$
@@ -464,7 +586,7 @@ declare
     best_date date;
     cdate date;
 begin
-    select into best_date ss_date_default from seasons where said=(select * from get_current_season());
+    select into best_date ss_date from seasons where said=(select get_current_season());
     select into cdate current_date;
     if best_date < cdate then
         best_date = cdate;
@@ -474,7 +596,7 @@ end; $$
 LANGUAGE plpgsql;
 
 
-create function add_employee_start(p_firstname varchar(50),
+create or replace function add_employee_start(p_firstname varchar(50),
                                   p_lastname varchar(50),
                                   p_start_date date
                                   ) returns varchar(80) as $$
@@ -483,7 +605,7 @@ declare
     p_SaID integer;
     p_result varchar(80);
 begin
-    select into p_Said said from get_current_seasons();
+    select into p_Said get_current_season from get_current_season();
     select into p_eid eid from employee where firstname=p_firstname and lastname=p_lastname;
     if p_eid is not null then
         if p_SaID is not null then
@@ -564,7 +686,7 @@ begin
   select into P_EID EID from employee where firstname=p_firstname and lastname=p_lastname;
   select into P_CT ct from cert_template where title=p_cert_title;
   if P_EID is not null and P_CT is not null then
-    insert into certs (eid,ct) values (P_EID,(P_CT));
+    insert into certs (eid,ct,inserting_user) values (P_EID,(P_CT),current_user);
   end if;
   return P_EID||', '||P_CT;
 end; $$
@@ -589,17 +711,36 @@ begin
 end; $$
 LANGUAGE plpgsql;
 
+create or replace function add_emp_cert_title(p_firstname varchar(50),
+                                   p_lastname varchar(50),
+                                   p_cert_title varchar(50),
+                                   p_cert_current int,
+                                   p_cert_date date) returns varchar(25) as $$
+declare
+    P_EID integer;
+    P_CT integer;
+begin
+  select into P_EID EID from employee where firstname=p_firstname and lastname=p_lastname;
+  select into P_CT ct from cert_template where title=p_cert_title;
+  if P_EID is not null and P_CT is not null then
+    insert into certs (eid,ct, cert_current, cert_date) values (P_EID,P_CT, p_cert_current, p_cert_date);
+  end if;
+  return P_EID||', '||P_CT;
+end; $$
+LANGUAGE plpgsql;
+
 -- end of add_emp_cert_title(p_firstname,p_lastname,p_season_name, p_start_date)
 create or replace function add_extra_days(p_title varchar(40),
                                           p_extra_date date,
                                           p_points integer,
-                                          p_ideal_max integer
+                                          p_ideal_max integer,
+                                          p_ct integer
                                           ) returns integer as $$
 declare
     r_et integer;
 begin 
-    insert into extra_days_templates (title, extra_date, points, ideal_max)
-           values (p_title, p_extra_date, p_points, p_ideal_max);
+    insert into extra_days_templates (title, extra_date, points, ideal_max, ct)
+           values (p_title, p_extra_date, p_points, p_ideal_max, p_ct);
     select into r_et max(et)
            from extra_days_templates
            where title=p_title and
@@ -1117,16 +1258,10 @@ BEGIN
 
 END;
 $BODY$
-LANGUAGE plpgsql VOLATILE
-COST 100;
--- end insert_into_calendar
-create or replace delete_cert_template(ct integer)
-    return integer as $$
-begin
-    delete from 
-end;$$
-language plpgsql;
---end delete_cert_template(integer)
+LANGUAGE plpgsql;
+-- end 
+
+
 create or replace function delete_shift_template(p_stid integer)
     returns integer as $$
 begin
@@ -1153,6 +1288,7 @@ end; $$
 LANGUAGE plpgsql;
 
 -- end get_cert(p_ct integer)
+
 create or replace function get_current_eid()
     returns table(eid integer) as $$
 begin
@@ -1162,6 +1298,42 @@ begin
 end; $$
 LANGUAGE plpgsql;
 
+create or replace function get_cert(p_org varchar(30), p_title varchar(50))
+    returns table (ct integer,
+                   title varchar(50),
+                   org varchar(30),
+                   html_class varchar(10)
+                   ) as $$
+declare
+    find_query text;
+    where_clause text;
+
+begin
+
+    if p_org!='' and p_title!='' then
+        where_clause := '                   org ilike '''||p_org||''' and
+                                            title ilike '''||p_title||''' ';
+    elseif p_org='' and p_title!='' then
+        where_clause := '                   org ilike ''%'' and
+                                            title ilike '''||p_title||''' ';
+    elseif p_org!='' and p_title='' then
+        where_clause := '                   org ilike '''||p_org||''' and
+                                            title ilike ''%'' ';
+    else 
+        where_clause := '                   org ilike ''%'' and
+                                            title ilike ''%'' ';
+    end if;
+    find_query := 'select t.ct, 
+                        t.title,
+                        t.org,
+                        t.html_class
+                 from cert_template as t
+                 where '||where_clause||' 
+                 order by t.org, t.title';
+    return query execute find_query ; 
+                 
+end; $$
+LANGUAGE plpgsql;
     
 create or replace function get_current_extra_days()
     returns table (et integer,
@@ -1182,17 +1354,7 @@ end; $$
 LANGUAGE plpgsql;
 
 -- end get_current_extra_days()                   
-create function get_current_season()
-    returns integer as $$
-declare
-    p_said integer;
-begin
-    select into p_said said from seasons where ss_date = (select max(ss_date) from seasons);
-    return p_said;
-end;  $$
-LANGUAGE plpgsql;
 
--- end of get_current_season()
 create or replace function get_dow_avalibility(p_dow varchar(25))
     returns table (eaid integer,
                   eid integer,
@@ -1233,7 +1395,7 @@ begin
               lastname=p_lastname and
               suffix is null and
               nickname is null;
-    elsif p_nickname is null then
+    elseif p_nickname is null then
         select into r_eid eid
         from employee
         where firstname=p_firstname and
@@ -1589,113 +1751,114 @@ end; $$
 LANGUAGE plpgsql;
 --end get_location_history(lhid integer)
 
-create or replace function get_private (p_student_firstname varchar(45),
-                             p_student_lastname varchar(45),
-                             p_student_skill varchar(6),
-                             p_contact_firstname varchar(45),
-                             p_contact_lastname varchar(45),
-                             p_contact_phone varchar(10),
-                             p_instructor_firstname varchar(45),
-                             p_instructor_lastname varchar(45),
-                             p_start_date date,
-                             p_end_date date,
-                             p_disapline varchar(4),
-                             p_type varchar(1),
-                             p_age integer)
-    returns table (pid integer,
-                   sid integer,
-                   s_firstname varchar(45),
-                   s_lastname varchar(45),
-                   s_skill_level varchar(6),
-                   c_firstname varchar(45),
-                   c_lastname varchar(45),
-                   c_phone varchar(30),
-                   lesson_type varchar(1),
-                   lesson_disapline varchar(4),
-                   assigned_eid integer,
-                   s_age integer,
-                   e_firstname varchar(45),
-                   e_lastname varchar(45)) as $$
-declare
-    find_query text;
-    where_clause text;
-begin
-    if p_instructor_firstname='' and p_instructor_lastname!='' then
-        where_clause := 'p.assigned_eid in (select eid
-                                            from employee
-                                            where firstname=''%'' and
-                                                  lastname= '''||p_instructor_lastname||''') ';
-    elsif p_instructor_firstname!='' and p_instructor_lastname='' then
-        where_clause := 'p.assigned_eid in (select eid
-                                            from employee
-                                            where firstname='''||p_instructor_firstname||''' and
-                                                  lastname= ''%'') ';
-    else 
-        where_clause := 'p.assigned_eid in (select eid
-                                             from employee
-                                             where firstname=''%'' and
-                                             lastname=''%'') ';
-    end if;
+--create or replace function get_private (p_student_firstname varchar(45),
+--                             p_student_lastname varchar(45),
+--                             p_student_skill varchar(6),
+--                             p_contact_firstname varchar(45),
+--                             p_contact_lastname varchar(45),
+ --                            p_contact_phone varchar(10),
+--                             p_instructor_firstname varchar(45),
+  --                           p_instructor_lastname varchar(45),
+    --                         p_start_date date,
+      --                       p_end_date date,
+        --                     p_disapline varchar(4),
+          --                   p_type varchar(1),
+            --                 p_age integer)
+--    returns table (pid integer,
+  --                 sid integer,
+    --               s_firstname varchar(45),
+      --             s_lastname varchar(45),
+        --           s_skill_level varchar(6),
+          --         c_firstname varchar(45),
+            --       c_lastname varchar(45),
+              --     c_phone varchar(30),
+                --   lesson_type varchar(1),
+                  -- lesson_disapline varchar(4),
+                   --assigned_eid integer,
+--                   s_age integer,
+  --                 e_firstname varchar(45),
+    --               e_lastname varchar(45)) as $$
+--declare
+  --  find_query text;
+    --where_clause text;
+--begin
+  --  if p_instructor_firstname='' and p_instructor_lastname!='' then
+    --    where_clause := 'p.assigned_eid in (select eid
+      --                                      from employee
+        --                                    where firstname=''%'' and
+          --                                        lastname= '''||p_instructor_lastname||''') ';
+--    else if p_instructor_firstname!='' and p_instructor_lastname='' then
+  --      where_clause := 'p.assigned_eid in (select eid
+    --                                        from employee
+      --                                      where firstname='''||p_instructor_firstname||''' and
+        --                                          lastname= ''%'') ';
+--    else 
+  --      where_clause := 'p.assigned_eid in (select eid
+--                                             from employee
+--                                             where firstname=''%'' and
+--                                             lastname=''%'') ';
+--    end if;
+--
+  --  if p_student_firstname!='' then
+    --    where_clause := where_clause||' p.s_firstname ilike '||p_student_firstname||' and';
+--    else
+  --       where_clause := where_clause||' p.s_firstname ilike ''%'' and';
+    --end if;
+    
+--    if p_student_lastname!='' then
+  --      where_clause := where_clause||' p.s_lastname ilike '||p_student_lastname||' and';
+    --else
+      --  where_clause := where_clause||' p.s_lastname ilike ''%'' and';
+--    end if;
+    
+  --  if p_contact_lastname!='' then
+    --    where_clause := where_clause||' p.c_lastname ilike '||p_contact_lastname||' and';
+    --else
+      --  where_clause := where_clause||' p.c_lastname ilike ''%'' and';
+   -- end if;
 
-    if p_student_firstname!='' then
-        where_clause := where_clause||' p.s_firstname ilike '||p_student_firstname||' and';
-    else:
-        where_clasue := where_clause||' p.s_firstname ilike ''%'' and';
-    end if;
+--    if p_contact_firstname!='' then
+  --      where_clause := where_clause||' p.c_firstname ilike '||p_contact_firstname||' and';
+    --else
+      --  where_clause := where_clause||' p.c_firstname ilike ''%'' and';
+--    end if;
     
-    if p_student_lastname!='' then
-        where_clause := where_clause||' p.s_lastname ilike '||p_student_lastname||' and';
-    else:
-        where_clause := where_clause||' p.s_lastname ilike ''%'' and';
-    end if;
+  --  if p_contact_phone!='' then
+    --    where_clause := where_clause||' p.c_phone ilike '||p_contact_phone||' and';
+--    else
+  --      where_clause := where_clause||' p.c_phone ilike ''%'' and';
+    --end if;
     
-    if p_contact_lastname!='' then
-        where_clause := where_clause||' p.c_lastname ilike '||p_contact_lastname||' and';
-    else:
-        where_clause := where_clause||' p.c_lastname ilike ''%'' and';
-    end if;
-
-    if p_contact_firstname!='' then
-        where_clause := where_clause||' p.c_firstname ilike '||p_contact_firstname||' and';
-    else:
-        where_clause := where_clause||' p.c_firstname ilike ''%'' and';
-    end if;
+--    if p_student_skill!='' then
+  --      where_clause := where_clause||' p.s_skill_level ilike'||p_student_skill||' and';
+--    else
+  --      where_clause := where_clause||' p.s_skill_level ilike''%'' and';
+    --end if;
     
-    if p_contact_phone!='' then
-        where_clause := where_clause||' p.c_phone ilike '||p_contact_phone||' and';
-    else:
-        where_clause := where_clause||' p.c_phone ilike ''%'' and';
-    end if;
-    
-    if p_student_skill!='' then
-        where_clause := where_clause||' p.s_skill_level ilike'||p_student_skill||' and';
-    else:
-        where_clause := where_clause||' p.s_skill_level ilike''%'' and';
-    end if;
-    
-    if p_start_date is not null and p_end_date is null then
-        where_clause := where_clause|| 'date'
+--    if p_start_date is not null and p_end_date is null then
+--        where_clause := where_clause||'date';
+--    end if;
         
-    find_query := 'select p.pid,
-                    p.sid,
-                    p.s_firstname,
-                    p.s_lastname,
-                    p.s_skill_level,
-                    p.c_firstname,
-                    p.c_lastname,
-                    p.c_phone,
-                    p.lesson_type,
-                    p.lesson_disapline,
-                    p.assigned_eid,
-                    p.s_age,
-                    e.firstname,
-                    e.lastname
-             from private_lesson as p
-             join employee as e on e.eid=p.assigned_eid
-             where '||where_clause||' order by p.pid';
-    return query execute find_query ;            
-end; $$
-LANGUAGE plpgsql;
+--    find_query :='select p.pid,
+  --                  p.sid,
+    --                p.s_firstname,
+      --              p.s_lastname,
+        --            p.s_skill_level,
+          --          p.c_firstname,
+            --        p.c_lastname,
+              --      p.c_phone,
+                --    p.lesson_type,
+                  --  p.lesson_disapline,
+                    --p.assigned_eid,
+--                    p.s_age,
+  --                  e.firstname,
+    --                e.lastname
+      --       from private_lesson as p
+        --     join employee as e on e.eid=p.assigned_eid
+          --   where '||where_clause||' order by p.pid';
+--    return query execute find_query;            
+--end; $$
+--LANGUAGE plpgsql;
                              
 -- end of get_private
 
@@ -2244,18 +2407,18 @@ create TRIGGER new_private
     for each row
     execute procedure private_eid_null();
     
-create or replace function get_sid_by_date_range(s_date date,
-                                                 e_date date) returns 
+--create or replace function get_sid_by_date_range(s_date date,
+--                                                 e_date date) returns 
 ---- hold -----
-where 
-                   p.s_lastname ilike p_student_lastname and
-                   p.s_skill_level ilike p_student_skill and
-                   p.c_firstname  ilike p_contact_firstname and
-                   p.c_lastname ilike p_contact_lastname and
-                   p.c_phone ilike p_student_skill and
-                   p.lesson_type ilike p_type  and
-                   p.lesson_disapline ilike p_disapline and 
-                   p.s_age is null and
+--where 
+--                   p.s_lastname ilike p_student_lastname and
+--                   p.s_skill_level ilike p_student_skill and
+--                   p.c_firstname  ilike p_contact_firstname and
+--                   p.c_lastname ilike p_contact_lastname and
+--                   p.c_phone ilike p_student_skill and
+--                   p.lesson_type ilike p_type  and
+--                   p.lesson_disapline ilike p_disapline and 
+--                   p.s_age is null and
 ---- end hold ------
 create or replace function get_avaliablity_count(p_start_time time,
                                                  p_end_time time,
@@ -2267,7 +2430,7 @@ declare
 begin
     select into p_count count(*)
     from employee_availability
-    where said=(select * from get_current_season()) and
+    where said = (select * from get_current_season()) and
           eid in (select eid from certs where ct in (select ct_min_equal from cert_min where ct=p_ct)) and
           dow=p_dow and
           start_time <= p_start_time and

@@ -1,19 +1,43 @@
-insert into seasons (ss_date, se_date, season_name) values
-  ('10/1/18', '5/1/19', '2018-2019 Season');
-  
-insert into employee_hired_season (said,eid,es_date,ee_date) values
+insert into employee_seasons (said,eid,season_start_date, season_end_date) values
     ((select said from seasons where season_name='2018-2019 Season'),
      (select EID from employee where firstname='Harold' and lastname='Clark'),
      '11/1/2018',
-     NULL
+     '03/31/2019'
     );
+
+insert into employee_seasons (said,eid,season_start_date, season_end_date) values
+    ((select said from seasons where season_name='2019-2020 Season'),
+     (select EID from employee where firstname='Harold' and lastname='Clark'),
+     '11/1/2019',
+     '03/31/2020'
+    );    
+
+insert into employee_seasons (said,eid,season_start_date, season_end_date) values
+    ((select said from seasons where season_name='2020-2021 Season'),
+     (select EID from employee where firstname='Harold' and lastname='Clark'),
+     '11/1/2020',
+     '03/31/2021'
+    );    
+
+insert into employee_seasons (said,eid,season_start_date, season_end_date) values
+    ((select said from seasons where season_name='2021-2022 Season'),
+     (select EID from employee where firstname='Harold' and lastname='Clark'),
+     '11/1/2021',
+     '03/31/2022'
+    );    
     
-insert into DayOff (EID, DayOffStart,DayoffEnd, approved) values
+
+
+
+              
+insert into DayOff (EID, DayOffStart,DayoffEnd, approved, approving_user, approved_date) values
  
     ((select eid from employee where firstname='Noah' and lastname='Crichlow'),
       '02/8/17 06:30',
       '02/17/17 18:00',
-      (select eid from employee where firstname='Harold' and lastname='Clark')
+      True,
+      (select eid from employee where firstname='Harold' and lastname='Clark'),
+      '01/10/17 15:21'
     );
 
 update shifts set ct=(select ct from cert_template where title = 'SB Lineup Sup')

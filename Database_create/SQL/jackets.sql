@@ -1,3 +1,19 @@
+create table jacket_condition_template
+    (cot serial primary key,
+     condition varchar(30)
+    );
+-- End jacket_condition_template Create      
+    
+create table location
+    (lid serial primary key,
+     location_name varchar(30),
+     location_size varchar(30),
+     lock_sn varchar(10) UNIQUE,
+     lock_combination varchar(10),
+     notes varchar(300)
+     );
+-- End location Create  
+       
 create table jacket
      (  JID serial primary key,
         jacket_type character varying(250),
@@ -11,8 +27,8 @@ create table jacket
         foreign key (EID) references employee (EID) on delete restrict,
         foreign key (jacket_condition) references jacket_condition_template (cot) on delete restrict,
         foreign key (lid) references location (lid) on delete restrict
-     )
-;
+     );
+
 Create table jacket_damage
     (  DID serial primary key,
        JID integer,
@@ -22,11 +38,7 @@ Create table jacket_damage
        fixed_date timestamp default null
     )
 ;
-create table jacket_condition_template
-    (cot serial primary key,
-     condition varchar(30)
-    );
-    
+
 Create table jacket_history
     (  JHID serial primary key,
        JID integer,
@@ -34,20 +46,14 @@ Create table jacket_history
        history_date date,
        old_eid integer,
        In_Out character varying(4),
+       inserting_user varchar(20),
        foreign key (eid) references employee (eid) on delete restrict,
        foreign key (old_eid) references employee (eid) on delete restrict,
        foreign key (jid) references jacket (jid) on delete restrict
     )
 ;
 
-create table location
-    (lid serial primary key,
-     location_name varchar(30),
-     location_size varchar(30),
-     lock_sn varchar(10) UNIQUE,
-     lock_combination varchar(10),
-     notes varchar(300)
-     );
+
      
 create table employee_locations
     (elid serial primary key,

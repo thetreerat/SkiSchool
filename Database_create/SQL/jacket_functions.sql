@@ -33,15 +33,15 @@ begin
                                 eid,
                                 history_date,
                                 in_out,
-                                tracked_user)
-    values (p_jid, p_eid, current_date, 'New', user);
+                                inserting_user)
+    values (p_jid, p_eid, current_date, 'New', current_user);
     return p_result;
 end; $$
 LANGUAGE plpgsql;
 
--- end of add_jackete()
+-- end of add_jacket()
 create function check_out_jacket(p_firstname varchar(30),
-                                 p_lastname varchar(30,)
+                                 p_lastname varchar(30),
                                  p_jid integer,
                                  p_location_name varchar(30)) returns varchar(150) as $$
 declare
@@ -77,7 +77,7 @@ LANGUAGE plpgsql;
 
 create function check_out_jacket(p_eid integer,
                                  p_jid integer,
-                                 p_lid integer)) returns integer as $$
+                                 p_lid integer) returns integer as $$
 declare
     p_jhid integer;
 begin
