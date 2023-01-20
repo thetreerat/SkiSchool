@@ -897,13 +897,17 @@ create or replace function  add_shift_template(p_Shift_Name varchar(45),
                                    p_start_time time, 
                                    p_End_Time time,
                                    p_DOW varchar(25),
-                                   p_cert_required integer ,
+                                   p_cert_required varchar(50),
                                    p_SaID integer,
                                    p_number_needed integer
                                   ) returns integer as $$
 declare
     p_stid integer;
+    r_ct integer;
 begin
+    select into r_ct ct 
+      from cert_template 
+      where title=p_cert_required;
     insert into shift_templates (shift_name,
                                  start_time,
                                  end_time,
@@ -915,10 +919,12 @@ begin
                 p_start_time,
                 p_end_time,
                 p_dow,
-                p_cert_required,
+                r_ct,
                 p_said,
                 p_number_needed);
-    select into p_stid max(stid) from shift_templates where shift_name=p_shift_name;
+    select into p_stid max(stid) 
+      from shift_templates 
+      where shift_name=p_shift_name;
     return p_stid;
 end $$
 LANGUAGE plpgsql;
