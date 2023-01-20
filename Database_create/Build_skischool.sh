@@ -18,9 +18,11 @@ printf "%s\n Adding employee and schedule tables."
 printf "%s\n"
 # add employee, schedule tables
 psql -f /Users/halc/source/SkiSchool/Database_create/SQL/Schedule_tables.sql -d postgres
+psql -f /Users/halc/source/SkiSchool/Database_create/SQL/candidate.sql -d skischool
 printf "%s\n Adding employee and schedule functions."
 printf "%s\n"
 psql -f /Users/halc/source/SkiSchool/Database_create/SQL/Schedule_functions.sql -d skischool
+psql -f /Users/halc/source/SkiSchool/Database_create/SQL/candidate_functions.sql -d skischool
 psql -f /Users/halc/source/SkiSchool/Database_create/SQL/calendar_dates.sql -d skischool
 
 printf "%s\n Adding jackets and location tables."
