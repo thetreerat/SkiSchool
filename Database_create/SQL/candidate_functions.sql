@@ -4,7 +4,7 @@ create or replace function add_candidate(p_firstname varchar(30),
                               p_nickname varchar(30),
                               p_sex varchar(1),
                               p_dob date,
-                              p_discipline varchar(10),
+                              p_discipline integer,
                               p_phone_cell varchar(10)) returns varchar(150) as $$
 declare
     r_caid integer;
@@ -41,3 +41,4 @@ begin
     return r_caid;
 end; $$
 LANGUAGE plpgsql;
+

@@ -11,7 +11,7 @@ create table candidates
         notes text,
         hire date default null,
         classranking integer default Null,
-        discipline varchar(10),
+        discipline integer,
         phone_cell varchar(10),
         said integer default get_current_season(),
         cat integer

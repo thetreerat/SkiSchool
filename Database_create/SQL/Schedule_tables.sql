@@ -403,6 +403,28 @@ create view list_shift_templates as
     inner join cert_template as ct on t.cert_required=ct.ct
     order by dow,shift_name,start_time,end_time;
 
+create view apprentice_by_cert as 
+    select c.cid,
+           c.eid,
+           e.firstname,
+           e.lastname,
+           t.title,
+           c.ct
+    from certs as c
+    inner join cert_template as t on c.ct=t.ct
+    inner join employee as e on c.eid=e.eid
+    where c.ct in (3,4)
+    order by t.title, e.lastname, e.firstname;
+
+create view apprentice_by_birth as 
+    select e.firstname,
+       e.lastname,
+       e.dob as birthday,
+       extract(year from age(e.dob)) as age
+from employee as e
+where eid in (select eid from employee_seasons where said=get_current_season()) and
+      extract(year from age(e.dob)) < 16
+order by e.dob, e.lastname,e.firstname;
 -- create index
 
 CREATE INDEX calendar_day_of_month

@@ -3,6 +3,12 @@ AASI Level 1,AASI Level 1
 AASI Level 1,AASI Level 2
 AASI Level 1,AASI Level 3
 AASI Level 2,AASI Level 3
+PSIA Level 1,PSIA Level 1
+PSIA Level 1,PSIA Level 2
+PSIA Level 1,PSIA Level 3
+PSIA Level 2,PSIA Level 2
+PSIA Level 2,PSIA Level 3
+PSIA Level 3,PSIA Level 3
 Frestyle Level 1,Frestyle Level 1
 Frestyle Level 1,Frestyle Level 2
 Level 1 Park SB,Level 1 Park SB
@@ -21,7 +27,20 @@ Level 2 SB,Level 2 SB
 Level 2 SB,Level 3 SB
 Level 2 SB,AASI Level 2
 Level 2 SB,AASI Level 3
+Level 3 SB,Level 3 SB
 Level 3 SB,AASI Level 3
+Level 1 Ski, Level 1 Ski
+Level 1 Ski, Level 2 Ski
+Level 1 Ski, Level 3 Ski
+Level 1 Ski, PSIA Level 1 
+Level 1 Ski, PSIA Level 2
+Level 1 Ski, PSIA Level 3
+Level 2 Ski, Level 2 Ski
+Level 2 Ski, Level 3 Ski
+Level 2 Ski, PSIA Level 2
+Level 2 Ski, PSIA Level 3
+Level 3 Ski, Level 3 Ski
+Level 3 Ski, PSIA Level 3 
 Park 1,Park 1
 Park 1,Park Lead
 Park 1,Park Manager
@@ -29,7 +48,16 @@ Park 1,Park Sup
 Park Lead,Park Lead
 Park Lead,Park Sup
 Park Lead,Park Manager
+Ski Instructor, Ski Instructor
+Ski Instructor, Apprentice Instructor Ski
+Ski Instructor, Level 1 Ski
+Ski Instructor, Level 2 Ski
+Ski Instructor, Level 3 Ski
+Ski Instructor, PSIA Level 1 
+Ski Instructor, PSIA Level 2
+Ski Instructor, PSIA Level 3 
 SB Instructor,SB Instructor
+SB Instructor,Apprentice Instructor SB
 SB Instructor,AASI Level 1
 SB Instructor,AASI Level 2
 SB Instructor,AASI Level 3
@@ -40,6 +68,7 @@ SB Instructor,SB Instructor
 SB Instructor,SB Lineup Sup
 SB Lineup Sup,SB Lineup Sup
 Ski Instructor,Ski Instructor
+Ski Instructor,Apprentice Instructor Ski
 Ski Tech,Ski Tech
 CLC Sup,CLC Sup
 CLC Sup,CLC Manager
