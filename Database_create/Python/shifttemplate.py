@@ -141,7 +141,7 @@ Number Needed: %s
     
     def print_self(self):
         print("""    %s %s %s %s %s %s %s %s""" % (str(self.stid).ljust(4),
-                                                       self.shift_name.ljust(21),
+                                                       self.shift_name.ljust(25),
                                                        self.start_time.time(True).ljust(12),
                                                        self.end_time.time(True).ljust(11),
                                                        self.dow.DOW().ljust(10),

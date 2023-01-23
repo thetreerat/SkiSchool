@@ -187,8 +187,8 @@ Purpose        : This Class is a temlplete file
     
     def print_list(self):
         print("""
-    STID Shift Name            Start Time   End Time    DOW        Certifiction Required   Number Needed   Season
-    ---- --------------------- ------------ ----------- ---------- ----------------------- --------------- ---------------------""")
+    STID Shift Name                Start Time   End Time    DOW        Certifiction Required   Number Needed   Season
+    ---- ------------------------- ------------ ----------- ---------- ----------------------- --------------- ---------------------""")
         for t in self.shifttemplates:
             t.print_self()
         
