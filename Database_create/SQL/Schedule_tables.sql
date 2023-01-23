@@ -425,6 +425,18 @@ from employee as e
 where eid in (select eid from employee_seasons where said=get_current_season()) and
       extract(year from age(e.dob)) < 16
 order by e.dob, e.lastname,e.firstname;
+
+create view apprentice_cert as 
+    select e.firstname,
+       e.lastname,
+       t.title,
+       extract(year from age(e.dob)) as age
+from employee as e
+inner join certs as c on e.eid=c.eid
+inner join cert_template as t on c.ct=t.ct
+where eid in (select eid from employee_seasons where said=get_current_season()) and
+      extract(year from age(e.dob)) < 16
+order by e.lastname,e.firstname,t.title;
 -- create index
 
 CREATE INDEX calendar_day_of_month
