@@ -40,7 +40,9 @@ create table seasons
 create table certmin
     ( CMID serial primary key,
       CT integer not null,
-      CT_Min_Equal integer not null
+      CT_Min_Equal integer not null,
+      inserting_user varchar(20) default current_user,
+      inserting_user timestamp default now()
     )
 ;
 
@@ -266,7 +268,9 @@ create table shift_templates
       cert_required integer default 1,
       SaID integer default get_current_season(),
       number_needed integer default 1,
-      deleted boolean default FALSE
+      deleted boolean default FALSE,
+      insert_date timestamp default now(),
+      inserting_user varchar(30) default current_user
     )
 ;
 
@@ -403,7 +407,7 @@ create view list_shift_templates as
     inner join cert_template as ct on t.cert_required=ct.ct
     order by dow,shift_name,start_time,end_time;
 
-create view apprentice_by_cert as 
+create or replace view apprentice_by_cert as 
     select c.cid,
            c.eid,
            e.firstname,
@@ -413,7 +417,7 @@ create view apprentice_by_cert as
     from certs as c
     inner join cert_template as t on c.ct=t.ct
     inner join employee as e on c.eid=e.eid
-    where c.ct in (3,4)
+    where c.ct in (select ct from cert_template where title like '%Apprentice%')
     order by t.title, e.lastname, e.firstname;
 
 create view apprentice_by_birth as 
