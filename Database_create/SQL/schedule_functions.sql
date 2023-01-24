@@ -264,14 +264,26 @@ create or replace function add_cert_min(p_title varchar(50),
 declare
     p_ct integer;
     p_ct_min_equal integer;
+    r_cmid integer;
 begin
   select into p_ct ct from cert_template where title=p_title;
   select into p_ct_min_equal ct from cert_template where title=p_title_min_equal;
+  
   if p_ct is not null and p_ct_min_equal is not null then
-    insert into certmin (ct,ct_min_equal) values
-      ((p_ct),(p_ct_min_equal));
+    select into r_cmid cmid 
+      from certmin 
+      where ct=p_ct and ct_min_equal=p_ct_min_equal;
+    
+    if r_cmid is null then 
+      insert into certmin (ct,ct_min_equal) values
+        ((p_ct),(p_ct_min_equal));
+      
+    end if;
+    select into r_cmid cmid 
+      from certmin 
+      where ct=p_ct and ct_min_equal=p_ct_min_equal;
   end if;
-  return p_ct||', '||p_ct_min_equal;
+  return r_cmid;
 end; $$
 LANGUAGE plpgsql;
 
@@ -299,6 +311,8 @@ begin
         where t.title=p_title and
               t.org=p_org and
               t.html_class=p_html;
+        insert into certmin (ct,ct_min_equal)
+            values (r_ct,r_ct);
         r_result = p_title||' from '||p_org||' added with id: '||r_ct;
     elseif r_ct is not null then
         select into r_html html_class 
@@ -929,6 +943,47 @@ begin
 end $$
 LANGUAGE plpgsql;
 -- end add_shift_template()
+
+-- start add_shift_template(shift_name,start_time,end_time,dow,ct,said,number_needed)
+create or replace function add_shift_template(p_shift_name varchar(45),
+                                              p_start_time varchar(20),
+                                              p_end_time varchar(20),
+                                              p_dow varchar(25),
+                                              p_ct integer,
+                                              p_number_needed integer) returns integer as $$
+declare 
+    r_stid integer;
+    p_said integer;
+begin
+    p_said = get_current_season();
+    select into r_stid stid 
+    from shift_templates 
+    where shift_name=p_shift_name and 
+          start_time=p_start_time and 
+          end_time = p_end_time and 
+          dow=p_dow and 
+          cert_required=p_ct and 
+          said=p_said;
+    if r_stid is null then 
+      insert into shift_templates (shfit_name,
+                                   start_time,
+                                   end_time,
+                                   dow,
+                                   cert_required,
+                                   said,
+                                   number_needed)
+      values (p_shift_name,
+              p_start_time,
+              p_end_time,
+              p_dow,
+              p_ct,
+              p_said,
+              p_number_needed);
+    end if;
+    return r_stid;
+end $$
+LANGUAGE plpgsql;
+-- end  add_shift_template(shift_name,start_time,end_time,dow,ct,said,number_needed)
 
 create function add_private(p_sid integer,
                             p_s_firstname varchar(30),

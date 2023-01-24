@@ -22,9 +22,9 @@ for r in result:
 # load shift data    
 for d in data:
     #print(d)
-    #print("'" + d[1]+ "','" + d[0]+ "','" + d[2] + "'")
+    #print("'" + d[0]+ "','" + d[1]+ "','" + d[2] + "'")
     
-    if d[0]!='Shift_Name':
+    if d[0].upper()!='SHIFT_NAME':
         cur.callproc('add_shift_template',[d[0],d[1],d[2],d[3],d[4],season,d[5],])
         result = cur.fetchall()
         for r in result:

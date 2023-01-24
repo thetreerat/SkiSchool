@@ -42,7 +42,7 @@ create table certmin
       CT integer not null,
       CT_Min_Equal integer not null,
       inserting_user varchar(20) default current_user,
-      inserting_user timestamp default now()
+      insert_date timestamp default now()
     )
 ;
 
