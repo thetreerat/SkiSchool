@@ -57,17 +57,18 @@ Purpose        : This class is for handling shift templates.
         if self.start_time.time(True)=='':
             start = None
         else:
-            start = self.start_time.time(True)
+            start = self.start_time.time(False)
         
         if self.end_time.time(True)=='':
             end = None
         else:
-            end = self.end_time.time(True)
+            end = self.end_time.time(False)
+        print("""start: %s type: %s, end type: %s """ % (start, type(start), type(end)))
         result = self.db_handle.fetchdata('add_shift_template', [self.shift_name,
                                                                  start,
                                                                  end,
                                                                  self.dow.DOW(),
-                                                                 self.cert_required.ct,
+                                                                 self.cert_required.cert_name,
                                                                  self.said.said,
                                                                  self.number_needed,
                                                         ])
@@ -156,7 +157,8 @@ Number Needed: %s
             db_handle = database(onwer='ShiftTemplate')
             db_handle = database(owner='shifttemplate.py - set_dbhandle')    
         self.db_handle = db_handle
-        
+
+
     def set_DOW(self, option=None):
         print(options)
         self.DOW = raw_input('Enter DOW: ')
@@ -199,8 +201,7 @@ Number Needed: %s
                                                            self.start_time.time(True),
                                                            self.end_time.time(True),
                                                            self.dow.DOW(),
-                                                           self.cert_required.ct,
-                                                           self.said.said,
+                                                           self.cert_required.cert_name,
                                                            self.number_needed,])
         
 

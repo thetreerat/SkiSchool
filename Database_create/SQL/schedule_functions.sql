@@ -908,8 +908,8 @@ LANGUAGE plpgsql;
 
 -- end add_shift(p_shift_name, etc)
 create or replace function  add_shift_template(p_Shift_Name varchar(45),
-                                   p_start_time time, 
-                                   p_End_Time time,
+                                   p_start_time varchar(15), 
+                                   p_End_Time varchar(15),
                                    p_DOW varchar(25),
                                    p_cert_required varchar(50),
                                    p_SaID integer,
@@ -946,8 +946,8 @@ LANGUAGE plpgsql;
 
 -- start add_shift_template(shift_name,start_time,end_time,dow,ct,said,number_needed)
 create or replace function add_shift_template(p_shift_name varchar(45),
-                                              p_start_time varchar(20),
-                                              p_end_time varchar(20),
+                                              p_start_time time,
+                                              p_end_time time,
                                               p_dow varchar(25),
                                               p_ct integer,
                                               p_number_needed integer) returns integer as $$

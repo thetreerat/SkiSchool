@@ -35,7 +35,6 @@ printf "%s\n Loading standard function data."
 printf "%s\n"
 python python/load_seasons.py /Users/halc/source/SkiSchool/Database_create/CSV/seasons.csv
 python python/load_cert.py /Users/halc/source/SkiSchool/Database_create/CSV/cert_data.csv
-python python/load_emp_certs.py /Users/halc/source/SkiSchool/Database_create/CSV/emp_cert_list.csv
 python python/load_cert_min.py /Users/halc/source/SkiSchool/Database_create/CSV/cert_min.csv
 python python/load_languages.py /Users/halc/source/SkiSchool/Database_create/CSV/language.csv
 
@@ -44,14 +43,18 @@ printf "%s\n"
 python python/load_extra_days.py /Users/halc/source/SkiSchool/Database_create/CSV/extra_days.csv
 python python/load_shift_templates.py /Users/halc/source/SkiSchool/Database_create/CSV/Shift_templates.csv
 
+printf "%s\n Loading existing employees."
+printf "%s\n"
+python python/load_employees.py /Users/halc/source/SkiSchool/Database_create/CSV/Employee_data.csv
+python python/load_emp_certs.py /Users/halc/source/SkiSchool/Database_create/CSV/emp_cert_list.csv
+python python/load_emp_certs.py /Users/halc/source/SkiSchool/Database_create/CSV/2022-2023_web_data/apprentice.csv
+
 printf "%s\n Loading current season Test data (extra days, Shift templates)."
 printf "%s\n"
 psql -f /Users/halc/source/SkiSchool/Database_create/SQL/data_load.sql -d skischool
 psql -f /Users/halc/source/SkiSchool/Database_create/SQL/Add_test_data.sql -d skischool
 
-printf "%s\n Loading existing employees."
-printf "%s\n"
-python python/load_employees.py /Users/halc/source/SkiSchool/Database_create/CSV/Employee_data.csv
+
 
 #printf "%s\n Loading avaliblity for employees from database export"
 #python python/load_emp_avail.py /Users/halc/source/SkiSchool/Database_create/csv/emp_a.csv

@@ -8,12 +8,22 @@ create table location
     (lid serial primary key,
      location_name varchar(30),
      location_size varchar(30),
+     --loID integer,
      lock_sn varchar(10) UNIQUE,
      lock_combination varchar(10),
-     notes varchar(300)
+     notes varchar(300),
+     foreign key (LoID) references lock (LoID) on delete restrict
      );
+
 -- End location Create  
-       
+--create table lock
+--    (loID serial primary Key,
+--     lock_sn varchar(30) UNIQUE,
+--     lock_cobination varchar(10),
+--     notes varchar(300)
+--    );     
+
+-- End lock create      
 create table jacket
      (  JID serial primary key,
         jacket_type character varying(250),

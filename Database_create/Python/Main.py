@@ -1,6 +1,6 @@
+#!/usr/bin/env python
 # Author: Harold Clark
 # Copyright Harold Clark 2019
-#
 
 #from instructor import intructor
 from database import database
